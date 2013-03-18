@@ -1,0 +1,9 @@
+name = Marketo
+description = Integration with Marketo marketing automation software.
+core = 7.x
+package = Marketo
+configure = admin/settings/marketo
+
+files[] = marketo.module
+files[] = marketo.admin.inc
+files[] = includes/marketoapi.inc

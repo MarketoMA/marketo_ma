@@ -1,0 +1,147 @@
+<?php
+
+/**
+ * @file
+ * Drupal Module: Marketo
+ */
+// Remove tracking from all administrative pages.
+define('MARKETO_PAGES', "admin\nadmin/*\nbatch\nnode/add*\nnode/*/*\nuser/*/*");
+
+/**
+ * Implements hook_menu().
+ */
+function marketo_menu() {
+  // Module settings.
+  $items['admin/config/search/marketo'] = array(
+    'title' => 'Marketo',
+    'description' => 'Marketo configuration',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('marketo_admin_settings'),
+    'access arguments' => array('access administration pages'),
+    'file' => 'marketo.admin.inc',
+    'file path' => drupal_get_path('module', 'marketo'),
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_help().
+ */
+function marketo_help($path, $arg) {
+  switch ($path) {
+    case 'admin/config/search/marketo':
+      return t("Marketo help text");
+
+    case 'admin/help#marketo':
+      $output = '<p>' . t('This is help text for the Marketo help page') . '</p>';
+      return $output;
+  }
+}
+
+/**
+ * Implements template_preprocess_page().
+ */
+function marketo_page_alter(&$page) {
+  if (_marketo_visibility_pages()) {
+    _marketo_output_tracking_code();
+  }
+}
+
+function _marketo_output_tracking_code() {
+  $marketo_munchkin_tracking_code_type = variable_get('marketo_munchkin_tracking_code_type');
+  $marketo_munchkin_account_id = variable_get('marketo_munchkin_account_id');
+  $marketo_munchkin_javascript_library = '//' . str_replace(array('http://', 'https://', '//'), '', variable_get('marketo_munchkin_javascript_library'));
+
+  switch ($marketo_munchkin_tracking_code_type) {
+    case 'asynchronous':
+      $snippet = "
+(function() {
+  var didInit = false;
+  function initMunchkin() {
+    if(didInit === false) {
+      didInit = true;
+      Munchkin.init('$marketo_munchkin_account_id');
+    }
+  }
+  var s = document.createElement('script');
+  s.type = 'text/javascript';
+  s.async = true;
+  s.src = document.location.protocol + '$marketo_munchkin_javascript_library';
+  s.onreadystatechange = function() {
+    if (this.readyState == 'complete' || this.readyState == 'loaded') {
+      initMunchkin();
+    }
+  };
+  s.onload = initMunchkin;
+  document.getElementsByTagName('head')[0].appendChild(s);
+})();
+";
+      break;
+
+    case 'asynchronous_jquery':
+      $snippet = "
+jQuery.ajax({
+  url: document.location.protocol + '$marketo_munchkin_javascript_library',
+  dataType: 'script',
+  cache: true,
+  success: function() {
+    Munchkin.init('$marketo_munchkin_account_id');
+  }
+});
+";
+      break;
+
+    case 'simple':
+    default :
+      $snippet = "Munchkin.init('$marketo_munchkin_account_id');";
+      drupal_add_js($marketo_munchkin_javascript_library, array('type' => 'external', 'scope' => 'footer', 'weight' => 5));
+      break;
+  }
+  // add the appropriate snippet
+  drupal_add_js($snippet, array('type' => 'inline', 'scope' => 'footer', 'weight' => 6));
+}
+
+/**
+ * Based on visibility setting this function returns TRUE if Marketo code should
+ * be added to the current page and otherwise FALSE.
+ */
+function _marketo_visibility_pages() {
+  static $page_match;
+
+  // Cache visibility result if function is called more than once.
+  if (!isset($page_match)) {
+
+    $visibility = variable_get('marketo_visibility_pages', 0);
+    $setting_pages = variable_get('marketo_pages', MARKETO_PAGES);
+
+    // Match path if necessary.
+    if (!empty($setting_pages)) {
+      // Convert path to lowercase. This allows comparison of the same path
+      // with different case. Ex: /Page, /page, /PAGE.
+      $pages = drupal_strtolower($setting_pages);
+      if ($visibility < 2) {
+        // Convert the Drupal path to lowercase
+        $path = drupal_strtolower(drupal_get_path_alias($_GET['q']));
+        // Compare the lowercase internal and lowercase path alias (if any).
+        $page_match = drupal_match_path($path, $pages);
+        if ($path != $_GET['q']) {
+          $page_match = $page_match || drupal_match_path($_GET['q'], $pages);
+        }
+        // When $visibility has a value of 0, the tracking code is displayed on
+        // all pages except those listed in $pages. When set to 1, it
+        // is displayed only on those pages listed in $pages.
+        $page_match = !($visibility xor $page_match);
+      }
+      elseif (module_exists('php')) {
+        $page_match = php_eval($setting_pages);
+      }
+      else {
+        $page_match = FALSE;
+      }
+    }
+    else {
+      $page_match = TRUE;
+    }
+  }
+  return $page_match;
+}

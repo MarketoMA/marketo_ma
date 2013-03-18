@@ -1,0 +1,25 @@
+<?php
+
+/**
+ * Implementation of hook_install().
+ */
+function marketo_install() {
+  
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function marketo_uninstall() {
+  variable_del('marketo_munchkin_account_id');
+  variable_del('marketo_munchkin_api_private_key');
+  variable_del('marketo_munchkin_javascript_library');
+  variable_del('marketo_munchkin_partition');
+  variable_del('marketo_munchkin_tracking_code_type');
+  variable_del('marketo_pages');
+  variable_del('marketo_soap_encryption_key');
+  variable_del('marketo_soap_endpoint');
+  variable_del('marketo_soap_user_id');
+  variable_del('marketo_tracking_method');
+  variable_del('marketo_visibility_pages');
+}
