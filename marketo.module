@@ -7,6 +7,12 @@
 // Remove tracking from all administrative pages.
 define('MARKETO_PAGES', "admin\nadmin/*\nbatch\nnode/add*\nnode/*/*\nuser/*/*");
 
+define('MARKETO_SCHEMA_WEBFORM', 'marketo_webform');
+
+define('MARKETO_WEBFORM_FIELD_NODE_ID', 'nid');
+define('MARKETO_WEBFORM_FIELD_NODE_VERSION_ID', 'vid');
+define('MARKETO_WEBFORM_FIELD_ACTIVE', 'is_active');
+
 /**
  * Implements hook_menu().
  */
@@ -144,4 +150,88 @@ function _marketo_visibility_pages() {
     }
   }
   return $page_match;
+}
+
+/**
+ * Implementatation of hook_form_FORM_ID_alter().
+ * This function is reponsible for adding the form-id mapping values to the Component add/edit page
+ * Note: this isn't used for the fieldset type.
+ */
+function marketo_form_webform_configure_form_alter(&$form, &$form_state, $form_id) {
+  $form['#submit'][] = '_marketo_form_webform_configure_form_alter';
+  $form['node']['webform']['marketo'] = array(
+    '#title' => t('Marketo Options'),
+    '#type' => 'fieldset',
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE
+  );
+  $form['node']['webform']['marketo']['marketo_webform_is_active'] = array(
+    '#title' => t('Capture Data'),
+    '#type' => 'checkbox',
+    '#description' => t('If checked, captured form information will be sent to Marketo')
+  );
+}
+
+function _marketo_form_webform_configure_form_alter($form, &$form_state) {
+  
+  $node = $form['#node'];
+  $values = $form_state['values'];
+  
+  $nid = $node->nid;
+  $vid = $node->vid;
+  
+  $index = new stdClass();
+  $index->{MARKETO_WEBFORM_FIELD_NODE_ID} = $nid;
+  $index->{MARKETO_WEBFORM_FIELD_NODE_VERSION_ID} = $vid;
+  
+  $webform = new stdClass();
+  $webform->{MARKETO_WEBFORM_FIELD_ACTIVE} = $values['marketo_webform_is_active'];
+  
+  _marketo_update_webform_settings((array) $index, (array) $webform);
+}
+
+function _marketo_update_webform_settings($index, $fields) {
+  $insert_fields = $index + $fields;
+  $do_update = FALSE;
+  
+  try {
+    $result = db_insert(MARKETO_SCHEMA_WEBFORM)
+        ->fields($insert_fields)
+        ->execute()
+    ;
+    // No longer able to return the last inserted Id.
+    if ($result !== FALSE) {
+      $result = TRUE;
+    }
+  } catch (PDOException $e) {
+    // Constraint Error
+    if ($e->getCode() == '23000') {
+      $do_update = TRUE;
+    }
+  }
+  
+  // Attempt Update
+  if ($do_update) {
+    $query = db_update(MARKETO_SCHEMA_WEBFORM)
+      ->fields($fields);
+    foreach ($index as $key => $value) {
+      $query->condition($key, $value);
+    }
+
+    try {
+      $result = $query->execute();
+    }
+    catch (PDOException $e) {
+      return FALSE;
+    }
+
+    // Rows Updated
+    if (is_numeric($result)) {
+      $result = (bool) $result;
+    }
+    else {
+      // Probably failed.
+      $result = FALSE;
+    }
+  }
 }

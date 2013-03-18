@@ -1,5 +1,47 @@
 <?php
 
+function marketo_schema() {
+  $schema = array();
+  $schema[MARKETO_SCHEMA_WEBFORM] = array(
+    'description' => t('Webform Settings'),
+    'primary key' => array(MARKETO_WEBFORM_FIELD_NODE_VERSION_ID),
+    'unique keys' => array(),
+    'indexes' => array(
+      MARKETO_SCHEMA_WEBFORM . '_active' => array(MARKETO_WEBFORM_FIELD_ACTIVE),
+    ),
+    'fields' => array(
+      MARKETO_WEBFORM_FIELD_NODE_ID => array(
+        // Webform Node Id
+        'description' => 'Node Id',
+        'type' => 'int',
+        'size' => 'normal',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      MARKETO_WEBFORM_FIELD_NODE_VERSION_ID => array(
+        // Webform Node Version Id
+        'description' => 'Node Version Id',
+        'type' => 'int',
+        'size' => 'normal',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      MARKETO_WEBFORM_FIELD_ACTIVE => array(
+        // Is this webform marketo enabled
+        'description' => 'Whether this form is configured to send data to Marketo',
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => TRUE,
+        'default' => 0,
+        'unsigned' => TRUE,
+      ),
+    ),
+  );
+  return $schema;
+}
+
 /**
  * Implementation of hook_install().
  */
