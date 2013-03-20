@@ -241,18 +241,19 @@ function marketo_form_webform_component_edit_form_alter(&$form, &$form_state, $f
     '#collapsible' => TRUE,
     '#collapsed' => FALSE
   );
+  // TODO: options need to come from admin
+  
   $form['marketo']['marketo_webform_component_key'] = array(
     '#title' => t('Map to Marketo field'),
     '#type' => 'select',
     '#description' => t('Select the field this component should be mapped to in Marketo'),
-    '#options' => array(
-      'none' => t('- None -'),
-      'Email' => t('Email'),
-      'FirstName' => t('FirstName'),
-      'LastName' => t('LastName')
-    ),
     '#default_value' => $result[MARKETO_WEBFORM_COMPONENT_KEY],
   );
+  $raw_options = preg_split('/(\r\n?|\n)/', variable_get('marketo_webform_fields', MARKETO_WEBFORM_FIELD_DEFAULTS));
+  foreach ($raw_options as $row) {
+    $field = explode('|', $row);
+    $form['marketo']['marketo_webform_component_key']['#options'][$field[0]] = $field[1];
+  }
 }
 
 function marketo_webform_submission_insert($node, $submission) {
@@ -272,7 +273,9 @@ function _marketo_webform_component_mapping($node, $submission) {
         ->condition('cid', $components[$i]['cid'], '=')
         ->execute()
         ->fetchAssoc();
-    $mapping[$result['marketo_key']] = $element['value'][0];
+    if ($result['marketo_key'] !== 'none') {
+      $mapping[$result['marketo_key']] = $element['value'][0];
+    }
   }
 
   return $mapping;
