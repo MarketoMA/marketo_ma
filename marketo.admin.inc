@@ -2,13 +2,16 @@
 
 /**
  * @file
- * Admin page callback for the Marketo module.
+ * Administrative page callbacks for the marketo module.
  */
 
 /**
  * Builds and returns the Marketo settings form.
  */
 function marketo_admin_settings() {
+  module_load_include('inc', 'marketo', 'marketo');
+  
+  $form['#submit'][] = '_marketo_admin_settings_submit';
   $form['marketo_tracking_options'] = array(
     '#title' => t('Tracking Options'),
     '#type' => 'fieldset',
@@ -43,6 +46,14 @@ function marketo_admin_settings() {
     '#description' => t("Specify pages by using their paths. Enter one path per line. The '*' character is a wildcard. Example paths are %blog for the blog page and %blog-wildcard for every personal blog. %front is the front page.", array('%blog' => 'blog', '%blog-wildcard' => 'blog/*', '%front' => '<front>')),
     '#rows' => 10,
   );
+  $form['marketo_tracking_options']['marketo_webform_fields'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Marketo fields to expose to webforms'),
+    '#title_display' => 'invisible',
+    '#default_value' => variable_get('marketo_webform_fields', MARKETO_WEBFORM_FIELD_DEFAULTS),
+    '#description' => t('Tab delimited strings of [API Name] [Friendly Label]. Enter one field per line.'),
+    '#rows' => 10,
+  );
   $form['marketo_munchkin'] = array(
     '#title' => t('Munchkin Javascript API'),
     '#type' => 'fieldset',
@@ -75,15 +86,14 @@ function marketo_admin_settings() {
     '#required' => TRUE,
   );
   $form['marketo_munchkin']['marketo_munchkin_advanced']['marketo_munchkin_tracking_code_type'] = array(
-    '#type' => 'select',
+    '#type' => 'radios',
     '#title' => t('Tracking Code Type'),
     '#options' => array(
-      'asynchronous' => t('Asynchronous'),
-      'asynchronous_jquery' => t('Asynchronous jQuery'),
+      'async' => t('Asynchronous'),
       'simple' => t('Simple')
     ),
-    '#default_value' => variable_get('marketo_munchkin_tracking_code_type', 'asynchronous_jquery'),
-    '#description' => t('Asynchronous code is faster than Simple. If you are using jQuery on your page, you could use the Asynchronous jQuery option.'),
+    '#default_value' => variable_get('marketo_munchkin_tracking_code_type', 'async'),
+    '#description' => t('Asynchronous code is faster than Simple.'),
     '#required' => TRUE,
   );
   $form['marketo_munchkin']['marketo_munchkin_advanced']['marketo_munchkin_partition'] = array(
@@ -118,4 +128,8 @@ function marketo_admin_settings() {
     '#required' => TRUE,
   );
   return system_settings_form($form);
+}
+
+function _marketo_admin_settings_submit($form_id, $form_values){
+  // nothing for now
 }

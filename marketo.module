@@ -4,14 +4,6 @@
  * @file
  * Drupal Module: Marketo
  */
-// Remove tracking from all administrative pages.
-define('MARKETO_PAGES', "admin\nadmin/*\nbatch\nnode/add*\nnode/*/*\nuser/*/*");
-
-define('MARKETO_SCHEMA_WEBFORM', 'marketo_webform');
-
-define('MARKETO_WEBFORM_FIELD_NODE_ID', 'nid');
-define('MARKETO_WEBFORM_FIELD_NODE_VERSION_ID', 'vid');
-define('MARKETO_WEBFORM_FIELD_ACTIVE', 'is_active');
 
 /**
  * Implements hook_menu().
@@ -45,11 +37,47 @@ function marketo_help($path, $arg) {
 }
 
 /**
+ * Implements hook_init().
+ */
+function marketo_init() {
+  $_SESSION['marketo_data'] = isset($_SESSION['marketo_data']) ? $_SESSION['marketo_data'] : array();
+}
+
+/**
  * Implements template_preprocess_page().
  */
 function marketo_page_alter(&$page) {
   if (_marketo_visibility_pages()) {
+
+    global $user;
     _marketo_output_tracking_code();
+
+    $marketo_data = isset($_SESSION['marketo_data']) ? $_SESSION['marketo_data'] : array();
+    drupal_alter('marketo_data', $marketo_data);
+
+    if (isset($marketo_data['Email'])) {
+      // We were given a specific Email address to use
+      $email = $marketo_data['Email'];
+    }
+    else if (isset($user->mail)) {
+      // We shall assume the current logged in user
+      $email = $user->mail;
+    }
+    else {
+      // We don't have enough to work with
+      $email = NULL;
+    }
+
+    if (empty($marketo_data) || is_null($email)) {
+      // We don't have enough to work with
+    }
+    else {
+      $key = variable_get('marketo_munchkin_api_private_key', '');
+      $hash = hash('sha1', $key . $email);
+      drupal_add_js(array('marketo' => array('lead_type' => 'associateLead', 'data' => $marketo_data, 'hash' => $hash)), 'setting');
+    }
+
+    unset($_SESSION['marketo_data']);
   }
 }
 
@@ -58,53 +86,13 @@ function _marketo_output_tracking_code() {
   $marketo_munchkin_account_id = variable_get('marketo_munchkin_account_id');
   $marketo_munchkin_javascript_library = '//' . str_replace(array('http://', 'https://', '//'), '', variable_get('marketo_munchkin_javascript_library'));
 
-  switch ($marketo_munchkin_tracking_code_type) {
-    case 'asynchronous':
-      $snippet = "
-(function() {
-  var didInit = false;
-  function initMunchkin() {
-    if(didInit === false) {
-      didInit = true;
-      Munchkin.init('$marketo_munchkin_account_id');
-    }
-  }
-  var s = document.createElement('script');
-  s.type = 'text/javascript';
-  s.async = true;
-  s.src = document.location.protocol + '$marketo_munchkin_javascript_library';
-  s.onreadystatechange = function() {
-    if (this.readyState == 'complete' || this.readyState == 'loaded') {
-      initMunchkin();
-    }
-  };
-  s.onload = initMunchkin;
-  document.getElementsByTagName('head')[0].appendChild(s);
-})();
-";
-      break;
+  drupal_add_js(array('marketo' => array('key' => $marketo_munchkin_account_id, 'library' => $marketo_munchkin_javascript_library)), 'setting');
 
-    case 'asynchronous_jquery':
-      $snippet = "
-jQuery.ajax({
-  url: document.location.protocol + '$marketo_munchkin_javascript_library',
-  dataType: 'script',
-  cache: true,
-  success: function() {
-    Munchkin.init('$marketo_munchkin_account_id');
+  if ($marketo_munchkin_tracking_code_type == 'simple') {
+    drupal_add_js($marketo_munchkin_javascript_library, array('type' => 'external', 'scope' => 'footer', 'weight' => 5));
   }
-});
-";
-      break;
 
-    case 'simple':
-    default :
-      $snippet = "Munchkin.init('$marketo_munchkin_account_id');";
-      drupal_add_js($marketo_munchkin_javascript_library, array('type' => 'external', 'scope' => 'footer', 'weight' => 5));
-      break;
-  }
-  // add the appropriate snippet
-  drupal_add_js($snippet, array('type' => 'inline', 'scope' => 'footer', 'weight' => 6));
+  drupal_add_js(drupal_get_path('module', 'marketo') . '/js/marketo.' . $marketo_munchkin_tracking_code_type . '.js', array('type' => 'file', 'scope' => 'footer', 'weight' => 6));
 }
 
 /**
@@ -113,6 +101,7 @@ jQuery.ajax({
  */
 function _marketo_visibility_pages() {
   static $page_match;
+  module_load_include('inc', 'marketo', 'marketo');
 
   // Cache visibility result if function is called more than once.
   if (!isset($page_match)) {
@@ -158,13 +147,13 @@ function _marketo_visibility_pages() {
  * Note: this isn't used for the fieldset type.
  */
 function marketo_form_webform_configure_form_alter(&$form, &$form_state, $form_id) {
+  module_load_include('inc', 'marketo', 'marketo');
 
   $node = $form['#node'];
 
   $result = db_select(MARKETO_SCHEMA_WEBFORM)
       ->fields(MARKETO_SCHEMA_WEBFORM)
-      ->condition(MARKETO_WEBFORM_FIELD_NODE_ID, $node->nid, '=')
-      ->condition(MARKETO_WEBFORM_FIELD_NODE_VERSION_ID, $node->vid, '=')
+      ->condition('nid', $node->nid, '=')
       ->execute()
       ->fetchAssoc();
 
@@ -184,23 +173,107 @@ function marketo_form_webform_configure_form_alter(&$form, &$form_state, $form_i
 }
 
 function _marketo_save_webform($form, &$form_state) {
+  module_load_include('inc', 'marketo', 'marketo');
 
   $node = $form['#node'];
   $values = $form_state['values'];
 
   $nid = $node->nid;
-  $vid = $node->vid;
 
   db_delete(MARKETO_SCHEMA_WEBFORM)
-      ->condition(MARKETO_WEBFORM_FIELD_NODE_ID, $nid)
-      ->condition(MARKETO_WEBFORM_FIELD_NODE_VERSION_ID, $vid)
+      ->condition('nid', $nid)
       ->execute();
 
   db_insert(MARKETO_SCHEMA_WEBFORM)
       ->fields(array(
-        MARKETO_WEBFORM_FIELD_NODE_ID => $nid,
-        MARKETO_WEBFORM_FIELD_NODE_VERSION_ID => $vid,
+        'nid' => $nid,
         MARKETO_WEBFORM_FIELD_ACTIVE => $values['marketo_webform_is_active']
       ))
       ->execute();
+}
+
+function marketo_webform_component_insert($component) {
+  module_load_include('inc', 'marketo', 'marketo');
+  db_insert(MARKETO_SCHEMA_WEBFORM_COMPONENT)
+      ->fields(array(
+        'nid' => $component['nid'],
+        'cid' => $component['cid'],
+        MARKETO_WEBFORM_COMPONENT_KEY => $component['marketo']['marketo_webform_component_key']
+      ))
+      ->execute();
+}
+
+function marketo_webform_component_update($component) {
+  module_load_include('inc', 'marketo', 'marketo');
+  db_update(MARKETO_SCHEMA_WEBFORM_COMPONENT)
+      ->fields(array(
+        MARKETO_WEBFORM_COMPONENT_KEY => $component['marketo']['marketo_webform_component_key'],
+      ))
+      ->condition('nid', $component['nid'])
+      ->condition('cid', $component['cid'])
+      ->execute();
+}
+
+function marketo_webform_component_delete($component) {
+  module_load_include('inc', 'marketo', 'marketo');
+  db_delete(MARKETO_SCHEMA_WEBFORM_COMPONENT)
+      ->condition('nid', $component['nid'])
+      ->condition('cid', $component['cid'])
+      ->execute();
+}
+
+function marketo_form_webform_component_edit_form_alter(&$form, &$form_state, $form_id) {
+  module_load_include('inc', 'marketo', 'marketo');
+
+  $nid = $form['nid']['#value'];
+  $cid = $form['cid']['#value'];
+
+  $result = db_select(MARKETO_SCHEMA_WEBFORM_COMPONENT)
+      ->fields(MARKETO_SCHEMA_WEBFORM_COMPONENT)
+      ->condition('nid', $nid, '=')
+      ->condition('cid', $cid, '=')
+      ->execute()
+      ->fetchAssoc();
+
+  $form['marketo'] = array(
+    '#title' => t('Marketo Options'),
+    '#type' => 'fieldset',
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE
+  );
+  $form['marketo']['marketo_webform_component_key'] = array(
+    '#title' => t('Map to Marketo field'),
+    '#type' => 'select',
+    '#description' => t('Select the field this component should be mapped to in Marketo'),
+    '#options' => array(
+      'none' => t('- None -'),
+      'Email' => t('Email'),
+      'FirstName' => t('FirstName'),
+      'LastName' => t('LastName')
+    ),
+    '#default_value' => $result[MARKETO_WEBFORM_COMPONENT_KEY],
+  );
+}
+
+function marketo_webform_submission_insert($node, $submission) {
+  $data = _marketo_webform_component_mapping($node, $submission);
+  $_SESSION['marketo_data'] = array_merge($_SESSION['marketo_data'], $data);
+  drupal_add_js(array('marketo' => array('data' => $data)), 'setting');
+}
+
+function _marketo_webform_component_mapping($node, $submission) {
+  module_load_include('inc', 'marketo', 'marketo');
+  $mapping = array();
+  $components = $node->webform['components'];
+  foreach ($submission->data as $i => $element) {
+    $result = db_select(MARKETO_SCHEMA_WEBFORM_COMPONENT)
+        ->fields(MARKETO_SCHEMA_WEBFORM_COMPONENT)
+        ->condition('nid', $components[$i]['nid'], '=')
+        ->condition('cid', $components[$i]['cid'], '=')
+        ->execute()
+        ->fetchAssoc();
+    $mapping[$result['marketo_key']] = $element['value'][0];
+  }
+
+  return $mapping;
 }
