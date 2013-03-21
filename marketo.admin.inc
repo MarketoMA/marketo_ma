@@ -51,7 +51,7 @@ function marketo_admin_settings() {
     '#title' => t('Marketo fields to expose to webforms'),
     '#title_display' => 'invisible',
     '#default_value' => variable_get('marketo_webform_fields', MARKETO_WEBFORM_FIELD_DEFAULTS),
-    '#description' => t('Tab delimited strings of [API Name] [Friendly Label]. Enter one field per line.'),
+    '#description' => t('Pipe "|" delimited strings of [API Name]|[Friendly Label]. Enter one field per line. This information can be found in the Marketo admin page at Admin > Field Management > Export Field Names'),
     '#rows' => 10,
   );
   $form['marketo_munchkin'] = array(

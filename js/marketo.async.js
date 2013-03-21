@@ -7,7 +7,7 @@
         cache: true,
         success: function() {
           Munchkin.init(Drupal.settings.marketo.key);
-          if(typeof settings.marketo.data !== 'undefined') marketoMunchkinFunction();
+          marketoMunchkinFunction();
         }
       });
     }
@@ -17,5 +17,7 @@
 
 function marketoMunchkinFunction() {
   console.log(Drupal.settings.marketo);
-  mktoMunchkinFunction(Drupal.settings.marketo.lead_type, Drupal.settings.marketo.data, Drupal.settings.marketo.hash);
+  if(typeof Drupal.settings.marketo.data !== 'undefined') {
+    mktoMunchkinFunction(Drupal.settings.marketo.lead_type, Drupal.settings.marketo.data, Drupal.settings.marketo.hash);
+  }
 }
