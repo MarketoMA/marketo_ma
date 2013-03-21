@@ -55,13 +55,14 @@ function marketo_page_alter(&$page) {
     $marketo_data = isset($_SESSION['marketo_data']) ? $_SESSION['marketo_data'] : array();
     drupal_alter('marketo_data', $marketo_data);
 
-    if (isset($marketo_data['Email'])) {
+    if (isset($marketo_data['Email']) && $marketo_data['Email'] !== '') {
       // We were given a specific Email address to use
       $email = $marketo_data['Email'];
     }
     else if (isset($user->mail)) {
       // We shall assume the current logged in user
       $email = $user->mail;
+      $marketo_data['Email'] = $email;
     }
     else {
       // We don't have enough to work with
@@ -241,7 +242,6 @@ function marketo_form_webform_component_edit_form_alter(&$form, &$form_state, $f
     '#collapsible' => TRUE,
     '#collapsed' => FALSE
   );
-  // TODO: options need to come from admin
   
   $form['marketo']['marketo_webform_component_key'] = array(
     '#title' => t('Map to Marketo field'),
@@ -249,11 +249,18 @@ function marketo_form_webform_component_edit_form_alter(&$form, &$form_state, $f
     '#description' => t('Select the field this component should be mapped to in Marketo'),
     '#default_value' => $result[MARKETO_WEBFORM_COMPONENT_KEY],
   );
-  $raw_options = preg_split('/(\r\n?|\n)/', variable_get('marketo_webform_fields', MARKETO_WEBFORM_FIELD_DEFAULTS));
+  
+  // marketo_webform_fields is multi-line, pipe "|" delimited data which needs to be parsed
+  // first split it into rows of data
+  $raw_options = preg_split('/(\r\n?|\n)/', trim(variable_get('marketo_webform_fields', MARKETO_WEBFORM_FIELD_DEFAULTS)));
+  
+  // loop over all the rows getting the keys and values for the fields
   foreach ($raw_options as $row) {
-    $field = explode('|', $row);
-    $form['marketo']['marketo_webform_component_key']['#options'][$field[0]] = $field[1];
+    $field = explode('|', trim($row));
+    $form['marketo']['marketo_webform_component_key']['#options'][trim($field[0])] = trim($field[1]);
   }
+  
+  asort($form['marketo']['marketo_webform_component_key']['#options']);
 }
 
 function marketo_webform_submission_insert($node, $submission) {

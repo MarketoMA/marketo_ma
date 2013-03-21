@@ -1,5 +1,5 @@
 Munchkin.init(Drupal.settings.marketo.key);
-marketoMunchkinFunction();
+if(typeof Drupal.settings.marketo.data !== 'undefined') marketoMunchkinFunction();
 
 function marketoMunchkinFunction() {
   console.log(Drupal.settings.marketo);

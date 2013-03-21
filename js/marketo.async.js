@@ -7,7 +7,7 @@
         cache: true,
         success: function() {
           Munchkin.init(Drupal.settings.marketo.key);
-          if(typeof settings.marketo.data != 'undefined') marketoMunchkinFunction();
+          if(typeof settings.marketo.data !== 'undefined') marketoMunchkinFunction();
         }
       });
     }
