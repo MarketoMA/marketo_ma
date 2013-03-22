@@ -10,7 +10,7 @@
  */
 function marketo_admin_settings() {
   module_load_include('inc', 'marketo', 'marketo');
-  
+
   $form['#submit'][] = '_marketo_admin_settings_submit';
   $form['marketo_tracking_options'] = array(
     '#title' => t('Tracking Options'),
@@ -130,8 +130,6 @@ function marketo_admin_settings() {
   return system_settings_form($form);
 }
 
-function _marketo_admin_settings_submit($form_id, $form_values){
-  // nothing for now
-  $marketo_raw_fields = $form_values['values']['marketo_webform_fields'];
-  $x = FALSE;
+function _marketo_admin_settings_submit($form_id, $form_values) {
+  // TODO: Validation needed
 }
