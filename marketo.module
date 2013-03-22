@@ -37,28 +37,22 @@ function marketo_help($path, $arg) {
 }
 
 /**
- * Implements hook_init().
- */
-function marketo_init() {
-  marketo_prepare_data();
-}
-
-/**
  * Handles storage of marketo data which will ultimately be submitted
  * @param type $data 
  * @return type 
  */
 function marketo_prepare_data($data = array()) {
+  // TODO: consider drupal_static
   $marketo_data = array();
   if (isset($_SESSION['marketo_data'])) {
     $marketo_data = $_SESSION['marketo_data'];
   }
-  
+
   if (!empty($data)) {
     // some data has been supplied which we should merge in
     $marketo_data = array_merge($marketo_data, $data);
   }
-  
+
   $_SESSION['marketo_data'] = $marketo_data;
   return $marketo_data;
 }
@@ -76,17 +70,35 @@ function _marketo_cleanup() {
 function marketo_page_alter(&$page) {
   if (_marketo_visibility_pages()) {
 
-    global $user;
-    _marketo_output_tracking_code();
-
     $marketo_data = marketo_prepare_data();
     drupal_alter('marketo_data', $marketo_data);
+    
+    // Basic Munchkin tracking
+    _marketo_output_tracking_code();
 
+    // Handle any lead capture needs
     if (isset($marketo_data['Email']) && $marketo_data['Email'] !== '') {
-      // We were given a specific Email address to use
-      $key = variable_get('marketo_munchkin_api_private_key', '');
-      $hash = hash('sha1', $key . $marketo_data['Email']);
-      drupal_add_js(array('marketo' => array('lead_type' => 'associateLead', 'data' => $marketo_data, 'hash' => $hash)), 'setting');
+
+      $track = variable_get('marketo_tracking_method');
+      switch ($track) {
+        case 'munchkin':
+          $key = variable_get('marketo_munchkin_api_private_key', '');
+          $hash = hash('sha1', $key . $marketo_data['Email']);
+          drupal_add_js(array('marketo' => array('lead_type' => 'associateLead', 'data' => $marketo_data, 'hash' => $hash)), 'setting');
+          break;
+
+        case 'soap':
+        default:
+          module_load_include('inc', 'marketo', 'includes/marketoapi');
+          
+          $secretKey = variable_get('marketo_soap_encryption_key');
+          $accessKey = variable_get('marketo_soap_user_id');
+          $soapEndPoint = variable_get('marketo_soap_endpoint');
+          
+          $client = new marketoClient($accessKey, $secretKey, $soapEndPoint);
+          $result = $client->syncLead($marketo_data['Email'], $marketo_data);
+          break;
+      }
     }
 
     _marketo_cleanup();
