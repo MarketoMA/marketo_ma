@@ -1,0 +1,56 @@
+<?php
+
+/**
+ * @file
+ * marketo module install/schema hooks
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function marketo_webform_schema() {
+  module_load_include('inc', 'marketo', 'marketo');
+  
+  $schema[MARKETO_SCHEMA_WEBFORM_COMPONENT] = array(
+    'description' => t('Webform Component Settings'),
+    'primary key' => array('nid','cid'),
+    'unique keys' => array(),
+    'fields' => array(
+      'nid' => array(
+        'description' => 'The node identifier of a webform.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'cid' => array(
+        'description' => 'The identifier for this component within this node, starts at 0 for each node.',
+        'type' => 'int',
+        'size' => 'small',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      MARKETO_WEBFORM_COMPONENT_KEY => array(
+        'description' => 'The Marketo form field.',
+        'type' => 'varchar',
+        'length' => 128,
+      ),
+    ),
+  );
+  return $schema;
+}
+
+/**
+ * Implements hook_install().
+ */
+function marketo_webform_install() {
+  
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function marketo_webform_uninstall() {
+  variable_del('marketo_webform_fields');
+}
