@@ -9,7 +9,7 @@
  * Builds and returns the Marketo settings form.
  */
 function marketo_admin_settings($form, &$form_state) {
-  module_load_include('inc', 'marketo', 'marketo');
+  module_load_include('inc', 'marketo', 'includes/marketo');
 
   $form['#submit'][] = '_marketo_admin_settings_submit';
   $form['marketo_tracking_options'] = array(

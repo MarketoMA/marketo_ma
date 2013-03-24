@@ -16,8 +16,7 @@ function marketo_menu() {
     'page callback' => 'drupal_get_form',
     'page arguments' => array('marketo_admin_settings'),
     'access arguments' => array('access administration pages'),
-    'file' => 'marketo.admin.inc',
-    'file path' => drupal_get_path('module', 'marketo'),
+    'file' => 'includes/marketo.admin.inc',
   );
   return $items;
 }
@@ -89,7 +88,7 @@ function marketo_page_alter(&$page) {
 
         case 'soap':
         default:
-          module_load_include('inc', 'marketo', 'includes/marketoapi');
+          module_load_include('inc', 'marketo', 'includes/marketo.soap');
 
           $secretKey = variable_get('marketo_soap_encryption_key', NULL);
           $accessKey = variable_get('marketo_soap_user_id', NULL);
@@ -119,7 +118,7 @@ function marketo_webform_fields_soap_callback($form, &$form_state) {
 }
 
 function _marketo_get_fields() {
-  module_load_include('inc', 'marketo', 'includes/marketoapi');
+  module_load_include('inc', 'marketo', 'includes/marketo.soap');
 
   $secretKey = variable_get('marketo_soap_encryption_key', NULL);
   $accessKey = variable_get('marketo_soap_user_id', NULL);
@@ -162,7 +161,7 @@ function _marketo_output_tracking_code() {
  */
 function _marketo_visibility_pages() {
   static $page_match;
-  module_load_include('inc', 'marketo', 'marketo');
+  module_load_include('inc', 'marketo', 'includes/marketo');
 
   // Cache visibility result if function is called more than once.
   if (!isset($page_match)) {

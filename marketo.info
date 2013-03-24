@@ -5,8 +5,10 @@ package = Marketo
 configure = admin/config/search/marketo
 
 
-files[] = marketo.admin.inc
-files[] = marketo.inc
 files[] = marketo.install
 files[] = marketo.module
-files[] = includes/marketoapi.inc
+files[] = includes/marketo.admin.inc
+files[] = includes/marketo.inc
+files[] = includes/marketo.soap.inc
+files[] = js/marketo.async.js
+files[] = js/marketo.simple.js
