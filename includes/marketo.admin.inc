@@ -112,17 +112,6 @@ function marketo_admin_settings($form, &$form_state) {
     '#default_value' => variable_get('marketo_munchkin_javascript_library', '//munchkin.marketo.net/munchkin.js'),
     '#required' => TRUE,
   );
-  $form['marketo_munchkin']['marketo_munchkin_advanced']['marketo_munchkin_tracking_code_type'] = array(
-    '#type' => 'radios',
-    '#title' => t('Tracking Code Type'),
-    '#options' => array(
-      'async' => t('Asynchronous'),
-      'simple' => t('Simple')
-    ),
-    '#default_value' => variable_get('marketo_munchkin_tracking_code_type', 'async'),
-    '#description' => t('Asynchronous code is faster than Simple.'),
-    '#required' => TRUE,
-  );
   $form['marketo_munchkin']['marketo_munchkin_advanced']['marketo_munchkin_partition'] = array(
     '#type' => 'textfield',
     '#title' => t('Workspace (Partition)'),

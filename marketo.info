@@ -10,5 +10,4 @@ files[] = marketo.module
 files[] = includes/marketo.admin.inc
 files[] = includes/marketo.inc
 files[] = includes/marketo.soap.inc
-files[] = js/marketo.async.js
-files[] = js/marketo.simple.js
+scripts[] = js/marketo.js
