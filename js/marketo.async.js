@@ -16,7 +16,6 @@
 })(jQuery);
 
 function marketoMunchkinFunction() {
-  console.log(Drupal.settings.marketo);
   if(typeof Drupal.settings.marketo.data !== 'undefined') {
     mktoMunchkinFunction(Drupal.settings.marketo.lead_type, Drupal.settings.marketo.data, Drupal.settings.marketo.hash);
   }
