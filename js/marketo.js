@@ -1,7 +1,7 @@
 (function($) {
   Drupal.behaviors.marketo = {
     attach: function(context, settings) {
-      if (settings.marketo.track) {
+      if (typeof settings.marketo !== 'undefined' && settings.marketo.track) {
         jQuery.ajax({
           url: document.location.protocol + settings.marketo.library,
           dataType: 'script',
