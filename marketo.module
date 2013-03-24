@@ -110,7 +110,7 @@ function _marketo_associate_lead($email, $data) {
   // Check to see if there is a default lead source we should apply
   $source = variable_get('marketo_munchkin_lead_source');
   if (!array_key_exists('LeadSource', $data) && $source !== '') {
-    $marketo_data['LeadSource'] = $source;
+    $data['LeadSource'] = $source;
   }
 
   $track = variable_get('marketo_tracking_method');
