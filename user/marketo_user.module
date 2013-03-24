@@ -9,7 +9,6 @@
  * Implements hook_user_insert().
  */
 function marketo_user_user_insert(&$edit, $account, $category) {
-  $x = TRUE;
   $data = array(
     'Email' => $edit['mail']
   );
@@ -20,7 +19,6 @@ function marketo_user_user_insert(&$edit, $account, $category) {
  * Implements hook_user_update().
  */
 function marketo_user_user_update(&$edit, $account, $category) {
-  $x = TRUE;
   $data = array(
     'Email' => $edit['mail']
   );

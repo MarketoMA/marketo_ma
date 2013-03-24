@@ -15,7 +15,7 @@ function marketo_menu() {
     'description' => 'Marketo configuration',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('marketo_admin_settings'),
-    'access arguments' => array('access administration pages'),
+    'access arguments' => array('administer marketo'),
     'file' => 'includes/marketo.admin.inc',
   );
   return $items;
@@ -33,6 +33,18 @@ function marketo_help($path, $arg) {
       $output = '<p>' . t('This is help text for the Marketo module') . '</p>';
       return $output;
   }
+}
+
+/**
+ * Implements hook_permission().
+ */
+function marketo_permission() {
+  return array(
+    'administer marketo' => array(
+      'title' => t('Administer Marketo'),
+      'description' => t('Configure Marketo settings such as page visibility, Munchkin keys, and SOAP API endpoint'),
+    ),
+  );
 }
 
 /**

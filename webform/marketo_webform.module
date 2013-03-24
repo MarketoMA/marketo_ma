@@ -6,6 +6,18 @@
  */
 
 /**
+ * Implements hook_permission()
+ */
+function marketo_webform_permission() {
+  return array(
+    'administer marketo webform settings' => array(
+      'title' => t('Webform settings'),
+      'description' => t('Administer Marketo settings on Webforms.'),
+    ),
+  );
+}
+
+/**
  * Implements hook_form_FORM_ID_alter().
  */
 function marketo_webform_form_webform_configure_form_alter(&$form, &$form_state, $form_id) {
