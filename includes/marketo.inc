@@ -6,6 +6,7 @@
  */
 
 define('MARKETO_PAGES', "admin\nadmin/*\nbatch\nnode/add*\nuser/*/*");
+define('MARKETO_TRACKING_METHOD_DEFAULT', 'munchkin');
 define('MARKETO_WEBFORM_FIELD_DEFAULTS', "FirstName|First Name\nLastName|Last Name\nEmail|Email Address");
 
 define('MARKETO_SCHEMA_WEBFORM', 'marketo_webform');

@@ -25,8 +25,14 @@ function marketo_admin_settings($form, &$form_state) {
       'munchkin' => t('Munchking Javascript API'),
       'soap' => t('SOAP API')
     ),
-    '#default_value' => variable_get('marketo_tracking_method', 'munchkin'),
+    '#default_value' => variable_get('marketo_tracking_method', MARKETO_TRACKING_METHOD_DEFAULT),
     '#required' => TRUE
+  );
+  $form['marketo_tracking_options']['marketo_munchkin_lead_source'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Default Lead Source'),
+    '#default_value' => variable_get('marketo_munchkin_lead_source'),
+    '#description' => t('If set, LeadSource will be set to this value unless specifically overridden during data collection.'),
   );
   $form['marketo_tracking_options']['marketo_visibility_pages'] = array(
     '#title' => t('Add tracking to specific pages'),
@@ -49,7 +55,6 @@ function marketo_admin_settings($form, &$form_state) {
   $form['marketo_tracking_options']['marketo_webform_fields'] = array(
     '#type' => 'textarea',
     '#title' => t('Marketo fields to expose to webforms'),
-    '#title_display' => 'invisible',
     '#description' => t('Pipe "|" delimited strings of [API Name]|[Friendly Label]. Enter one field per line. This information can be found in the Marketo admin page at Admin > Field Management > Export Field Names'),
     '#rows' => 10,
     '#prefix' => '<div id="marketo-webform-fields-wrapper">',
