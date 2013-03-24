@@ -72,7 +72,7 @@ function marketo_admin_settings($form, &$form_state) {
     '#type' => 'button',
     '#value' => t('Retrieve from Marketo'),
     '#ajax' => array(
-      'callback' => 'marketo_webform_fields_soap_callback',
+      'callback' => '_marketo_webform_fields_soap_callback',
       'wrapper' => 'marketo-webform-fields-wrapper',
     )
   );
@@ -154,4 +154,9 @@ function marketo_admin_settings($form, &$form_state) {
 
 function _marketo_admin_settings_submit($form_id, $form_values) {
   // TODO: Validation needed
+}
+
+
+function _marketo_webform_fields_soap_callback($form, &$form_state) {
+  return $form['marketo_tracking_options']['marketo_webform_fields'];
 }

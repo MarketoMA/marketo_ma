@@ -125,10 +125,6 @@ function marketo_page_alter(&$page) {
   }
 }
 
-function marketo_webform_fields_soap_callback($form, &$form_state) {
-  return $form['marketo_tracking_options']['marketo_webform_fields'];
-}
-
 function _marketo_get_fields() {
   module_load_include('inc', 'marketo', 'includes/marketo.soap');
 
