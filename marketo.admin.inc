@@ -8,7 +8,7 @@
 /**
  * Builds and returns the Marketo settings form.
  */
-function marketo_admin_settings() {
+function marketo_admin_settings($form, &$form_state) {
   module_load_include('inc', 'marketo', 'marketo');
 
   $form['#submit'][] = '_marketo_admin_settings_submit';
@@ -50,9 +50,31 @@ function marketo_admin_settings() {
     '#type' => 'textarea',
     '#title' => t('Marketo fields to expose to webforms'),
     '#title_display' => 'invisible',
-    '#default_value' => variable_get('marketo_webform_fields', MARKETO_WEBFORM_FIELD_DEFAULTS),
     '#description' => t('Pipe "|" delimited strings of [API Name]|[Friendly Label]. Enter one field per line. This information can be found in the Marketo admin page at Admin > Field Management > Export Field Names'),
     '#rows' => 10,
+    '#prefix' => '<div id="marketo-webform-fields-wrapper">',
+    '#suffix' => '</div>',
+  );
+
+  if (isset($form_state['triggering_element']['#array_parents']) && in_array('marketo_webform_fields_soap',$form_state['triggering_element']['#array_parents'])) {
+    $data = _marketo_get_fields();
+    $mwf_default = "";
+    foreach ($data as $key => $value) {
+      $mwf_default .= $key . "|" . $value . "\n";
+    }
+    $form['marketo_tracking_options']['marketo_webform_fields']['#value'] = $mwf_default;
+  }
+  else {
+    $form['marketo_tracking_options']['marketo_webform_fields']['#default_value'] = variable_get('marketo_webform_fields', MARKETO_WEBFORM_FIELD_DEFAULTS);
+  }
+
+  $form['marketo_tracking_options']['marketo_webform_fields_soap'] = array(
+    '#type' => 'button',
+    '#value' => t('Retrieve from Marketo'),
+    '#ajax' => array(
+      'callback' => 'marketo_webform_fields_soap_callback',
+      'wrapper' => 'marketo-webform-fields-wrapper',
+    )
   );
   $form['marketo_munchkin'] = array(
     '#title' => t('Munchkin Javascript API'),

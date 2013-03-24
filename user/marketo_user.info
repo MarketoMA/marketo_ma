@@ -1,0 +1,7 @@
+name = Marketo User
+description = Integrates Marketo with core User actions.
+core = 7.x
+package = Marketo
+
+dependencies[] = marketo
+files[] = marketo_user.module

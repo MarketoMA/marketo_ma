@@ -72,7 +72,7 @@ function marketo_page_alter(&$page) {
 
     $marketo_data = marketo_prepare_data();
     drupal_alter('marketo_data', $marketo_data);
-    
+
     // Basic Munchkin tracking
     _marketo_output_tracking_code();
 
@@ -90,19 +90,56 @@ function marketo_page_alter(&$page) {
         case 'soap':
         default:
           module_load_include('inc', 'marketo', 'includes/marketoapi');
-          
-          $secretKey = variable_get('marketo_soap_encryption_key');
-          $accessKey = variable_get('marketo_soap_user_id');
-          $soapEndPoint = variable_get('marketo_soap_endpoint');
-          
-          $client = new marketoClient($accessKey, $secretKey, $soapEndPoint);
-          $result = $client->syncLead($marketo_data['Email'], $marketo_data);
+
+          $secretKey = variable_get('marketo_soap_encryption_key', NULL);
+          $accessKey = variable_get('marketo_soap_user_id', NULL);
+          $soapEndPoint = variable_get('marketo_soap_endpoint', NULL);
+
+          if ($secretKey && $accessKey && $soapEndPoint) {
+            try {
+              $client = new marketoClient($accessKey, $secretKey, $soapEndPoint);
+              $result = $client->syncLead($marketo_data['Email'], $marketo_data);
+              if (!$result) {
+                throw new Exception('No response from SOAP request');
+              }
+            } catch (Exception $e) {
+              watchdog('marketo', 'Unable to sync lead @email.<pre>@error</pre>', array('email' => $marketo_data['Email'], 'error' => $e->getMessage()));
+            }
+          }
           break;
       }
     }
 
     _marketo_cleanup();
   }
+}
+
+function marketo_webform_fields_soap_callback($form, &$form_state) {
+  return $form['marketo_tracking_options']['marketo_webform_fields'];
+}
+
+function _marketo_get_fields() {
+  module_load_include('inc', 'marketo', 'includes/marketoapi');
+
+  $secretKey = variable_get('marketo_soap_encryption_key', NULL);
+  $accessKey = variable_get('marketo_soap_user_id', NULL);
+  $soapEndPoint = variable_get('marketo_soap_endpoint', NULL);
+
+  $result = array();
+
+  if ($secretKey && $accessKey && $soapEndPoint) {
+    try {
+      $client = new marketoClient($accessKey, $secretKey, $soapEndPoint);
+      $result = $client->getFields();
+      if (!$result) {
+        throw new Exception('No response from SOAP request');
+      }
+    } catch (Exception $e) {
+      watchdog('marketo', 'Unable to retrieve field information. <pre>@error</pre>', array('error' => $e->getMessage()));
+    }
+  }
+
+  return $result;
 }
 
 function _marketo_output_tracking_code() {

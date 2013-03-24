@@ -1,4 +1,5 @@
 <?php
+
 // PHP classes corresponding to the data types in defined in WSDL
 class ActivityRecord {
 
@@ -926,7 +927,7 @@ class MktowsXmlSchema {
 // Do not change the indentation or line breaks below this comment.
 // For the curious, it helps with merging new changes from the WSDL code generator.
   static public
-    $class_map = array(
+      $class_map = array(
     "ActivityRecord" => "ActivityRecord",
     "ActivityTypeFilter" => "ActivityTypeFilter",
     "Attribute" => "Attribute",
@@ -1038,6 +1039,31 @@ class marketoClient {
     return $soapHdr;
   }
 
+  public function getFields() {
+    $options = array();
+    $params = array(
+      'objectName' => 'LeadRecord'
+    );
+
+    $authHdr = $this->_getAuthenticationHeader();
+
+    $fieldset = array();
+
+    try {
+      $result = $this->soapClient->__soapCall('describeMObject', array($params), $options, $authHdr);
+
+      foreach ($result->result->metadata->fieldList->field as $field) {
+        $fieldset[$field->name] = $field->displayName;
+      }
+    } catch (Exception $e) {
+      // TODO: How should this be handled?
+    }
+
+    natcasesort($fieldset);
+
+    return $fieldset;
+  }
+
   public function getLead($keyType, $keyValue) {
     $retLead = null;
 
@@ -1098,13 +1124,16 @@ class marketoClient {
         if ($faultCode != null) {
           if (strpos($faultCode, 'Client')) {
             // This is a client error.  Check the other codes and handle.
-          } else if (strpos($faultCode, 'Server')) {
+          }
+          else if (strpos($faultCode, 'Server')) {
             // This is a server error.  Call Marketo support with details.
-          } else {
+          }
+          else {
             // W3C spec has changed :)
             // But seriously, Call Marketo support with details.
           }
-        } else {
+        }
+        else {
           // Not a good place to be.
         }
       }
@@ -1139,7 +1168,8 @@ class marketoClient {
     // Set the unique lead key.
     if (is_numeric($key)) {
       $leadRec->Id = $key;  // Marketo system ID.
-    } else {
+    }
+    else {
       $leadRec->Email = $key; // TODO - Add email format validation - should be SMTP email address.
     }
 
@@ -1183,13 +1213,16 @@ class marketoClient {
         if ($faultCode != null) {
           if (strpos($faultCode, 'Client')) {
             // This is a client error.  Check the other codes and handle.
-          } else if (strpos($faultCode, 'Server')) {
+          }
+          else if (strpos($faultCode, 'Server')) {
             // This is a server error.  Call Marketo support with details.
-          } else {
+          }
+          else {
             // W3C spec has changed :)
             // But seriously, Call Marketo support with details.
           }
-        } else {
+        }
+        else {
           // Not a good place to be.
         }
       }
@@ -1258,13 +1291,16 @@ class marketoClient {
         if ($faultCode != null) {
           if (strpos($faultCode, 'Client')) {
             // This is a client error.  Check the other codes and handle.
-          } else if (strpos($faultCode, 'Server')) {
+          }
+          else if (strpos($faultCode, 'Server')) {
             // This is a server error.  Call Marketo support with details.
-          } else {
+          }
+          else {
             // W3C spec has changed :)
             // But seriously, Call Marketo support with details.
           }
-        } else {
+        }
+        else {
           // Not a good place to be.
         }
       }
@@ -1324,13 +1360,16 @@ class marketoClient {
         if ($faultCode != null) {
           if (strpos($faultCode, 'Client')) {
             // This is a client error.  Check the other codes and handle.
-          } else if (strpos($faultCode, 'Server')) {
+          }
+          else if (strpos($faultCode, 'Server')) {
             // This is a server error.  Call Marketo support with details.
-          } else {
+          }
+          else {
             // W3C spec has changed :)
             // But seriously, Call Marketo support with details.
           }
-        } else {
+        }
+        else {
           // Not a good place to be.
         }
       }
@@ -1411,7 +1450,8 @@ class marketoClient {
             }
             $newStartPos = $success->leadActivityList->newStartPosition;
             $params->startPosition = $newStartPos;
-          } else {
+          }
+          else {
             $doPage = false;
           }
         }
@@ -1431,13 +1471,16 @@ class marketoClient {
           if ($faultCode != null) {
             if (strpos($faultCode, 'Client')) {
               // This is a client error.  Check the other codes and handle.
-            } else if (strpos($faultCode, 'Server')) {
+            }
+            else if (strpos($faultCode, 'Server')) {
               // This is a server error.  Call Marketo support with details.
-            } else {
+            }
+            else {
               // W3C spec has changed :)
               // But seriously, Call Marketo support with details.
             }
-          } else {
+          }
+          else {
             // Not a good place to be.
           }
         }

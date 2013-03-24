@@ -6,38 +6,6 @@
  */
 
 /**
- * Implements hook_schema().
- */
-function marketo_schema() {
-  module_load_include('inc', 'marketo', 'marketo');
-  
-  $schema = array();
-  $schema[MARKETO_SCHEMA_WEBFORM] = array(
-    'description' => t('Webform Settings'),
-    'primary key' => array('nid'),
-    'unique keys' => array(),
-    'fields' => array(
-      'nid' => array(
-        'description' => 'The node identifier of a webform.',
-        'type' => 'int',
-        'unsigned' => TRUE,
-        'not null' => TRUE,
-      ),
-      MARKETO_WEBFORM_FIELD_ACTIVE => array(
-        // Is this webform marketo enabled
-        'description' => 'Should this form send data to Marketo',
-        'type' => 'int',
-        'unsigned' => TRUE,
-        'not null' => TRUE,
-        'default' => 0
-      ),
-    ),
-  );
-
-  return $schema;
-}
-
-/**
  * Implements hook_install().
  */
 function marketo_install() {
