@@ -139,7 +139,7 @@ function _marketo_associate_lead($email, $data) {
             throw new Exception('No response from SOAP request');
           }
         } catch (Exception $e) {
-          watchdog('marketo', 'Unable to sync lead !email.<pre>@error</pre>', array('!email' => $data, '@error' => $e->getMessage()), WATCHDOG_ERROR);
+          watchdog('marketo', 'Unable to sync lead !email.<pre>@error</pre>', array('!email' => $email, '@error' => $e->getMessage()), WATCHDOG_ERROR);
         }
       }
       break;
