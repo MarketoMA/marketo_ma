@@ -98,7 +98,6 @@ function marketo_page_alter(&$page) {
 }
 
 function _marketo_output_tracking_code() {
-  $marketo_munchkin_tracking_code_type = variable_get('marketo_munchkin_tracking_code_type');
   $marketo_munchkin_account_id = variable_get('marketo_munchkin_account_id');
   $marketo_munchkin_javascript_library = '//' . str_replace(array('http://', 'https://', '//'), '', variable_get('marketo_munchkin_javascript_library'));
 
