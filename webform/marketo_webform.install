@@ -10,7 +10,7 @@
  */
 function marketo_webform_schema() {
   module_load_include('inc', 'marketo', 'includes/marketo');
-  
+
   $schema = array();
   $schema[MARKETO_SCHEMA_WEBFORM] = array(
     'description' => t('Webform Settings'),
@@ -31,11 +31,16 @@ function marketo_webform_schema() {
         'not null' => TRUE,
         'default' => 0
       ),
+      MARKETO_WEBFORM_FIELD_LEAD_SOURCE => array(
+        'description' => t('Lead source for this webform'),
+        'type' => 'varchar',
+        'length' => 255
+      ),
     ),
   );
   $schema[MARKETO_SCHEMA_WEBFORM_COMPONENT] = array(
     'description' => t('Webform Component Settings'),
-    'primary key' => array('nid','cid'),
+    'primary key' => array('nid', 'cid'),
     'unique keys' => array(),
     'fields' => array(
       'nid' => array(
@@ -75,4 +80,17 @@ function marketo_webform_install() {
  */
 function marketo_webform_uninstall() {
   variable_del('marketo_webform_fields');
+}
+
+/**
+ * Adding column for webform lead source
+ */
+function marketo_update_1000() {
+  module_load_include('inc', 'marketo', 'includes/marketo');
+  $spec = array(
+    'description' => 'The Marketo form field.',
+    'type' => 'varchar',
+    'length' => 128,
+  );
+  db_add_field(MARKETO_SCHEMA_WEBFORM, MARKETO_WEBFORM_FIELD_LEAD_SOURCE, $spec);
 }
