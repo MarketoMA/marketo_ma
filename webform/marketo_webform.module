@@ -78,23 +78,16 @@ function marketo_webform_webform_component_insert($component) {
  */
 function marketo_webform_webform_component_update($component) {
   module_load_include('inc', 'marketo', 'includes/marketo');
-  $num_updated = db_update(MARKETO_SCHEMA_WEBFORM_COMPONENT)
+
+  db_merge(MARKETO_SCHEMA_WEBFORM_COMPONENT)
+      ->key(array(
+        'nid' => $component['nid'],
+        'cid' => $component['cid']
+      ))
       ->fields(array(
         MARKETO_WEBFORM_COMPONENT_KEY => $component['marketo']['marketo_webform_component_key'],
       ))
-      ->condition('nid', $component['nid'])
-      ->condition('cid', $component['cid'])
       ->execute();
-  if ($num_updated == 0) {
-    // likely made it here because this component existed before the marketo_webform module was enabled
-    db_insert(MARKETO_SCHEMA_WEBFORM_COMPONENT)
-        ->fields(array(
-          'nid' => $component['nid'],
-          'cid' => $component['cid'],
-          MARKETO_WEBFORM_COMPONENT_KEY => $component['marketo']['marketo_webform_component_key']
-        ))
-        ->execute();
-  }
 }
 
 /**
@@ -173,7 +166,7 @@ function marketo_webform_node_load($nodes, $types) {
 
 function marketo_webform_webform_submission_insert($node, $submission) {
   $data = _marketo_webform_component_mapping($node, $submission);
-  
+
   // Check to see if an Email field has been provided. If not, we will try to use the current logged in user info
   if (!isset($data['Email']) || $data['Email'] == '') {
     global $user;
@@ -181,7 +174,7 @@ function marketo_webform_webform_submission_insert($node, $submission) {
       $data['Email'] = $user->mail;
     }
   }
-  
+
   marketo_prepare_data($data);
 }
 
