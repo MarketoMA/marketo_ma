@@ -23,10 +23,12 @@ function marketo_admin_settings($form, &$form_state) {
     '#type' => 'radios',
     '#options' => array(
       'munchkin' => t('Munchking Javascript API'),
-      'soap' => t('SOAP API')
+      'soap' => t('SOAP API (Synchronous)'),
+      'soap_async' => t('SOAP API (Asynchronous)'),
     ),
     '#default_value' => variable_get('marketo_tracking_method', MARKETO_TRACKING_METHOD_DEFAULT),
-    '#required' => TRUE
+    '#required' => TRUE,
+    '#descritpion' => t('Asynchronous will queue requests and send data when cron runs.'),
   );
   $form['marketo_tracking_options']['marketo_munchkin_lead_source'] = array(
     '#type' => 'textfield',
@@ -147,7 +149,7 @@ function marketo_admin_settings($form, &$form_state) {
 }
 
 function _marketo_admin_settings_submit($form_id, $form_values) {
-  // TODO: Validation needed
+  // @todo Validation needed
 }
 
 

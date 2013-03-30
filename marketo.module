@@ -48,12 +48,24 @@ function marketo_permission() {
 }
 
 /**
+ * Implements hook_cron_queue_info().
+ */
+function marketo_cron_queue_info() {
+  $queues = array();
+  $queues['marketo_lead'] = array(
+    'worker callback' => '_marketo_associate_lead_soap', // function to call for each item
+    'time' => 30, // seconds to spend working on the queue
+  );
+  return $queues;
+}
+
+/**
  * Handles storage of marketo data which will ultimately be submitted
- * @param type $data 
- * @return type 
+ * @param array $data
+ * @return array 
  */
 function marketo_prepare_data($data = array()) {
-  // TODO: consider drupal_static
+  // @todo consider drupal_static
   $marketo_data = array();
   if (isset($_SESSION['marketo_data'])) {
     $marketo_data = $_SESSION['marketo_data'];
@@ -79,6 +91,7 @@ function _marketo_cleanup() {
  * Implements hook_page_alter().
  */
 function marketo_page_alter(&$page) {
+  // @todo add OR if we have munchkin data which needs to be sent
   if (_marketo_visibility_pages()) {
 
     // Basic Munchkin tracking
@@ -90,7 +103,11 @@ function marketo_page_alter(&$page) {
     // Handle any lead capture needs
     if (isset($marketo_data['Email']) && $marketo_data['Email'] !== '') {
       // This is only possible if we have an email address
-      _marketo_associate_lead($marketo_data['Email'], $marketo_data);
+      $lead = array(
+        'email' => $marketo_data['Email'],
+        'data' => $marketo_data,
+      );
+      _marketo_associate_lead($lead);
     }
 
     _marketo_cleanup();
@@ -104,45 +121,89 @@ function _marketo_output_tracking_code() {
   drupal_add_js(array('marketo' => array('track' => TRUE, 'key' => $marketo_munchkin_account_id, 'library' => $marketo_munchkin_javascript_library)), 'setting');
 }
 
-function _marketo_associate_lead($email, $data) {
+/**
+ * 
+ * @param array $lead
+ *   An associative array containing lead data
+ *   - email: The email address of this lead
+ *   - data: An associative array containing marketo fields and their values
+ *     - FirstName
+ *     - LastName
+ */
+function _marketo_associate_lead($lead) {
 
   // Check to see if there is a default lead source we should apply
   $source = variable_get('marketo_munchkin_lead_source');
-  if (!array_key_exists('LeadSource', $data) && $source !== '') {
-    $data['LeadSource'] = $source;
+  if (!array_key_exists('LeadSource', $lead['data']) && $source !== '') {
+    $lead['data']['LeadSource'] = $source;
   }
 
   $track = variable_get('marketo_tracking_method');
-  watchdog('marketo', 'Associating data with lead !email. [Method = @track] <pre>@data</pre>', array('!email' => $email, '@track' => $track, '@data' => json_encode($data)), WATCHDOG_INFO);
-
   switch ($track) {
     case 'munchkin':
-      $key = variable_get('marketo_munchkin_api_private_key', '');
-      $hash = hash('sha1', $key . $email);
-      drupal_add_js(array('marketo' => array('lead_type' => 'associateLead', 'data' => $data, 'hash' => $hash)), 'setting');
+      _marketo_associate_lead_munchkin($lead);
+      break;
+
+    case 'soap_async':
+      _marketo_queue_lead($lead);
       break;
 
     case 'soap':
     default:
-      module_load_include('inc', 'marketo', 'includes/marketo.soap');
-
-      $secretKey = variable_get('marketo_soap_encryption_key', NULL);
-      $accessKey = variable_get('marketo_soap_user_id', NULL);
-      $soapEndPoint = variable_get('marketo_soap_endpoint', NULL);
-
-      if ($secretKey && $accessKey && $soapEndPoint) {
-        try {
-          $client = new marketoClient($accessKey, $secretKey, $soapEndPoint);
-          $result = $client->syncLead($email, $data);
-          if (!$result) {
-            throw new Exception('No response from SOAP request');
-          }
-        } catch (Exception $e) {
-          watchdog('marketo', 'Unable to sync lead !email.<pre>@error</pre>', array('!email' => $email, '@error' => $e->getMessage()), WATCHDOG_ERROR);
-        }
-      }
+      _marketo_associate_lead_soap($lead);
       break;
   }
+}
+
+/**
+ * 
+ * @param array $lead
+ */
+function _marketo_associate_lead_munchkin($lead) {
+  $key = variable_get('marketo_munchkin_api_private_key', NULL);
+  if ($key) {
+    watchdog('marketo', 'Associating lead !email [@method] <pre>@data</pre>', array('!email' => $lead['email'], '@method' => 'munchkin', '@data' => print_r($lead['data'], TRUE)));
+    $hash = hash('sha1', $key . $lead['email']);
+    drupal_add_js(array('marketo' => array('lead_type' => 'associateLead', 'data' => $lead['data'], 'hash' => $hash)), 'setting');
+  }
+}
+
+/**
+ * 
+ * @param array $lead
+ * @throws Exception
+ */
+function _marketo_associate_lead_soap($lead) {
+  module_load_include('inc', 'marketo', 'includes/marketo.soap');
+
+  $secretKey = variable_get('marketo_soap_encryption_key', NULL);
+  $accessKey = variable_get('marketo_soap_user_id', NULL);
+  $soapEndPoint = variable_get('marketo_soap_endpoint', NULL);
+
+  if ($secretKey && $accessKey && $soapEndPoint) {
+    watchdog('marketo', 'Associating lead !email [@method] <pre>@data</pre>', array('!email' => $lead['email'], '@method' => 'soap', '@data' => print_r($lead['data'], TRUE)), WATCHDOG_INFO);
+    try {
+      $client = new marketoClient($accessKey, $secretKey, $soapEndPoint);
+      $result = $client->syncLead($lead['email'], $lead['data']);
+      if (!$result) {
+        throw new Exception('No response from SOAP request');
+      }
+    } catch (Exception $e) {
+      watchdog('marketo', 'Unable to sync lead !email.<pre>@error</pre>', array('!email' => $lead['email'], '@error' => $e->getMessage()), WATCHDOG_ERROR);
+    }
+  }
+}
+
+/**
+ * Add a lead to the queue for submission later
+ * @param array $lead
+ * @return boolean
+ */
+function _marketo_queue_lead($lead) {
+  watchdog('marketo', 'Queing lead !email [@method] <pre>@data</pre>', array('!email' => $lead['email'], '@method' => 'queued', '@data' => print_r($lead['data'], TRUE)), WATCHDOG_INFO);
+  $queue = DrupalQueue::get('marketo_lead', TRUE);
+  $success = $queue->createItem($lead);
+  return $success;
 }
 
 function _marketo_get_fields() {
