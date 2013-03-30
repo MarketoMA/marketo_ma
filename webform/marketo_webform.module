@@ -24,7 +24,7 @@ function marketo_webform_form_webform_configure_form_alter(&$form, &$form_state,
   $node = $form['#node'];
   $is_active = isset($node->webform['marketo']['marketo_webform_is_active']) ? $node->webform['marketo']['marketo_webform_is_active'] : FALSE;
   $lead_source = isset($node->webform['marketo']['marketo_webform_lead_source']) ? $node->webform['marketo']['marketo_webform_lead_source'] : '';
-  $default_lead_source = variable_get('marketo_munchkin_lead_source','');
+  $default_lead_source = variable_get('marketo_munchkin_lead_source', '');
 
   $form['#submit'][] = '_marketo_webform_save_webform';
   $form['node']['webform']['marketo'] = array(
@@ -45,10 +45,10 @@ function marketo_webform_form_webform_configure_form_alter(&$form, &$form_state,
     '#description' => t('Use a specific lead source for this form. If nothing is supplied, the default lead source will be used. Default = [@default]', array('@default' => $default_lead_source)),
     '#default_value' => $lead_source,
     '#states' => array(
-        'visible' => array(
-          '#edit-marketo-webform-is-active' => array('checked' => TRUE),
-        ),
+      'visible' => array(
+        '#edit-marketo-webform-is-active' => array('checked' => TRUE),
       ),
+    ),
   );
 }
 
@@ -188,22 +188,24 @@ function marketo_webform_node_load($nodes, $types) {
  * Implements hook_webform_submission_insert()
  */
 function marketo_webform_webform_submission_insert($node, $submission) {
-  $data = _marketo_webform_component_mapping($node, $submission);
+  if ($node->webform['marketo']['marketo_webform_is_active']) {
+    $data = _marketo_webform_component_mapping($node, $submission);
 
-  // Check to see if an Email field has been provided. If not, we will try to use the current logged in user info
-  if (!isset($data['Email']) || $data['Email'] == '') {
-    global $user;
-    if (isset($user->mail)) {
-      $data['Email'] = $user->mail;
+    // Check to see if an Email field has been provided. If not, we will try to use the current logged in user info
+    if (!isset($data['Email']) || $data['Email'] == '') {
+      global $user;
+      if (isset($user->mail)) {
+        $data['Email'] = $user->mail;
+      }
     }
-  }
-  
-  // Check to see if a lead source has been provided. If so, we will add this to the data
-  if (isset($node->webform['marketo']['marketo_webform_lead_source']) && $node->webform['marketo']['marketo_webform_lead_source'] != '') {
-    $data['LeadSource'] = $node->webform['marketo']['marketo_webform_lead_source'];
-  }
 
-  marketo_prepare_data($data);
+    // Check to see if a lead source has been provided. If so, we will add this to the data
+    if (isset($node->webform['marketo']['marketo_webform_lead_source']) && $node->webform['marketo']['marketo_webform_lead_source'] != '') {
+      $data['LeadSource'] = $node->webform['marketo']['marketo_webform_lead_source'];
+    }
+
+    marketo_prepare_data($data);
+  }
 }
 
 /**

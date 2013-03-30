@@ -30,3 +30,11 @@ function marketo_uninstall() {
   variable_del('marketo_visibility_pages');
   variable_del('marketo_webform_fields');
 }
+
+/**
+ * Implements hook_disable().
+ */
+function marketo_disable() {
+  $queue = DrupalQueue::get('marketo_lead', TRUE);
+  $queue->deleteQueue();
+}
