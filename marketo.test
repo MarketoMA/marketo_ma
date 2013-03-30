@@ -1,0 +1,194 @@
+<?php
+
+/**
+ * Tests the functionality of the Marketo module.
+ */
+class MarketoBasicModuleTestCase extends DrupalWebTestCase {
+
+  protected $admin_path;
+
+  public static function getInfo() {
+    return array(
+      'name' => 'Module validation',
+      'description' => 'Verify module can be enabled and has all the basics.',
+      'group' => 'Marketo',
+    );
+  }
+
+  /**
+   * Implementation of setUp().
+   */
+  public function setUp() {
+    parent::setUp('marketo');
+
+    $this->admin_path = 'admin/config/search/marketo';
+  }
+
+  /**
+   * Implemenation of tearDown().
+   */
+  function tearDown() {
+    parent::tearDown();
+  }
+
+  public function testPermission() {
+    $permission = module_invoke('marketo', 'permission');
+    $this->assertTrue(is_array($permission), 'Permission hook returns array.');
+    $this->assertTrue(array_key_exists('administer marketo', $permission), 'Permission is as expected.');
+  }
+
+  public function testMenu() {
+    $menu = module_invoke('marketo', 'menu');
+    $this->assertTrue(array_key_exists($this->admin_path, $menu), 'Menu item found.');
+  }
+
+}
+
+class MarketoModuleConfigTestCase extends DrupalWebTestCase {
+
+  protected $marketo_users;
+  protected $admin_path;
+
+  public static function getInfo() {
+    return array(
+      'name' => 'Module configuration',
+      'description' => 'Verify module can be configured.',
+      'group' => 'Marketo',
+    );
+  }
+
+  /**
+   * Implementation of setUp().
+   */
+  public function setUp() {
+    parent::setUp('marketo');
+
+    $permissions['basic'] = array();
+
+    $permissions['marketo_admin'] = array(
+      'administer marketo'
+    );
+
+    foreach ($permissions as $user_key => $permissions) {
+      $this->marketo_users[$user_key] = $this->drupalCreateUser($permissions);
+    }
+
+    $this->admin_path = 'admin/config/search/marketo';
+
+    $this->drupalLogin($this->marketo_users['marketo_admin']);
+  }
+
+  /**
+   * Implemenation of tearDown().
+   */
+  function tearDown() {
+    parent::tearDown();
+  }
+
+  public function testBasicAccess() {
+    $this->drupalLogin($this->marketo_users['basic']);
+    $this->drupalGet($this->admin_path);
+    $this->assertResponse(403, 'Access denied for regular user.');
+  }
+
+  public function testAdminAccess() {
+    $this->drupalGet($this->admin_path);
+    $this->assertResponse(200, 'User is allowed to access the page.');
+    $this->assertText('Tracking Options', 'Access allowed for privileged user.');
+  }
+
+  public function testSubmitWithoutValues() {
+    $edit = array();
+    $this->drupalPost($this->admin_path, $edit, 'Save configuration');
+    $this->assertText('field is required', 'Fields are required');
+  }
+
+  public function testSubmitWithValues() {
+    $marketo_munchkin_lead_source = $this->randomName();
+    $marketo_pages = '*';
+    $marketo_webform_fields = 'Email|Email Address';
+    $marketo_munchkin_account_id = $this->randomName(3) . '-' . $this->randomName(3) . '-' . $this->randomName(3);
+    $marketo_munchkin_api_private_key = $this->randomName();
+    $marketo_soap_endpoint = 'http://' . $this->randomName() . '.example.com';
+    $marketo_soap_user_id = $this->randomName();
+    $marketo_soap_encryption_key = $this->randomName();
+    
+    $edit = array(
+      'marketo_tracking_method' => 'munchkin',
+      'marketo_munchkin_lead_source' => $marketo_munchkin_lead_source,
+      'marketo_visibility_pages' => 0,
+      'marketo_pages' => $marketo_pages,
+      'marketo_webform_fields' => $marketo_webform_fields,
+      'marketo_munchkin_account_id' => $marketo_munchkin_account_id,
+      'marketo_munchkin_api_private_key' => $marketo_munchkin_api_private_key,
+      'marketo_soap_endpoint' => $marketo_soap_endpoint,
+      'marketo_soap_user_id' => $marketo_soap_user_id,
+      'marketo_soap_encryption_key' => $marketo_soap_encryption_key,
+    );
+    
+    $this->drupalGet($this->admin_path);
+    foreach ($edit as $name => $value) {
+      $this->assertFieldByName($name);
+    }
+    
+    $this->drupalPost($this->admin_path, $edit, 'Save configuration');
+    $this->assertText('The configuration options have been saved', 'Configuration saved successfully.');
+    
+    foreach ($edit as $name => $value) {
+      $this->assertFieldByName($name, $value);
+    }
+  }
+
+}
+
+/**
+ * Tests the functionality of the Marketo Webform module.
+ */
+class MarketoWebformBasicModuleTestCase extends DrupalWebTestCase {
+
+  protected $admin_path;
+
+  public static function getInfo() {
+    return array(
+      'name' => 'Webform module validation',
+      'description' => 'Verify webform module can be enabled and has all the basics.',
+      'group' => 'Marketo',
+    );
+  }
+
+  /**
+   * Implementation of setUp().
+   */
+  public function setUp() {
+    parent::setUp('marketo','marketo_webform');
+  }
+
+  /**
+   * Implemenation of tearDown().
+   */
+  function tearDown() {
+    parent::tearDown();
+  }
+  
+  public function testTables() {
+    $tables = array(
+      'marketo_webform',
+      'marketo_webform_component'
+    );
+    
+    // Verify the necessary tables are in place.
+    foreach ($tables as $table) {
+      $this->assertTrue(db_table_exists($table), format_string('Table @table exists.', array('@table' => $table)));
+    }
+    
+    // Disable and uninstall the webform module.
+    module_disable(array('marketo_webform'));
+    drupal_uninstall_modules(array('marketo_webform'));
+    
+    // With module uninstalled, tables should no longer exist.
+    foreach ($tables as $table) {
+      $this->assertFalse(db_table_exists($table), format_string('Table @table does not exist.', array('@table' => $table)));
+    }
+  }
+
+}
