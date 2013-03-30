@@ -1,11 +1,42 @@
 <?php
 
+class MarketoTestCase extends DrupalWebTestCase {
+
+  public $admin_path;
+  public $marketo_users;
+
+  /**
+   * Implementation of setUp().
+   */
+  public function setUp() {
+    parent::setUp('marketo');
+
+    $permissions['basic'] = array();
+
+    $permissions['marketo_admin'] = array(
+      'administer marketo'
+    );
+
+    foreach ($permissions as $user_key => $permissions) {
+      $this->marketo_users[$user_key] = $this->drupalCreateUser($permissions);
+    }
+
+    $this->admin_path = 'admin/config/search/marketo';
+  }
+
+  /**
+   * Implemenation of tearDown().
+   */
+  function tearDown() {
+    parent::tearDown();
+  }
+
+}
+
 /**
  * Tests the functionality of the Marketo module.
  */
 class MarketoBasicModuleTestCase extends DrupalWebTestCase {
-
-  protected $admin_path;
 
   public static function getInfo() {
     return array(
@@ -20,8 +51,6 @@ class MarketoBasicModuleTestCase extends DrupalWebTestCase {
    */
   public function setUp() {
     parent::setUp('marketo');
-
-    $this->admin_path = 'admin/config/search/marketo';
   }
 
   /**
@@ -44,10 +73,7 @@ class MarketoBasicModuleTestCase extends DrupalWebTestCase {
 
 }
 
-class MarketoModuleConfigTestCase extends DrupalWebTestCase {
-
-  protected $marketo_users;
-  protected $admin_path;
+class MarketoModuleConfigTestCase extends MarketoTestCase {
 
   public static function getInfo() {
     return array(
@@ -61,19 +87,7 @@ class MarketoModuleConfigTestCase extends DrupalWebTestCase {
    * Implementation of setUp().
    */
   public function setUp() {
-    parent::setUp('marketo');
-
-    $permissions['basic'] = array();
-
-    $permissions['marketo_admin'] = array(
-      'administer marketo'
-    );
-
-    foreach ($permissions as $user_key => $permissions) {
-      $this->marketo_users[$user_key] = $this->drupalCreateUser($permissions);
-    }
-
-    $this->admin_path = 'admin/config/search/marketo';
+    parent::setUp();
 
     $this->drupalLogin($this->marketo_users['marketo_admin']);
   }
@@ -94,7 +108,7 @@ class MarketoModuleConfigTestCase extends DrupalWebTestCase {
   public function testAdminAccess() {
     $this->drupalGet($this->admin_path);
     $this->assertResponse(200, 'User is allowed to access the page.');
-    $this->assertText('Tracking Options', 'Access allowed for privileged user.');
+    $this->assertText('Tracking Options');
   }
 
   public function testSubmitWithoutValues() {
@@ -112,7 +126,7 @@ class MarketoModuleConfigTestCase extends DrupalWebTestCase {
     $marketo_soap_endpoint = 'http://' . $this->randomName() . '.example.com';
     $marketo_soap_user_id = $this->randomName();
     $marketo_soap_encryption_key = $this->randomName();
-    
+
     $edit = array(
       'marketo_tracking_method' => 'munchkin',
       'marketo_munchkin_lead_source' => $marketo_munchkin_lead_source,
@@ -125,15 +139,15 @@ class MarketoModuleConfigTestCase extends DrupalWebTestCase {
       'marketo_soap_user_id' => $marketo_soap_user_id,
       'marketo_soap_encryption_key' => $marketo_soap_encryption_key,
     );
-    
+
     $this->drupalGet($this->admin_path);
     foreach ($edit as $name => $value) {
       $this->assertFieldByName($name);
     }
-    
+
     $this->drupalPost($this->admin_path, $edit, 'Save configuration');
     $this->assertText('The configuration options have been saved', 'Configuration saved successfully.');
-    
+
     foreach ($edit as $name => $value) {
       $this->assertFieldByName($name, $value);
     }
@@ -145,8 +159,6 @@ class MarketoModuleConfigTestCase extends DrupalWebTestCase {
  * Tests the functionality of the Marketo Webform module.
  */
 class MarketoWebformBasicModuleTestCase extends DrupalWebTestCase {
-
-  protected $admin_path;
 
   public static function getInfo() {
     return array(
@@ -160,7 +172,7 @@ class MarketoWebformBasicModuleTestCase extends DrupalWebTestCase {
    * Implementation of setUp().
    */
   public function setUp() {
-    parent::setUp('marketo','marketo_webform');
+    parent::setUp('marketo', 'marketo_webform');
   }
 
   /**
@@ -169,26 +181,79 @@ class MarketoWebformBasicModuleTestCase extends DrupalWebTestCase {
   function tearDown() {
     parent::tearDown();
   }
-  
+
   public function testTables() {
     $tables = array(
       'marketo_webform',
       'marketo_webform_component'
     );
-    
+
     // Verify the necessary tables are in place.
     foreach ($tables as $table) {
       $this->assertTrue(db_table_exists($table), format_string('Table @table exists.', array('@table' => $table)));
     }
-    
+
     // Disable and uninstall the webform module.
     module_disable(array('marketo_webform'));
     drupal_uninstall_modules(array('marketo_webform'));
-    
+
     // With module uninstalled, tables should no longer exist.
     foreach ($tables as $table) {
       $this->assertFalse(db_table_exists($table), format_string('Table @table does not exist.', array('@table' => $table)));
     }
+  }
+
+}
+
+/**
+ * Tests the functionality of the Marketo Webform module.
+ */
+class MarketoWebformTestCase extends DrupalWebTestCase {
+
+  public static function getInfo() {
+    return array(
+      'name' => 'Webform integration',
+      'description' => 'Verify webform integration.',
+      'group' => 'Marketo',
+    );
+  }
+
+  /**
+   * Implementation of setUp().
+   */
+  public function setUp() {
+    parent::setUp('webform', 'marketo_webform');
+  }
+
+  /**
+   * Implemenation of tearDown().
+   */
+  function tearDown() {
+    parent::tearDown();
+  }
+
+  /**
+   * Test creating a new Webform node.
+   */
+  function testWebformCreate() {
+    $settings = array(
+      'title' => 'Test webform, no components',
+      'type' => 'webform',
+    );
+    $node = $this->drupalCreateNode($settings);
+
+    // Because this is a "webform" type node, it should have an entry in the
+    // database even though it's using the default settings.
+    $this->assertTrue($this->webformRecordExists($node->nid), t('Webform record made in the database for the new webform node.'));
+
+    // Make a change to the node, ensure that the record stays intact.
+    $node->title .= '!';
+    node_save($node);
+    $this->assertTrue($this->webformRecordExists($node->nid), t('Webform record still in the database after modifying webform node.'));
+  }
+  
+  function webformRecordExists($nid) {
+    return (bool) db_query("SELECT nid FROM {webform} WHERE nid = :nid", array(':nid' => $nid))->fetchField();
   }
 
 }

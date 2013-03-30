@@ -188,7 +188,7 @@ function marketo_webform_node_load($nodes, $types) {
  * Implements hook_webform_submission_insert()
  */
 function marketo_webform_webform_submission_insert($node, $submission) {
-  if ($node->webform['marketo']['marketo_webform_is_active']) {
+  if (isset($node->webform['marketo']['marketo_webform_is_active']) && $node->webform['marketo']['marketo_webform_is_active']) {
     $data = _marketo_webform_component_mapping($node, $submission);
 
     // Check to see if an Email field has been provided. If not, we will try to use the current logged in user info
