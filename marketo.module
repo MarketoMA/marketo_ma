@@ -115,10 +115,12 @@ function marketo_page_alter(&$page) {
 }
 
 function _marketo_output_tracking_code() {
-  $marketo_munchkin_account_id = variable_get('marketo_munchkin_account_id');
-  $marketo_munchkin_javascript_library = '//' . str_replace(array('http://', 'https://', '//'), '', variable_get('marketo_munchkin_javascript_library'));
+  if (_marketo_munchkin_is_configured()) {
+    $marketo_munchkin_account_id = variable_get('marketo_munchkin_account_id');
+    $marketo_munchkin_javascript_library = '//' . str_replace(array('http://', 'https://', '//'), '', variable_get('marketo_munchkin_javascript_library'));
 
-  drupal_add_js(array('marketo' => array('track' => TRUE, 'key' => $marketo_munchkin_account_id, 'library' => $marketo_munchkin_javascript_library)), 'setting');
+    drupal_add_js(array('marketo' => array('track' => TRUE, 'key' => $marketo_munchkin_account_id, 'library' => $marketo_munchkin_javascript_library)), 'setting');
+  }
 }
 
 /**
@@ -160,8 +162,8 @@ function _marketo_associate_lead($lead) {
  * @param array $lead
  */
 function _marketo_associate_lead_munchkin($lead) {
-  $key = variable_get('marketo_munchkin_api_private_key', NULL);
-  if ($key) {
+  if (_marketo_munchkin_is_configured()) {
+    $key = variable_get('marketo_munchkin_api_private_key', NULL);
     watchdog('marketo', 'Associating lead !email [@method] <pre>@data</pre>', array('!email' => $lead['email'], '@method' => 'munchkin', '@data' => print_r($lead['data'], TRUE)));
     $hash = hash('sha1', $key . $lead['email']);
     drupal_add_js(array('marketo' => array('lead_type' => 'associateLead', 'data' => $lead['data'], 'hash' => $hash)), 'setting');
@@ -174,13 +176,13 @@ function _marketo_associate_lead_munchkin($lead) {
  * @throws Exception
  */
 function _marketo_associate_lead_soap($lead) {
-  module_load_include('inc', 'marketo', 'includes/marketo.soap');
+  if (_marketo_soap_is_configured()) {
+    module_load_include('inc', 'marketo', 'includes/marketo.soap');
 
-  $secretKey = variable_get('marketo_soap_encryption_key', NULL);
-  $accessKey = variable_get('marketo_soap_user_id', NULL);
-  $soapEndPoint = variable_get('marketo_soap_endpoint', NULL);
+    $secretKey = variable_get('marketo_soap_encryption_key');
+    $accessKey = variable_get('marketo_soap_user_id');
+    $soapEndPoint = variable_get('marketo_soap_endpoint');
 
-  if ($secretKey && $accessKey && $soapEndPoint) {
     watchdog('marketo', 'Associating lead !email [@method] <pre>@data</pre>', array('!email' => $lead['email'], '@method' => 'soap', '@data' => print_r($lead['data'], TRUE)), WATCHDOG_INFO);
     try {
       $client = new marketoClient($accessKey, $secretKey, $soapEndPoint);
@@ -228,6 +230,42 @@ function _marketo_get_fields() {
   }
 
   return $result;
+}
+
+function _marketo_munchkin_is_configured() {
+  static $configured;
+
+  if (!isset($configured)) {
+    if (
+        variable_get('marketo_munchkin_account_id', FALSE) &&
+        variable_get('marketo_munchkin_api_private_key', FALSE) &&
+        variable_get('marketo_munchkin_javascript_library', FALSE)
+    ) {
+      $configured = TRUE;
+    }
+    else {
+      $configured = FALSE;
+    }
+  }
+  return $configured;
+}
+
+function _marketo_soap_is_configured() {
+  static $configured;
+
+  if (!isset($configured)) {
+    if (
+        variable_get('marketo_soap_encryption_key', FALSE) &&
+        variable_get('marketo_soap_endpoint', FALSE) &&
+        variable_get('marketo_soap_user_id', FALSE)
+    ) {
+      $configured = TRUE;
+    }
+    else {
+      $configured = FALSE;
+    }
+  }
+  return $configured;
 }
 
 /**
