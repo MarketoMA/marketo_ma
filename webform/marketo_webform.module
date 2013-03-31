@@ -39,6 +39,7 @@ function marketo_webform_form_webform_configure_form_alter(&$form, &$form_state,
     '#description' => t('If checked, captured form information will be sent to Marketo'),
     '#default_value' => $is_active,
   );
+  // @todo Ensure tokens work
   $form['node']['webform']['marketo']['marketo_webform_lead_source'] = array(
     '#title' => t('Lead Source'),
     '#type' => 'textfield',
@@ -204,7 +205,7 @@ function marketo_webform_webform_submission_insert($node, $submission) {
       $data['LeadSource'] = $node->webform['marketo']['marketo_webform_lead_source'];
     }
 
-    marketo_prepare_data($data);
+    marketo_add_lead($data['Email'], $data);
   }
 }
 

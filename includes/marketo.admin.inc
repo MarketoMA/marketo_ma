@@ -56,14 +56,14 @@ function marketo_admin_settings($form, &$form_state) {
   );
   $form['marketo_tracking_options']['marketo_webform_fields'] = array(
     '#type' => 'textarea',
-    '#title' => t('Marketo fields to expose to webforms'),
+    '#title' => t('Marketo fields'),
     '#description' => t('Pipe "|" delimited strings of [API Name]|[Friendly Label]. Enter one field per line. This information can be found in the Marketo admin page at Admin > Field Management > Export Field Names'),
     '#rows' => 10,
     '#prefix' => '<div id="marketo-webform-fields-wrapper">',
     '#suffix' => '</div>',
   );
 
-  if (isset($form_state['triggering_element']['#array_parents']) && in_array('marketo_webform_fields_soap',$form_state['triggering_element']['#array_parents'])) {
+  if (isset($form_state['triggering_element']['#array_parents']) && in_array('marketo_webform_fields_soap', $form_state['triggering_element']['#array_parents'])) {
     $data = _marketo_get_fields();
     $mwf_default = "";
     foreach ($data as $key => $value) {
@@ -75,6 +75,7 @@ function marketo_admin_settings($form, &$form_state) {
     $form['marketo_tracking_options']['marketo_webform_fields']['#default_value'] = variable_get('marketo_webform_fields', MARKETO_WEBFORM_FIELD_DEFAULTS);
   }
 
+  // @todo This button should not be available until the SOAP fields have been saved
   $form['marketo_tracking_options']['marketo_webform_fields_soap'] = array(
     '#type' => 'button',
     '#value' => t('Retrieve from Marketo'),
@@ -151,7 +152,6 @@ function marketo_admin_settings($form, &$form_state) {
 function _marketo_admin_settings_submit($form_id, $form_values) {
   // @todo Validation needed
 }
-
 
 function _marketo_webform_fields_soap_callback($form, &$form_state) {
   return $form['marketo_tracking_options']['marketo_webform_fields'];

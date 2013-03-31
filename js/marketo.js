@@ -8,8 +8,10 @@
           cache: true,
           success: function() {
             Munchkin.init(settings.marketo.key);
-            if (typeof settings.marketo.data !== 'undefined') {
-              marketoMunchkinFunction(settings.marketo.lead_type, settings.marketo.data, settings.marketo.hash);
+            if (typeof settings.marketo.actions !== 'undefined') {
+              jQuery.each(settings.marketo.actions, function(){
+                marketoMunchkinFunction(this.action, this.data, this.hash);
+              });
             }
           }
         });

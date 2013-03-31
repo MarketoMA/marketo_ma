@@ -12,7 +12,7 @@ function marketo_user_user_insert(&$edit, $account, $category) {
   $data = array(
     'Email' => $edit['mail']
   );
-  marketo_prepare_data($data);
+  marketo_add_lead($data['Email'], $data);
 }
 
 /**
@@ -22,5 +22,5 @@ function marketo_user_user_update(&$edit, $account, $category) {
   $data = array(
     'Email' => $edit['mail']
   );
-  marketo_prepare_data($data);
+  marketo_add_lead($data['Email'], $data);
 }
