@@ -8,10 +8,9 @@
 /**
  * Builds and returns the Marketo settings form.
  */
-function marketo_admin_settings($form, &$form_state) {
+function marketo_admin_settings_form($form, &$form_state) {
   module_load_include('inc', 'marketo', 'includes/marketo');
 
-  $form['#submit'][] = '_marketo_admin_settings_submit';
   $form['marketo_tracking_options'] = array(
     '#title' => t('Tracking Options'),
     '#type' => 'fieldset',
@@ -149,8 +148,36 @@ function marketo_admin_settings($form, &$form_state) {
   return system_settings_form($form);
 }
 
-function _marketo_admin_settings_submit($form_id, $form_values) {
-  // @todo Validation needed
+/**
+ * Implements hook_form_validate().
+ */
+function marketo_admin_settings_form_validate($form, &$form_state) {
+  $form_state['values']['marketo_soap_endpoint'] = trim($form_state['values']['marketo_soap_endpoint']);
+  $form_state['values']['marketo_soap_user_id'] = trim($form_state['values']['marketo_soap_user_id']);
+  $form_state['values']['marketo_soap_encryption_key'] = trim($form_state['values']['marketo_soap_encryption_key']);
+
+  $soap_is_valid = _marketo_validate_soap_configuration(
+      $form_state['values']['marketo_soap_user_id'], $form_state['values']['marketo_soap_encryption_key'], $form_state['values']['marketo_soap_endpoint']
+  );
+  if (!$soap_is_valid) {
+    form_set_error('marketo_soap_endpoint', 'Unable to validate SOAP API settings.');
+    form_set_error('marketo_soap_user_id');
+    form_set_error('marketo_soap_encryption_key');
+  }
+}
+
+function _marketo_validate_soap_configuration($accessKey, $secretKey, $soapEndPoint) {
+  module_load_include('inc', 'marketo', 'includes/marketo.soap');
+  try {
+    $client = new marketoClient($accessKey, $secretKey, $soapEndPoint);
+    $result = $client->getFields();
+    if (!$result) {
+      $result = FALSE;
+    }
+  } catch (Exception $e) {
+    $result = FALSE;
+  }
+  return $result;
 }
 
 function _marketo_webform_fields_soap_callback($form, &$form_state) {

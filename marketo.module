@@ -14,7 +14,7 @@ function marketo_menu() {
     'title' => 'Marketo',
     'description' => 'Marketo configuration',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('marketo_admin_settings'),
+    'page arguments' => array('marketo_admin_settings_form'),
     'access arguments' => array('administer marketo'),
     'file' => 'includes/marketo.admin.inc',
   );
@@ -107,12 +107,12 @@ function _marketo_cleanup() {
  * Implements hook_page_alter().
  */
 function marketo_page_alter(&$page) {
-  // @todo add OR if we have munchkin data which needs to be sent
   $marketo_data = marketo_get_queue();
   // drupal_alter('marketo_data', $marketo_data);
 
   if (_marketo_visibility_pages() || count($marketo_data) > 0) {
 
+    // @todo handle case where visibility = false, count > 0, and tracking type != munchkin.. we don't need any tracking in this case
     // Basic Munchkin tracking
     _marketo_output_tracking_code();
 
@@ -226,20 +226,20 @@ function _marketo_queue_lead($lead) {
 }
 
 function _marketo_get_fields() {
-  module_load_include('inc', 'marketo', 'includes/marketo.soap');
+  if (_marketo_soap_is_configured()) {
+    module_load_include('inc', 'marketo', 'includes/marketo.soap');
 
-  $secretKey = variable_get('marketo_soap_encryption_key', NULL);
-  $accessKey = variable_get('marketo_soap_user_id', NULL);
-  $soapEndPoint = variable_get('marketo_soap_endpoint', NULL);
+    $secretKey = variable_get('marketo_soap_encryption_key');
+    $accessKey = variable_get('marketo_soap_user_id');
+    $soapEndPoint = variable_get('marketo_soap_endpoint');
 
-  $result = array();
+    $result = array();
 
-  if ($secretKey && $accessKey && $soapEndPoint) {
     try {
       $client = new marketoClient($accessKey, $secretKey, $soapEndPoint);
       $result = $client->getFields();
       if (!$result) {
-        throw new Exception('No response from SOAP request');
+        watchdog('marketo', 'Unable to retrieve field information. Please check SOAP API configuration', WATCHDOG_ERROR);
       }
     } catch (Exception $e) {
       watchdog('marketo', 'Unable to retrieve field information. <pre>@error</pre>', array('error' => $e->getMessage()));
