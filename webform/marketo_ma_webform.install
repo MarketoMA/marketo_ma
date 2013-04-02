@@ -2,17 +2,17 @@
 
 /**
  * @file
- * marketo module install/schema hooks
+ * marketo ma webform module install/schema hooks
  */
 
 /**
  * Implements hook_schema().
  */
-function marketo_webform_schema() {
-  module_load_include('inc', 'marketo', 'includes/marketo');
+function marketo_ma_webform_schema() {
+  module_load_include('inc', 'marketo_ma', 'includes/marketo_ma');
 
   $schema = array();
-  $schema[MARKETO_SCHEMA_WEBFORM] = array(
+  $schema[MARKETO_MA_SCHEMA_WEBFORM] = array(
     'description' => t('Webform Settings'),
     'primary key' => array('nid'),
     'unique keys' => array(),
@@ -23,7 +23,7 @@ function marketo_webform_schema() {
         'unsigned' => TRUE,
         'not null' => TRUE,
       ),
-      MARKETO_WEBFORM_FIELD_ACTIVE => array(
+      MARKETO_MA_WEBFORM_FIELD_ACTIVE => array(
         // Is this webform marketo enabled
         'description' => 'Should this form send data to Marketo',
         'type' => 'int',
@@ -31,14 +31,14 @@ function marketo_webform_schema() {
         'not null' => TRUE,
         'default' => 0
       ),
-      MARKETO_WEBFORM_FIELD_LEAD_SOURCE => array(
+      MARKETO_MA_WEBFORM_FIELD_LEAD_SOURCE => array(
         'description' => t('Lead source for this webform'),
         'type' => 'varchar',
         'length' => 255
       ),
     ),
   );
-  $schema[MARKETO_SCHEMA_WEBFORM_COMPONENT] = array(
+  $schema[MARKETO_MA_SCHEMA_WEBFORM_COMPONENT] = array(
     'description' => t('Webform Component Settings'),
     'primary key' => array('nid', 'cid'),
     'unique keys' => array(),
@@ -58,7 +58,7 @@ function marketo_webform_schema() {
         'not null' => TRUE,
         'default' => 0,
       ),
-      MARKETO_WEBFORM_COMPONENT_KEY => array(
+      MARKETO_MA_WEBFORM_COMPONENT_KEY => array(
         'description' => 'The Marketo form field.',
         'type' => 'varchar',
         'length' => 128,
@@ -71,26 +71,26 @@ function marketo_webform_schema() {
 /**
  * Implements hook_install().
  */
-function marketo_webform_install() {
+function marketo_ma_webform_install() {
   
 }
 
 /**
  * Implements hook_uninstall().
  */
-function marketo_webform_uninstall() {
-  variable_del('marketo_webform_fields');
+function marketo_ma_webform_uninstall() {
+  variable_del('marketo_ma_webform_fields');
 }
 
 /**
  * Adding column for webform lead source
  */
-function marketo_update_1000() {
-  module_load_include('inc', 'marketo', 'includes/marketo');
+function marketo_ma_update_1000() {
+  module_load_include('inc', 'marketo_ma', 'includes/marketo_ma');
   $spec = array(
     'description' => 'The Marketo form field.',
     'type' => 'varchar',
     'length' => 128,
   );
-  db_add_field(MARKETO_SCHEMA_WEBFORM, MARKETO_WEBFORM_FIELD_LEAD_SOURCE, $spec);
+  db_add_field(MARKETO_MA_SCHEMA_WEBFORM, MARKETO_MA_WEBFORM_FIELD_LEAD_SOURCE, $spec);
 }

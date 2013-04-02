@@ -1,9 +1,9 @@
-name = Marketo Webform
+name = Marketo MA Webform
 description = Integrates Marketo with Webforms.
 core = 7.x
 package = Marketo
 
-dependencies[] = marketo
+dependencies[] = marketo_ma
 dependencies[] = webform
-files[] = marketo_webform.install
-files[] = marketo_webform.module
+files[] = marketo_ma_webform.install
+files[] = marketo_ma_webform.module

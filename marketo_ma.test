@@ -3,25 +3,25 @@
 class MarketoTestCase extends DrupalWebTestCase {
 
   public $admin_path;
-  public $marketo_users;
+  public $marketo_ma_users;
 
   /**
    * Implementation of setUp().
    */
   public function setUp() {
-    parent::setUp('marketo');
+    parent::setUp('marketo_ma');
 
     $permissions['basic'] = array();
 
-    $permissions['marketo_admin'] = array(
+    $permissions['marketo_ma_admin'] = array(
       'administer marketo'
     );
 
     foreach ($permissions as $user_key => $permissions) {
-      $this->marketo_users[$user_key] = $this->drupalCreateUser($permissions);
+      $this->marketo_ma_users[$user_key] = $this->drupalCreateUser($permissions);
     }
 
-    $this->admin_path = 'admin/config/search/marketo';
+    $this->admin_path = 'admin/config/search/marketo_ma';
   }
 
   /**
@@ -50,7 +50,8 @@ class MarketoBasicModuleTestCase extends DrupalWebTestCase {
    * Implementation of setUp().
    */
   public function setUp() {
-    parent::setUp('marketo');
+    parent::setUp('marketo_ma');
+    $this->admin_path = 'admin/config/search/marketo_ma';
   }
 
   /**
@@ -61,13 +62,13 @@ class MarketoBasicModuleTestCase extends DrupalWebTestCase {
   }
 
   public function testPermission() {
-    $permission = module_invoke('marketo', 'permission');
+    $permission = module_invoke('marketo_ma', 'permission');
     $this->assertTrue(is_array($permission), 'Permission hook returns array.');
     $this->assertTrue(array_key_exists('administer marketo', $permission), 'Permission is as expected.');
   }
 
   public function testMenu() {
-    $menu = module_invoke('marketo', 'menu');
+    $menu = module_invoke('marketo_ma', 'menu');
     $this->assertTrue(array_key_exists($this->admin_path, $menu), 'Menu item found.');
   }
 
@@ -89,7 +90,7 @@ class MarketoModuleConfigTestCase extends MarketoTestCase {
   public function setUp() {
     parent::setUp();
 
-    $this->drupalLogin($this->marketo_users['marketo_admin']);
+    $this->drupalLogin($this->marketo_ma_users['marketo_ma_admin']);
   }
 
   /**
@@ -100,7 +101,7 @@ class MarketoModuleConfigTestCase extends MarketoTestCase {
   }
 
   public function testBasicAccess() {
-    $this->drupalLogin($this->marketo_users['basic']);
+    $this->drupalLogin($this->marketo_ma_users['basic']);
     $this->drupalGet($this->admin_path);
     $this->assertResponse(403, 'Access denied for regular user.');
   }
@@ -118,26 +119,26 @@ class MarketoModuleConfigTestCase extends MarketoTestCase {
   }
 
   public function testSubmitWithValues() {
-    $marketo_munchkin_lead_source = $this->randomName();
-    $marketo_pages = '*';
-    $marketo_webform_fields = 'Email|Email Address';
-    $marketo_munchkin_account_id = $this->randomName(3) . '-' . $this->randomName(3) . '-' . $this->randomName(3);
-    $marketo_munchkin_api_private_key = $this->randomName();
-    $marketo_soap_endpoint = 'http://' . $this->randomName() . '.example.com';
-    $marketo_soap_user_id = $this->randomName();
-    $marketo_soap_encryption_key = $this->randomName();
+    $marketo_ma_munchkin_lead_source = $this->randomName();
+    $marketo_ma_pages = '*';
+    $marketo_ma_webform_fields = 'Email|Email Address';
+    $marketo_ma_munchkin_account_id = $this->randomName(3) . '-' . $this->randomName(3) . '-' . $this->randomName(3);
+    $marketo_ma_munchkin_api_private_key = $this->randomName();
+    $marketo_ma_soap_endpoint = 'http://' . $this->randomName() . '.example.com';
+    $marketo_ma_soap_user_id = $this->randomName();
+    $marketo_ma_soap_encryption_key = $this->randomName();
 
     $edit = array(
-      'marketo_tracking_method' => 'munchkin',
-      'marketo_munchkin_lead_source' => $marketo_munchkin_lead_source,
-      'marketo_visibility_pages' => 0,
-      'marketo_pages' => $marketo_pages,
-      'marketo_webform_fields' => $marketo_webform_fields,
-      'marketo_munchkin_account_id' => $marketo_munchkin_account_id,
-      'marketo_munchkin_api_private_key' => $marketo_munchkin_api_private_key,
-      'marketo_soap_endpoint' => $marketo_soap_endpoint,
-      'marketo_soap_user_id' => $marketo_soap_user_id,
-      'marketo_soap_encryption_key' => $marketo_soap_encryption_key,
+      'marketo_ma_tracking_method' => 'munchkin',
+      'marketo_ma_munchkin_lead_source' => $marketo_ma_munchkin_lead_source,
+      'marketo_ma_visibility_pages' => 0,
+      'marketo_ma_pages' => $marketo_ma_pages,
+      'marketo_ma_webform_fields' => $marketo_ma_webform_fields,
+      'marketo_ma_munchkin_account_id' => $marketo_ma_munchkin_account_id,
+      'marketo_ma_munchkin_api_private_key' => $marketo_ma_munchkin_api_private_key,
+      'marketo_ma_soap_endpoint' => $marketo_ma_soap_endpoint,
+      'marketo_ma_soap_user_id' => $marketo_ma_soap_user_id,
+      'marketo_ma_soap_encryption_key' => $marketo_ma_soap_encryption_key,
     );
 
     $this->drupalGet($this->admin_path);
@@ -172,7 +173,7 @@ class MarketoWebformBasicModuleTestCase extends DrupalWebTestCase {
    * Implementation of setUp().
    */
   public function setUp() {
-    parent::setUp('marketo', 'marketo_webform');
+    parent::setUp('marketo_ma', 'marketo_ma_webform');
   }
 
   /**
@@ -184,8 +185,8 @@ class MarketoWebformBasicModuleTestCase extends DrupalWebTestCase {
 
   public function testTables() {
     $tables = array(
-      'marketo_webform',
-      'marketo_webform_component'
+      'marketo_ma_webform',
+      'marketo_ma_webform_component'
     );
 
     // Verify the necessary tables are in place.
@@ -194,8 +195,8 @@ class MarketoWebformBasicModuleTestCase extends DrupalWebTestCase {
     }
 
     // Disable and uninstall the webform module.
-    module_disable(array('marketo_webform'));
-    drupal_uninstall_modules(array('marketo_webform'));
+    module_disable(array('marketo_ma_webform'));
+    drupal_uninstall_modules(array('marketo_ma_webform'));
 
     // With module uninstalled, tables should no longer exist.
     foreach ($tables as $table) {
@@ -222,7 +223,7 @@ class MarketoWebformTestCase extends DrupalWebTestCase {
    * Implementation of setUp().
    */
   public function setUp() {
-    parent::setUp('webform', 'marketo_webform');
+    parent::setUp('webform', 'marketo_ma_webform');
   }
 
   /**
