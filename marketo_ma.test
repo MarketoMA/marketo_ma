@@ -113,7 +113,18 @@ class MarketoModuleConfigTestCase extends MarketoTestCase {
   }
 
   public function testSubmitWithoutValues() {
-    $edit = array();
+    $edit = array(
+      'marketo_ma_tracking_method' => '',
+      'marketo_ma_munchkin_lead_source' => '',
+      'marketo_ma_visibility_pages' => 0,
+      'marketo_ma_pages' => '',
+      'marketo_ma_webform_fields' => '',
+      'marketo_ma_munchkin_account_id' => '',
+      'marketo_ma_munchkin_api_private_key' => '',
+      'marketo_ma_soap_endpoint' => '',
+      'marketo_ma_soap_user_id' => '',
+      'marketo_ma_soap_encryption_key' => '',
+    );
     $this->drupalPost($this->admin_path, $edit, 'Save configuration');
     $this->assertText('field is required', 'Fields are required');
   }
@@ -252,7 +263,7 @@ class MarketoWebformTestCase extends DrupalWebTestCase {
     node_save($node);
     $this->assertTrue($this->webformRecordExists($node->nid), t('Webform record still in the database after modifying webform node.'));
   }
-  
+
   function webformRecordExists($nid) {
     return (bool) db_query("SELECT nid FROM {webform} WHERE nid = :nid", array(':nid' => $nid))->fetchField();
   }
