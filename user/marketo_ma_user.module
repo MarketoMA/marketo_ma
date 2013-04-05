@@ -9,18 +9,23 @@
  * Implements hook_user_insert().
  */
 function marketo_ma_user_user_insert(&$edit, $account, $category) {
-  $data = array(
-    'Email' => $edit['mail']
-  );
-  marketo_ma_add_lead($data['Email'], $data);
+  if (isset($edit['mail'])) {
+    $data = array(
+      'Email' => $edit['mail']
+    );
+    marketo_ma_add_lead($data['Email'], $data);
+  }
 }
 
 /**
  * Implements hook_user_update().
  */
 function marketo_ma_user_user_update(&$edit, $account, $category) {
-  $data = array(
-    'Email' => $edit['mail']
-  );
-  marketo_ma_add_lead($data['Email'], $data);
+  // @todo there are likely fields we want to capture updates to and send along beyond email address
+  if (isset($edit['mail'])) {
+    $data = array(
+      'Email' => $edit['mail']
+    );
+    marketo_ma_add_lead($data['Email'], $data);
+  }
 }
