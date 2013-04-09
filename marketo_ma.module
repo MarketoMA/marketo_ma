@@ -95,7 +95,7 @@ function marketo_ma_add_lead($email, $data = array(), $merge = FALSE) {
  * Retrieves queued data.
  */
 function marketo_ma_get_queue() {
-  // $queue[email] = array(key => value)
+  // Data looks like $queue[email] = array(key => value).
   return (isset($_SESSION['marketo_ma_data'])) ? $_SESSION['marketo_ma_data'] : array();
 }
 

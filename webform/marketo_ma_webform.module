@@ -132,9 +132,7 @@ function marketo_ma_webform_form_webform_component_edit_form_alter(&$form, &$for
 
   /*
    * marketo_ma_webform_fields is multi-line, pipe "|" delimited data
-   * which needs to be parsed.
-   * 
-   * first split it into rows of data
+   * which needs to be parsed. First split it into rows of data.
    */
   $raw_options = preg_split('/(\r\n?|\n)/', trim(variable_get('marketo_ma_webform_fields', MARKETO_MA_WEBFORM_FIELD_DEFAULTS)));
   $options = array();
@@ -197,13 +195,13 @@ function marketo_ma_webform_webform_submission_insert($node, $submission) {
 }
 
 /**
- * For a given node and submission, returns an array containing the webform
- * component to marketo key mapping.
+ * For a given node and submission, returns an array containing the webform component to marketo key mapping.
  * 
  * @param $node
  *   The node object containing the current webform
  * @param $submission
  *   The webform submission object to be saved into the database
+ * 
  * @return array
  *   Component to marketo key mapping
  */
