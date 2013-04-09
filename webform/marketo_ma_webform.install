@@ -13,7 +13,7 @@ function marketo_ma_webform_schema() {
 
   $schema = array();
   $schema[MARKETO_MA_SCHEMA_WEBFORM] = array(
-    'description' => t('Webform Settings'),
+    'description' => 'Webform Settings',
     'primary key' => array('nid'),
     'unique keys' => array(),
     'fields' => array(
@@ -24,17 +24,17 @@ function marketo_ma_webform_schema() {
         'not null' => TRUE,
       ),
       MARKETO_MA_WEBFORM_FIELD_ACTIVE => array(
-        // Is this webform marketo enabled
+        // Is this webform marketo enabled.
         'description' => 'Should this form send data to Marketo',
         'type' => 'int',
         'unsigned' => TRUE,
         'not null' => TRUE,
-        'default' => 0
-      )
+        'default' => 0,
+      ),
     ),
   );
   $schema[MARKETO_MA_SCHEMA_WEBFORM_COMPONENT] = array(
-    'description' => t('Webform Component Settings'),
+    'description' => 'Webform Component Settings',
     'primary key' => array('nid', 'cid'),
     'unique keys' => array(),
     'fields' => array(
@@ -61,13 +61,6 @@ function marketo_ma_webform_schema() {
     ),
   );
   return $schema;
-}
-
-/**
- * Implements hook_install().
- */
-function marketo_ma_webform_install() {
-  
 }
 
 /**

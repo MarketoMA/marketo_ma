@@ -53,22 +53,25 @@ function marketo_ma_permission() {
 function marketo_ma_cron_queue_info() {
   $queues = array();
   $queues['marketo_ma_lead'] = array(
-    'worker callback' => '_marketo_ma_associate_lead_soap', // function to call for each item
-    'time' => 30, // seconds to spend working on the queue
+    'worker callback' => '_marketo_ma_associate_lead_soap',
+    'time' => 30,
   );
   return $queues;
 }
 
 /**
- * Adds lead information to be captured
+ * Adds lead information to be captured.
  * 
  * @param string $email
  *   A valid email address for this lead
  * @param array $data
  *   Key value pairs of data to be associated with this lead
- * @param boolean $merge
- *   If TRUE, $data will be merged if $email already exists else $data will be replaced
- * @return boolean
+ * @param bool $merge
+ *   If TRUE, $data will be merged if $email already exists else $data will
+ *   be replaced
+ * 
+ * @return bool
+ *   Returns TRUE upon completion
  */
 function marketo_ma_add_lead($email, $data = array(), $merge = FALSE) {
   $marketo_ma_data = array();
@@ -89,15 +92,15 @@ function marketo_ma_add_lead($email, $data = array(), $merge = FALSE) {
 }
 
 /**
- * 
- * $queue[email] = array(key => value)
+ * Retrieves queued data.
  */
 function marketo_ma_get_queue() {
+  // $queue[email] = array(key => value)
   return (isset($_SESSION['marketo_ma_data'])) ? $_SESSION['marketo_ma_data'] : array();
 }
 
 /**
- * Cleanup any mess we made or data we don't want to hold on to
+ * Cleanup any mess we made or data we don't want to hold on to.
  */
 function _marketo_ma_cleanup() {
   if (isset($_SESSION['marketo_ma_data'])) {
@@ -111,11 +114,13 @@ function _marketo_ma_cleanup() {
 function marketo_ma_page_alter(&$page) {
   $marketo_ma_data = marketo_ma_get_queue();
   // drupal_alter('marketo_ma_data', $marketo_ma_data);
-
   if (_marketo_ma_visibility_pages() || count($marketo_ma_data) > 0) {
 
-    // @todo handle case where visibility = false, count > 0, and tracking type != munchkin.. we don't need any tracking in this case
-    // Basic Munchkin tracking
+    /*
+     * @todo handle case where visibility = false, count > 0, and
+     * tracking type != munchkin.. we don't need any tracking in this case
+     */
+    // Basic Munchkin tracking.
     _marketo_ma_output_tracking_code();
 
     foreach ($marketo_ma_data as $lead) {
@@ -128,16 +133,25 @@ function marketo_ma_page_alter(&$page) {
   }
 }
 
+/**
+ * Adds basic tracking code to page.
+ */
 function _marketo_ma_output_tracking_code() {
   if (_marketo_ma_munchkin_is_configured()) {
     $marketo_ma_munchkin_account_id = variable_get('marketo_ma_munchkin_account_id');
     $marketo_ma_munchkin_javascript_library = '//' . str_replace(array('http://', 'https://', '//'), '', variable_get('marketo_ma_munchkin_javascript_library'));
 
-    drupal_add_js(array('marketo' => array('track' => TRUE, 'key' => $marketo_ma_munchkin_account_id, 'library' => $marketo_ma_munchkin_javascript_library)), 'setting');
+    drupal_add_js(array(
+      'marketo' => array(
+        'track' => TRUE,
+        'key' => $marketo_ma_munchkin_account_id,
+        'library' => $marketo_ma_munchkin_javascript_library),
+        ), 'setting');
   }
 }
 
 /**
+ * Determines which tracking method should be used.
  * 
  * @param array $lead
  *   An associative array containing lead data
@@ -148,7 +162,7 @@ function _marketo_ma_output_tracking_code() {
  */
 function _marketo_ma_associate_lead($lead) {
 
-  // Check to see if there is a default lead source we should apply
+  // Check to see if there is a default lead source we should apply.
   $source = variable_get('marketo_ma_munchkin_lead_source');
   if (!array_key_exists('LeadSource', $lead['data']) && $source !== '') {
     $lead['data']['LeadSource'] = $source;
@@ -172,8 +186,10 @@ function _marketo_ma_associate_lead($lead) {
 }
 
 /**
+ * Adds javascript required to track a lead.
  * 
  * @param array $lead
+ *   Lead data
  */
 function _marketo_ma_associate_lead_munchkin($lead) {
   if (_marketo_ma_munchkin_is_configured()) {
@@ -183,28 +199,34 @@ function _marketo_ma_associate_lead_munchkin($lead) {
     $action = array(
       'action' => 'associateLead',
       'data' => $lead['data'],
-      'hash' => $hash
+      'hash' => $hash,
     );
-    drupal_add_js(array('marketo' => array('actions' => array($action))), 'setting');
+    drupal_add_js(array(
+      'marketo' => array(
+        'actions' => array($action)
+      )), 'setting');
   }
 }
 
 /**
+ * Sends lead data using SOAP API.
  * 
  * @param array $lead
+ *   Lead data
+ * 
  * @throws Exception
  */
 function _marketo_ma_associate_lead_soap($lead) {
   if (_marketo_ma_soap_is_configured()) {
     module_load_include('inc', 'marketo_ma', 'includes/marketo_ma.soap');
 
-    $secretKey = variable_get('marketo_ma_soap_encryption_key');
-    $accessKey = variable_get('marketo_ma_soap_user_id');
-    $soapEndPoint = variable_get('marketo_ma_soap_endpoint');
+    $secret_key = variable_get('marketo_ma_soap_encryption_key');
+    $access_key = variable_get('marketo_ma_soap_user_id');
+    $soap_endpoint = variable_get('marketo_ma_soap_endpoint');
 
     watchdog('marketo', 'Associating lead !email [@method] <pre>@data</pre>', array('!email' => $lead['email'], '@method' => 'soap', '@data' => print_r($lead['data'], TRUE)), WATCHDOG_INFO);
     try {
-      $client = new marketoClient($accessKey, $secretKey, $soapEndPoint);
+      $client = new marketoClient($access_key, $secret_key, $soap_endpoint);
       $result = $client->syncLead($lead['email'], $lead['data']);
       if (!$result) {
         throw new Exception('No response from SOAP request');
@@ -216,9 +238,13 @@ function _marketo_ma_associate_lead_soap($lead) {
 }
 
 /**
- * Add a lead to the queue for submission later
+ * Add a lead to the queue for submission later.
+ * 
  * @param array $lead
- * @return boolean
+ *   Lead data
+ * 
+ * @return bool
+ *   Returns TRUE if lead was successfully added to queue
  */
 function _marketo_ma_queue_lead($lead) {
   watchdog('marketo', 'Queing lead !email [@method] <pre>@data</pre>', array('!email' => $lead['email'], '@method' => 'queued', '@data' => print_r($lead['data'], TRUE)), WATCHDOG_INFO);
@@ -227,18 +253,24 @@ function _marketo_ma_queue_lead($lead) {
   return $success;
 }
 
+/**
+ * Retrieves fields from Marketo using SOAP API.
+ * 
+ * @return array
+ *   Marketo fields
+ */
 function _marketo_ma_get_fields() {
   if (_marketo_ma_soap_is_configured()) {
     module_load_include('inc', 'marketo_ma', 'includes/marketo_ma.soap');
 
-    $secretKey = variable_get('marketo_ma_soap_encryption_key');
-    $accessKey = variable_get('marketo_ma_soap_user_id');
-    $soapEndPoint = variable_get('marketo_ma_soap_endpoint');
+    $secret_key = variable_get('marketo_ma_soap_encryption_key');
+    $access_key = variable_get('marketo_ma_soap_user_id');
+    $soap_endpoint = variable_get('marketo_ma_soap_endpoint');
 
     $result = array();
 
     try {
-      $client = new marketoClient($accessKey, $secretKey, $soapEndPoint);
+      $client = new marketoClient($access_key, $secret_key, $soap_endpoint);
       $result = $client->getFields();
       if (!$result) {
         watchdog('marketo', 'Unable to retrieve field information. Please check SOAP API configuration', WATCHDOG_ERROR);
@@ -251,6 +283,13 @@ function _marketo_ma_get_fields() {
   return $result;
 }
 
+/**
+ * Tests to see if munchkin is configured.
+ * 
+ * @staticvar bool $configured
+ * @return bool
+ *   Returns TRUE if Munchkin settings are configured
+ */
 function _marketo_ma_munchkin_is_configured() {
   static $configured;
 
@@ -269,6 +308,13 @@ function _marketo_ma_munchkin_is_configured() {
   return $configured;
 }
 
+/**
+ * Tests to see if soap is configured.
+ * 
+ * @staticvar bool $configured
+ * @return bool
+ *   Returns TRUE is SOAP API settings are configured
+ */
 function _marketo_ma_soap_is_configured() {
   static $configured;
 
@@ -307,7 +353,7 @@ function _marketo_ma_visibility_pages() {
       // with different case. Ex: /Page, /page, /PAGE.
       $pages = drupal_strtolower($setting_pages);
       if ($visibility < 2) {
-        // Convert the Drupal path to lowercase
+        // Convert the Drupal path to lowercase.
         $path = drupal_strtolower(drupal_get_path_alias($_GET['q']));
         // Compare the lowercase internal and lowercase path alias (if any).
         $page_match = drupal_match_path($path, $pages);

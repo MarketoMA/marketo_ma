@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @file
+ * Marketo MA test cases.
+ */
+
 class MarketoTestCase extends DrupalWebTestCase {
 
   public $admin_path;
@@ -14,7 +19,7 @@ class MarketoTestCase extends DrupalWebTestCase {
     $permissions['basic'] = array();
 
     $permissions['marketo_ma_admin'] = array(
-      'administer marketo'
+      'administer marketo',
     );
 
     foreach ($permissions as $user_key => $permissions) {
@@ -38,6 +43,9 @@ class MarketoTestCase extends DrupalWebTestCase {
  */
 class MarketoBasicModuleTestCase extends DrupalWebTestCase {
 
+  /**
+   * Implementation of getInfo().
+   */
   public static function getInfo() {
     return array(
       'name' => 'Module validation',
@@ -76,6 +84,9 @@ class MarketoBasicModuleTestCase extends DrupalWebTestCase {
 
 class MarketoModuleConfigTestCase extends MarketoTestCase {
 
+  /**
+   * Implementation of getInfo().
+   */
   public static function getInfo() {
     return array(
       'name' => 'Module configuration',
@@ -172,6 +183,9 @@ class MarketoModuleConfigTestCase extends MarketoTestCase {
  */
 class MarketoWebformBasicModuleTestCase extends DrupalWebTestCase {
 
+  /**
+   * Implementation of getInfo().
+   */
   public static function getInfo() {
     return array(
       'name' => 'Webform module validation',
@@ -222,6 +236,9 @@ class MarketoWebformBasicModuleTestCase extends DrupalWebTestCase {
  */
 class MarketoWebformTestCase extends DrupalWebTestCase {
 
+  /**
+   * Implementation of getInfo().
+   */
   public static function getInfo() {
     return array(
       'name' => 'Webform integration',

@@ -15,7 +15,7 @@ function marketo_ma_admin_settings_form($form, &$form_state) {
     '#title' => t('Tracking Options'),
     '#type' => 'fieldset',
     '#collapsible' => TRUE,
-    '#collapsed' => FALSE
+    '#collapsed' => FALSE,
   );
   $form['marketo_ma_tracking_options']['marketo_ma_tracking_method'] = array(
     '#title' => t('Tracking Method'),
@@ -43,7 +43,7 @@ function marketo_ma_admin_settings_form($form, &$form_state) {
       t('The listed pages only'),
     ),
     '#default_value' => variable_get('marketo_ma_visibility_pages', 0),
-    '#required' => TRUE
+    '#required' => TRUE,
   );
   $form['marketo_ma_tracking_options']['marketo_ma_pages'] = array(
     '#type' => 'textarea',
@@ -74,21 +74,21 @@ function marketo_ma_admin_settings_form($form, &$form_state) {
     $form['marketo_ma_tracking_options']['marketo_ma_webform_fields']['#default_value'] = variable_get('marketo_ma_webform_fields', MARKETO_MA_WEBFORM_FIELD_DEFAULTS);
   }
 
-  // @todo This button should not be available until the SOAP fields have been saved
+  // @todo button should not be available until the SOAP fields have been saved
   $form['marketo_ma_tracking_options']['marketo_ma_webform_fields_soap'] = array(
     '#type' => 'button',
     '#value' => t('Retrieve from Marketo'),
     '#ajax' => array(
       'callback' => '_marketo_ma_webform_fields_soap_callback',
       'wrapper' => 'marketo-webform-fields-wrapper',
-    )
+    ),
   );
   $form['marketo_ma_munchkin'] = array(
     '#title' => t('Munchkin Javascript API'),
     '#type' => 'fieldset',
     '#description' => t('Values can be found on the Munchkin Admin page at Admin > Integration > Munchkin'),
     '#collapsible' => TRUE,
-    '#collapsed' => FALSE
+    '#collapsed' => FALSE,
   );
   $form['marketo_ma_munchkin']['marketo_ma_munchkin_account_id'] = array(
     '#type' => 'textfield',
@@ -106,7 +106,7 @@ function marketo_ma_admin_settings_form($form, &$form_state) {
     '#title' => t('Advanced Settings'),
     '#type' => 'fieldset',
     '#collapsible' => TRUE,
-    '#collapsed' => TRUE
+    '#collapsed' => TRUE,
   );
   $form['marketo_ma_munchkin']['marketo_ma_munchkin_advanced']['marketo_ma_munchkin_javascript_library'] = array(
     '#type' => 'textfield',
@@ -118,14 +118,14 @@ function marketo_ma_admin_settings_form($form, &$form_state) {
     '#type' => 'textfield',
     '#title' => t('Workspace (Partition)'),
     '#default_value' => variable_get('marketo_ma_munchkin_partition', ''),
-    '#required' => FALSE
+    '#required' => FALSE,
   );
   $form['marketo_ma_soap'] = array(
     '#title' => t('SOAP API'),
     '#type' => 'fieldset',
     '#description' => t('Values can be found on the SOAP API Admin page at Admin > Integration > SOAP API'),
     '#collapsible' => TRUE,
-    '#collapsed' => FALSE
+    '#collapsed' => FALSE,
   );
   $form['marketo_ma_soap']['marketo_ma_soap_endpoint'] = array(
     '#type' => 'textfield',
@@ -166,10 +166,23 @@ function marketo_ma_admin_settings_form_validate($form, &$form_state) {
   }
 }
 
-function _marketo_ma_validate_soap_configuration($accessKey, $secretKey, $soapEndPoint) {
+/**
+ * Performs validation for Marketo SOAP API settings.
+ * 
+ * @param string $access_key
+ *   Access Key
+ * @param string $secret_key
+ *   Secret Key
+ * @param string $soap_endpoint
+ *   Endpoint
+ * 
+ * @return bool
+ *   Returns TRUE if SOAP settings are validated successfully
+ */
+function _marketo_ma_validate_soap_configuration($access_key, $secret_key, $soap_endpoint) {
   module_load_include('inc', 'marketo_ma', 'includes/marketo_ma.soap');
   try {
-    $client = new marketoClient($accessKey, $secretKey, $soapEndPoint);
+    $client = new marketoClient($access_key, $secret_key, $soap_endpoint);
     $result = $client->getFields();
     if (!$result) {
       $result = FALSE;
@@ -180,6 +193,9 @@ function _marketo_ma_validate_soap_configuration($accessKey, $secretKey, $soapEn
   return $result;
 }
 
+/**
+ * Callback for updating webform fields.
+ */
 function _marketo_ma_webform_fields_soap_callback($form, &$form_state) {
   return $form['marketo_ma_tracking_options']['marketo_ma_webform_fields'];
 }

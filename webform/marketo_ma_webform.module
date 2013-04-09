@@ -6,7 +6,7 @@
  */
 
 /**
- * Implements hook_permission()
+ * Implements hook_permission().
  */
 function marketo_ma_webform_permission() {
   return array(
@@ -29,7 +29,7 @@ function marketo_ma_webform_form_webform_configure_form_alter(&$form, &$form_sta
     '#title' => t('Marketo Options'),
     '#type' => 'fieldset',
     '#collapsible' => TRUE,
-    '#collapsed' => FALSE
+    '#collapsed' => FALSE,
   );
   $form['node']['webform']['marketo']['marketo_ma_webform_is_active'] = array(
     '#title' => t('Capture Data'),
@@ -40,7 +40,7 @@ function marketo_ma_webform_form_webform_configure_form_alter(&$form, &$form_sta
 }
 
 /**
- * Inserts marketo webform settings into the database
+ * Inserts marketo webform settings into the database.
  */
 function _marketo_ma_webform_save_webform($form, &$form_state) {
   module_load_include('inc', 'marketo_ma', 'includes/marketo_ma');
@@ -53,13 +53,13 @@ function _marketo_ma_webform_save_webform($form, &$form_state) {
   db_merge(MARKETO_MA_SCHEMA_WEBFORM)
       ->key(array('nid' => $nid))
       ->fields(array(
-        MARKETO_MA_WEBFORM_FIELD_ACTIVE => $values['marketo_ma_webform_is_active']
+        MARKETO_MA_WEBFORM_FIELD_ACTIVE => $values['marketo_ma_webform_is_active'],
       ))
       ->execute();
 }
 
 /**
- * Implements hook_webform_component_insert()
+ * Implements hook_webform_component_insert().
  */
 function marketo_ma_webform_webform_component_insert($component) {
   module_load_include('inc', 'marketo_ma', 'includes/marketo_ma');
@@ -67,13 +67,13 @@ function marketo_ma_webform_webform_component_insert($component) {
       ->fields(array(
         'nid' => $component['nid'],
         'cid' => $component['cid'],
-        MARKETO_MA_WEBFORM_COMPONENT_KEY => $component['marketo']['marketo_ma_webform_component_key']
+        MARKETO_MA_WEBFORM_COMPONENT_KEY => $component['marketo']['marketo_ma_webform_component_key'],
       ))
       ->execute();
 }
 
 /**
- * Implements hook_webform_component_update()
+ * Implements hook_webform_component_update().
  */
 function marketo_ma_webform_webform_component_update($component) {
   module_load_include('inc', 'marketo_ma', 'includes/marketo_ma');
@@ -81,7 +81,7 @@ function marketo_ma_webform_webform_component_update($component) {
   db_merge(MARKETO_MA_SCHEMA_WEBFORM_COMPONENT)
       ->key(array(
         'nid' => $component['nid'],
-        'cid' => $component['cid']
+        'cid' => $component['cid'],
       ))
       ->fields(array(
         MARKETO_MA_WEBFORM_COMPONENT_KEY => $component['marketo']['marketo_ma_webform_component_key'],
@@ -90,7 +90,7 @@ function marketo_ma_webform_webform_component_update($component) {
 }
 
 /**
- * Implements hook_webform_component_delete()
+ * Implements hook_webform_component_delete().
  */
 function marketo_ma_webform_webform_component_delete($component) {
   module_load_include('inc', 'marketo_ma', 'includes/marketo_ma');
@@ -101,7 +101,7 @@ function marketo_ma_webform_webform_component_delete($component) {
 }
 
 /**
- * Implements hook_form_alter()
+ * Implements hook_form_alter().
  */
 function marketo_ma_webform_form_webform_component_edit_form_alter(&$form, &$form_state, $form_id) {
   module_load_include('inc', 'marketo_ma', 'includes/marketo_ma');
@@ -120,7 +120,7 @@ function marketo_ma_webform_form_webform_component_edit_form_alter(&$form, &$for
     '#title' => t('Marketo Options'),
     '#type' => 'fieldset',
     '#collapsible' => TRUE,
-    '#collapsed' => FALSE
+    '#collapsed' => FALSE,
   );
 
   $form['marketo']['marketo_ma_webform_component_key'] = array(
@@ -130,12 +130,16 @@ function marketo_ma_webform_form_webform_component_edit_form_alter(&$form, &$for
     '#default_value' => $result[MARKETO_MA_WEBFORM_COMPONENT_KEY],
   );
 
-  // marketo_ma_webform_fields is multi-line, pipe "|" delimited data which needs to be parsed
-  // first split it into rows of data
+  /*
+   * marketo_ma_webform_fields is multi-line, pipe "|" delimited data
+   * which needs to be parsed.
+   * 
+   * first split it into rows of data
+   */
   $raw_options = preg_split('/(\r\n?|\n)/', trim(variable_get('marketo_ma_webform_fields', MARKETO_MA_WEBFORM_FIELD_DEFAULTS)));
   $options = array();
 
-  // loop over all the rows getting the keys and values for the fields
+  // Loop over all the rows getting the keys and values for the fields.
   foreach ($raw_options as $row) {
     $field = explode('|', trim($row));
     $options[trim($field[0])] = trim($field[1]);
@@ -146,7 +150,7 @@ function marketo_ma_webform_form_webform_component_edit_form_alter(&$form, &$for
 }
 
 /**
- * Implements node_load()
+ * Implements node_load().
  */
 function marketo_ma_webform_node_load($nodes, $types) {
   // Quick check to see if we need to do anything at all for these nodes.
@@ -170,13 +174,17 @@ function marketo_ma_webform_node_load($nodes, $types) {
 }
 
 /**
- * Implements hook_webform_submission_insert()
+ * Implements hook_webform_submission_insert().
  */
 function marketo_ma_webform_webform_submission_insert($node, $submission) {
-  if (isset($node->webform['marketo']['marketo_ma_webform_is_active']) && $node->webform['marketo']['marketo_ma_webform_is_active']) {
+  if (isset($node->webform['marketo']['marketo_ma_webform_is_active']) &&
+      $node->webform['marketo']['marketo_ma_webform_is_active']) {
     $data = _marketo_ma_webform_component_mapping($node, $submission);
 
-    // Check to see if an Email field has been provided. If not, we will try to use the current logged in user info
+    /*
+     * Check to see if an Email field has been provided. If not, we will try
+     * to use the current logged in user info
+     */
     if (!isset($data['Email']) || $data['Email'] == '') {
       global $user;
       if (isset($user->mail)) {
@@ -189,19 +197,21 @@ function marketo_ma_webform_webform_submission_insert($node, $submission) {
 }
 
 /**
- * For a given node and submission, returns an array containing the webform component to marketo key mapping
+ * For a given node and submission, returns an array containing the webform
+ * component to marketo key mapping.
  * 
  * @param $node
  *   The node object containing the current webform
  * @param $submission
  *   The webform submission object to be saved into the database
  * @return array
+ *   Component to marketo key mapping
  */
 function _marketo_ma_webform_component_mapping($node, $submission) {
   module_load_include('inc', 'marketo_ma', 'includes/marketo_ma');
   $mapping = array();
   $components = $node->webform['components'];
-  // TODO: Change this to only a single db hit.. cid in ().. then process result set
+  // TODO: Change this to only a single db hit. cid in (). then process result.
   foreach ($submission->data as $i => $element) {
     $result = db_select(MARKETO_MA_SCHEMA_WEBFORM_COMPONENT)
         ->fields(MARKETO_MA_SCHEMA_WEBFORM_COMPONENT)

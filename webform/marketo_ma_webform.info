@@ -5,5 +5,3 @@ package = Marketo
 
 dependencies[] = marketo_ma
 dependencies[] = webform
-files[] = marketo_ma_webform.install
-files[] = marketo_ma_webform.module

@@ -6,13 +6,6 @@
  */
 
 /**
- * Implements hook_install().
- */
-function marketo_ma_install() {
-  
-}
-
-/**
  * Implements hook_uninstall().
  */
 function marketo_ma_uninstall() {
