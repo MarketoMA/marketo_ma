@@ -62,10 +62,3 @@ function marketo_ma_webform_schema() {
   );
   return $schema;
 }
-
-/**
- * Implements hook_uninstall().
- */
-function marketo_ma_webform_uninstall() {
-  variable_del('marketo_ma_webform_fields');
-}

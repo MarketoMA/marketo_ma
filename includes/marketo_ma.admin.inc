@@ -56,7 +56,7 @@ function marketo_ma_admin_settings_form($form, &$form_state) {
   $form['marketo_ma_tracking_options']['marketo_ma_webform_fields'] = array(
     '#type' => 'textarea',
     '#title' => t('Marketo fields'),
-    '#description' => t('Pipe "|" delimited strings of [API Name]|[Friendly Label]. Enter one field per line. This information can be found in the Marketo admin page at Admin > Field Management > Export Field Names'),
+    '#description' => t('Pipe "|" delimited strings of [API Name]|[Friendly Label]. Enter one field per line. This information can be found in the Marketo admin page at Admin > Field Management > Export Field Names.' . '<p>' . t('Once SOAP API settings have been configured, these fields can be automatically obtained from Marketo using the button below.') . '</p>'),
     '#rows' => 10,
     '#prefix' => '<div id="marketo-webform-fields-wrapper">',
     '#suffix' => '</div>',
@@ -74,7 +74,6 @@ function marketo_ma_admin_settings_form($form, &$form_state) {
     $form['marketo_ma_tracking_options']['marketo_ma_webform_fields']['#default_value'] = variable_get('marketo_ma_webform_fields', MARKETO_MA_WEBFORM_FIELD_DEFAULTS);
   }
 
-  // @todo button should not be available until the SOAP fields have been saved
   $form['marketo_ma_tracking_options']['marketo_ma_webform_fields_soap'] = array(
     '#type' => 'button',
     '#value' => t('Retrieve from Marketo'),
@@ -83,6 +82,11 @@ function marketo_ma_admin_settings_form($form, &$form_state) {
       'wrapper' => 'marketo-webform-fields-wrapper',
     ),
   );
+  // If SOAP settings have not been configured, the button should be disabled.
+  if (!_marketo_ma_soap_is_configured()) {
+    $form['marketo_ma_tracking_options']['marketo_ma_webform_fields_soap']['#disabled'] = TRUE;
+  }
+
   $form['marketo_ma_munchkin'] = array(
     '#title' => t('Munchkin Javascript API'),
     '#type' => 'fieldset',

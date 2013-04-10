@@ -195,6 +195,10 @@ function _marketo_ma_associate_lead_munchkin($lead) {
   if (_marketo_ma_munchkin_is_configured()) {
     $key = variable_get('marketo_ma_munchkin_api_private_key', NULL);
     watchdog('marketo', 'Associating lead !email [@method] <pre>@data</pre>', array('!email' => $lead['email'], '@method' => 'munchkin', '@data' => print_r($lead['data'], TRUE)));
+    /*
+     * Using sha1 here rather than sha256 recommended by
+     * http://drupal.org/node/845876 as this is a Marketo requirement.
+     */
     $hash = hash('sha1', $key . $lead['email']);
     $action = array(
       'action' => 'associateLead',
