@@ -199,11 +199,11 @@ function marketo_ma_webform_webform_submission_insert($node, $submission) {
 }
 
 /**
- * For a given node and submission, returns an array containing the webform component to marketo key mapping.
+ * Maps webform components to marketo fields.
  * 
- * @param $node
+ * @param object $node
  *   The node object containing the current webform
- * @param $submission
+ * @param object $submission
  *   The webform submission object to be saved into the database
  * 
  * @return array

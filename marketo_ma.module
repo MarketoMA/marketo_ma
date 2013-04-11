@@ -182,7 +182,10 @@ function _marketo_ma_associate_lead_munchkin($lead) {
     $key = variable_get('marketo_ma_munchkin_api_private_key', NULL);
 
     if (variable_get('marketo_ma_logging', FALSE)) {
-      watchdog('marketo', 'Associating lead !email [@method] <pre>@data</pre>', array('!email' => $lead['email'], '@method' => 'munchkin', '@data' => print_r($lead['data'], TRUE)), WATCHDOG_INFO);
+      watchdog('marketo', 'Associating lead !email [@method] <pre>@data</pre>', array(
+        '!email' => $lead['email'],
+        '@method' => 'munchkin',
+        '@data' => print_r($lead['data'], TRUE)), WATCHDOG_INFO);
     }
     /*
      * Using sha1 here rather than sha256 recommended by
@@ -217,7 +220,10 @@ function _marketo_ma_associate_lead_soap($lead) {
     $access_key = variable_get('marketo_ma_soap_user_id');
     $soap_endpoint = variable_get('marketo_ma_soap_endpoint');
     if (variable_get('marketo_ma_logging', FALSE)) {
-      watchdog('marketo', 'Associating lead !email [@method] <pre>@data</pre>', array('!email' => $lead['email'], '@method' => 'soap', '@data' => print_r($lead['data'], TRUE)), WATCHDOG_INFO);
+      watchdog('marketo', 'Associating lead !email [@method] <pre>@data</pre>', array(
+        '!email' => $lead['email'],
+        '@method' => 'soap',
+        '@data' => print_r($lead['data'], TRUE)), WATCHDOG_INFO);
     }
     try {
       $client = new marketoClient($access_key, $secret_key, $soap_endpoint);
@@ -243,7 +249,10 @@ function _marketo_ma_associate_lead_soap($lead) {
  */
 function _marketo_ma_queue_lead($lead) {
   if (variable_get('marketo_ma_logging', FALSE)) {
-    watchdog('marketo', 'Queing lead !email [@method] <pre>@data</pre>', array('!email' => $lead['email'], '@method' => 'queued', '@data' => print_r($lead['data'], TRUE)), WATCHDOG_INFO);
+    watchdog('marketo', 'Queing lead !email [@method] <pre>@data</pre>', array(
+      '!email' => $lead['email'],
+      '@method' => 'queued',
+      '@data' => print_r($lead['data'], TRUE)), WATCHDOG_INFO);
   }
   $queue = DrupalQueue::get('marketo_ma_lead', TRUE);
   $success = $queue->createItem($lead);
@@ -332,8 +341,7 @@ function _marketo_ma_soap_is_configured() {
 }
 
 /**
- * Based on visibility setting this function returns TRUE if Marketo code should
- * be added to the current page and otherwise FALSE.
+ * Based on visibility setting determines if marketo should be included.
  */
 function _marketo_ma_visibility_pages() {
   static $page_match;

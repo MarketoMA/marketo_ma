@@ -50,13 +50,17 @@ function marketo_ma_admin_settings_form($form, &$form_state) {
     '#title' => t('Pages'),
     '#title_display' => 'invisible',
     '#default_value' => variable_get('marketo_ma_pages', MARKETO_MA_PAGES),
-    '#description' => t("Specify pages by using their paths. Enter one path per line. The '*' character is a wildcard. Example paths are %blog for the blog page and %blog-wildcard for every personal blog. %front is the front page.", array('%blog' => 'blog', '%blog-wildcard' => 'blog/*', '%front' => '<front>')),
+    '#description' => t("Specify pages by using their paths. Enter one path per line. The '*' character is a wildcard. Example paths are %blog for the blog page and %blog-wildcard for every personal blog. %front is the front page.", array(
+      '%blog' => 'blog',
+      '%blog-wildcard' => 'blog/*',
+      '%front' => '<front>')
+    ),
     '#rows' => 10,
   );
   $form['marketo_ma_tracking_options']['marketo_ma_webform_fields'] = array(
     '#type' => 'textarea',
     '#title' => t('Marketo fields'),
-    '#description' => t('Pipe "|" delimited strings of [API Name]|[Friendly Label]. Enter one field per line. This information can be found in the Marketo admin page at Admin > Field Management > Export Field Names.' . '<p>' . t('Once SOAP API settings have been configured, these fields can be automatically obtained from Marketo using the button below.') . '</p>'),
+    '#description' => t('Pipe "|" delimited strings of [API Name]|[Friendly Label]. Enter one field per line. This information can be found in the Marketo admin page at Admin > Field Management > Export Field Names.<p>Once SOAP API settings have been configured, these fields can be automatically obtained from Marketo using the button below</p>'),
     '#rows' => 10,
     '#prefix' => '<div id="marketo-webform-fields-wrapper">',
     '#suffix' => '</div>',
@@ -86,7 +90,7 @@ function marketo_ma_admin_settings_form($form, &$form_state) {
   if (!_marketo_ma_soap_is_configured()) {
     $form['marketo_ma_tracking_options']['marketo_ma_webform_fields_soap']['#disabled'] = TRUE;
   }
-  
+
   $form['marketo_ma_tracking_options']['marketo_ma_logging'] = array(
     '#type' => 'checkbox',
     '#title' => t('Verbose Logging'),
@@ -168,7 +172,7 @@ function marketo_ma_admin_settings_form_validate($form, &$form_state) {
   $form_state['values']['marketo_ma_soap_encryption_key'] = trim($form_state['values']['marketo_ma_soap_encryption_key']);
 
   $soap_is_valid = _marketo_ma_validate_soap_configuration(
-      $form_state['values']['marketo_ma_soap_user_id'], $form_state['values']['marketo_ma_soap_encryption_key'], $form_state['values']['marketo_ma_soap_endpoint']
+    $form_state['values']['marketo_ma_soap_user_id'], $form_state['values']['marketo_ma_soap_encryption_key'], $form_state['values']['marketo_ma_soap_endpoint']
   );
   if (!$soap_is_valid) {
     form_set_error('marketo_ma_soap_endpoint', 'Unable to validate SOAP API settings.');
@@ -198,7 +202,8 @@ function _marketo_ma_validate_soap_configuration($access_key, $secret_key, $soap
     if (!$result) {
       $result = FALSE;
     }
-  } catch (Exception $e) {
+  }
+  catch (Exception $e) {
     $result = FALSE;
   }
   return $result;
