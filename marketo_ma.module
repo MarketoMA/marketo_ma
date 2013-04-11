@@ -197,10 +197,7 @@ function _marketo_ma_associate_lead_munchkin($lead) {
       'data' => $lead['data'],
       'hash' => $hash,
     );
-    drupal_add_js(array(
-      'marketo_ma' => array(
-        'actions' => array($action)
-      )), 'setting');
+    drupal_add_js(array('marketo_ma' => array('actions' => array($action))), 'setting');
   }
 }
 
