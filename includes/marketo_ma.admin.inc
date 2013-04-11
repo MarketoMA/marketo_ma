@@ -197,7 +197,7 @@ function marketo_ma_admin_settings_form_validate($form, &$form_state) {
 function _marketo_ma_validate_soap_configuration($access_key, $secret_key, $soap_endpoint) {
   module_load_include('inc', 'marketo_ma', 'includes/marketo_ma.soap');
   try {
-    $client = new marketoClient($access_key, $secret_key, $soap_endpoint);
+    $client = new MarketoClient($access_key, $secret_key, $soap_endpoint);
     $result = $client->getFields();
     if (!$result) {
       $result = FALSE;

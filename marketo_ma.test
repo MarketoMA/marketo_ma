@@ -5,6 +5,9 @@
  * SimpleTest test cases for Marketo MA.
  */
 
+/**
+ * General setUp and tearDown used by most Marketo MA test cases.
+ */
 class MarketoTestCase extends DrupalWebTestCase {
 
   public $adminPath;
