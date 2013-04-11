@@ -125,7 +125,10 @@ function marketo_ma_page_alter(&$page) {
 function _marketo_ma_output_tracking_code() {
   if (_marketo_ma_munchkin_is_configured()) {
     $marketo_ma_munchkin_account_id = variable_get('marketo_ma_munchkin_account_id');
-    $marketo_ma_munchkin_javascript_library = '//' . str_replace(array('http://', 'https://', '//'), '', variable_get('marketo_ma_munchkin_javascript_library'));
+    $marketo_ma_munchkin_javascript_library = '//' . str_replace(array(
+        'http://',
+        'https://',
+        '//'), '', variable_get('marketo_ma_munchkin_javascript_library'));
 
     drupal_add_js(array(
       'marketo_ma' => array(

@@ -16,7 +16,9 @@ interface MarketoInterface {
    * Retrieves lead information.
    * 
    * @param string $key
+   *   Lead Key, typically email address
    * @param string $type
+   *   Type of lead key provided, defaults to "email"
    */
   public function getLead($key, $type);
 
@@ -24,8 +26,11 @@ interface MarketoInterface {
    * Inserts or updates a lead.
    * 
    * @param array $lead
+   *   Key value pairs to be associated with a lead
    * @param string $key
-   * @param type $cookie
+   *   Lead Key, typically email address
+   * @param object $cookie
+   *   Marketo cookie information
    */
   public function syncLead($lead, $key, $cookie);
 }
@@ -41,8 +46,11 @@ class MarketoClient implements MarketoInterface {
    * Constructor for MarketoClient class.
    * 
    * @param string $user_id
+   *   A User ID (aka Access Key) defined in Marketo admin
    * @param string $encryption_key
+   *   A shared secret-key (aka Encryption Key) defined in Marketo admin
    * @param string $endpoint
+   *   SOAP endpoint URL
    */
   public function __construct($user_id, $encryption_key, $endpoint) {
     $this->userId = $user_id;
@@ -60,6 +68,7 @@ class MarketoClient implements MarketoInterface {
    * Builds Marketo authentication header.
    * 
    * @return \SoapHeader
+   *   Marketo authentication header
    */
   protected function authenticationHeader() {
     $timestamp = date("c");
@@ -80,8 +89,12 @@ class MarketoClient implements MarketoInterface {
    * Sends request to Marketo.
    * 
    * @param string $operation
+   *   The operation to execute
    * @param array $params
+   *   Parameters to be sent with the request
+   * 
    * @return object
+   *   Response object
    */
   protected function request($operation, $params) {
     return $this->client->__soapCall(
@@ -156,8 +169,10 @@ class MarketoClient implements MarketoInterface {
    * Converts response into a more useful structure.
    * 
    * @param object $data
+   *   LeadRecord object definition
    * 
    * @return array
+   *   Key value pairs of fields
    */
   protected function prepareFieldResults($data) {
     $fields = array();
@@ -173,9 +188,12 @@ class MarketoClient implements MarketoInterface {
    * Creates proper structure for submitting a lead.
    * 
    * @param array $attributes
+   *   Key value pairs to be associated withi this lead
    * @param string $key
+   *   Lead Key
    * 
    * @return \stdClass
+   *   Lead Record
    */
   protected function leadRecord($attributes, $key = NULL) {
     $record = new stdClass();
