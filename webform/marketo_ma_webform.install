@@ -2,7 +2,7 @@
 
 /**
  * @file
- * marketo ma webform module install/schema hooks
+ * Install and schema hooks for Marketo MA Webform module.
  */
 
 /**

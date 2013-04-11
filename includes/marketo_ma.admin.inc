@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Administrative page callbacks for the marketo module.
+ * Administrative page callbacks for the Marketo MA module.
  */
 
 /**
@@ -86,6 +86,13 @@ function marketo_ma_admin_settings_form($form, &$form_state) {
   if (!_marketo_ma_soap_is_configured()) {
     $form['marketo_ma_tracking_options']['marketo_ma_webform_fields_soap']['#disabled'] = TRUE;
   }
+  
+  $form['marketo_ma_tracking_options']['marketo_ma_logging'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Verbose Logging'),
+    '#default_value' => variable_get('marketo_ma_logging', FALSE),
+    '#description' => t('If checked, additional data will be added to watchdog.'),
+  );
 
   $form['marketo_ma_munchkin'] = array(
     '#title' => t('Munchkin Javascript API'),

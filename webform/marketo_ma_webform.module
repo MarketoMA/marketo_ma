@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Drupal Module: Marketo MA Webform
+ * Module functions for Marketo MA Webform.
  */
 
 /**
@@ -134,7 +134,9 @@ function marketo_ma_webform_form_webform_component_edit_form_alter(&$form, &$for
    * marketo_ma_webform_fields is multi-line, pipe "|" delimited data
    * which needs to be parsed. First split it into rows of data.
    */
-  $raw_options = preg_split('/(\r\n?|\n)/', trim(variable_get('marketo_ma_webform_fields', MARKETO_MA_WEBFORM_FIELD_DEFAULTS)));
+  $raw_options = preg_split('/(\r\n?|\n)/',
+      trim(variable_get('marketo_ma_webform_fields',
+              MARKETO_MA_WEBFORM_FIELD_DEFAULTS)));
   $options = array();
 
   // Loop over all the rows getting the keys and values for the fields.
@@ -190,7 +192,9 @@ function marketo_ma_webform_webform_submission_insert($node, $submission) {
       }
     }
 
-    marketo_ma_add_lead($data['Email'], $data);
+    if (array_key_exists('Email', $data)) {
+      marketo_ma_add_lead($data['Email'], $data);
+    }
   }
 }
 

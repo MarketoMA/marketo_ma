@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Marketo MA test cases.
+ * SimpleTest test cases for Marketo MA.
  */
 
 class MarketoTestCase extends DrupalWebTestCase {

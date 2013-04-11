@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Drupal Module: Marketo MA
+ * Module functions for Marketo MA.
  */
 
 /**
@@ -19,20 +19,6 @@ function marketo_ma_menu() {
     'file' => 'includes/marketo_ma.admin.inc',
   );
   return $items;
-}
-
-/**
- * Implements hook_help().
- */
-function marketo_ma_help($path, $arg) {
-  switch ($path) {
-    case 'admin/config/search/marketo_ma':
-      return t("Marketo MA help text");
-
-    case 'admin/help#marketo_ma':
-      $output = '<p>' . t('This is help text for the Marketo MA module') . '</p>';
-      return $output;
-  }
 }
 
 /**
@@ -113,7 +99,7 @@ function _marketo_ma_cleanup() {
  */
 function marketo_ma_page_alter(&$page) {
   $marketo_ma_data = marketo_ma_get_queue();
-  // drupal_alter('marketo_ma_data', $marketo_ma_data);
+
   if (_marketo_ma_visibility_pages() || count($marketo_ma_data) > 0) {
 
     /*
@@ -142,11 +128,11 @@ function _marketo_ma_output_tracking_code() {
     $marketo_ma_munchkin_javascript_library = '//' . str_replace(array('http://', 'https://', '//'), '', variable_get('marketo_ma_munchkin_javascript_library'));
 
     drupal_add_js(array(
-      'marketo' => array(
+      'marketo_ma' => array(
         'track' => TRUE,
         'key' => $marketo_ma_munchkin_account_id,
         'library' => $marketo_ma_munchkin_javascript_library),
-        ), 'setting');
+      ), 'setting');
   }
 }
 
@@ -194,7 +180,10 @@ function _marketo_ma_associate_lead($lead) {
 function _marketo_ma_associate_lead_munchkin($lead) {
   if (_marketo_ma_munchkin_is_configured()) {
     $key = variable_get('marketo_ma_munchkin_api_private_key', NULL);
-    watchdog('marketo', 'Associating lead !email [@method] <pre>@data</pre>', array('!email' => $lead['email'], '@method' => 'munchkin', '@data' => print_r($lead['data'], TRUE)));
+
+    if (variable_get('marketo_ma_logging', FALSE)) {
+      watchdog('marketo', 'Associating lead !email [@method] <pre>@data</pre>', array('!email' => $lead['email'], '@method' => 'munchkin', '@data' => print_r($lead['data'], TRUE)), WATCHDOG_INFO);
+    }
     /*
      * Using sha1 here rather than sha256 recommended by
      * http://drupal.org/node/845876 as this is a Marketo requirement.
@@ -206,7 +195,7 @@ function _marketo_ma_associate_lead_munchkin($lead) {
       'hash' => $hash,
     );
     drupal_add_js(array(
-      'marketo' => array(
+      'marketo_ma' => array(
         'actions' => array($action)
       )), 'setting');
   }
@@ -227,15 +216,17 @@ function _marketo_ma_associate_lead_soap($lead) {
     $secret_key = variable_get('marketo_ma_soap_encryption_key');
     $access_key = variable_get('marketo_ma_soap_user_id');
     $soap_endpoint = variable_get('marketo_ma_soap_endpoint');
-
-    watchdog('marketo', 'Associating lead !email [@method] <pre>@data</pre>', array('!email' => $lead['email'], '@method' => 'soap', '@data' => print_r($lead['data'], TRUE)), WATCHDOG_INFO);
+    if (variable_get('marketo_ma_logging', FALSE)) {
+      watchdog('marketo', 'Associating lead !email [@method] <pre>@data</pre>', array('!email' => $lead['email'], '@method' => 'soap', '@data' => print_r($lead['data'], TRUE)), WATCHDOG_INFO);
+    }
     try {
       $client = new marketoClient($access_key, $secret_key, $soap_endpoint);
       $result = $client->syncLead($lead['email'], $lead['data']);
       if (!$result) {
         throw new Exception('No response from SOAP request');
       }
-    } catch (Exception $e) {
+    }
+    catch (Exception $e) {
       watchdog('marketo', 'Unable to sync lead !email.<pre>@error</pre>', array('!email' => $lead['email'], '@error' => $e->getMessage()), WATCHDOG_ERROR);
     }
   }
@@ -251,7 +242,9 @@ function _marketo_ma_associate_lead_soap($lead) {
  *   Returns TRUE if lead was successfully added to queue
  */
 function _marketo_ma_queue_lead($lead) {
-  watchdog('marketo', 'Queing lead !email [@method] <pre>@data</pre>', array('!email' => $lead['email'], '@method' => 'queued', '@data' => print_r($lead['data'], TRUE)), WATCHDOG_INFO);
+  if (variable_get('marketo_ma_logging', FALSE)) {
+    watchdog('marketo', 'Queing lead !email [@method] <pre>@data</pre>', array('!email' => $lead['email'], '@method' => 'queued', '@data' => print_r($lead['data'], TRUE)), WATCHDOG_INFO);
+  }
   $queue = DrupalQueue::get('marketo_ma_lead', TRUE);
   $success = $queue->createItem($lead);
   return $success;
@@ -279,8 +272,9 @@ function _marketo_ma_get_fields() {
       if (!$result) {
         watchdog('marketo', 'Unable to retrieve field information. Please check SOAP API configuration', WATCHDOG_ERROR);
       }
-    } catch (Exception $e) {
-      watchdog('marketo', 'Unable to retrieve field information. <pre>@error</pre>', array('error' => $e->getMessage()));
+    }
+    catch (Exception $e) {
+      watchdog('marketo', 'Unable to retrieve field information. <pre>@error</pre>', array('error' => $e->getMessage()), WATCHDOG_ERROR);
     }
   }
 
@@ -299,9 +293,9 @@ function _marketo_ma_munchkin_is_configured() {
 
   if (!isset($configured)) {
     if (
-        variable_get('marketo_ma_munchkin_account_id', FALSE) &&
-        variable_get('marketo_ma_munchkin_api_private_key', FALSE) &&
-        variable_get('marketo_ma_munchkin_javascript_library', FALSE)
+      variable_get('marketo_ma_munchkin_account_id', FALSE) &&
+      variable_get('marketo_ma_munchkin_api_private_key', FALSE) &&
+      variable_get('marketo_ma_munchkin_javascript_library', FALSE)
     ) {
       $configured = TRUE;
     }
@@ -324,9 +318,9 @@ function _marketo_ma_soap_is_configured() {
 
   if (!isset($configured)) {
     if (
-        variable_get('marketo_ma_soap_encryption_key', FALSE) &&
-        variable_get('marketo_ma_soap_endpoint', FALSE) &&
-        variable_get('marketo_ma_soap_user_id', FALSE)
+      variable_get('marketo_ma_soap_encryption_key', FALSE) &&
+      variable_get('marketo_ma_soap_endpoint', FALSE) &&
+      variable_get('marketo_ma_soap_user_id', FALSE)
     ) {
       $configured = TRUE;
     }

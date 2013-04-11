@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Defines constants used by the marketo ma module
+ * Defines constants used by the Marketo MA module.
  */
 
 define('MARKETO_MA_PAGES', "admin\nadmin/*\nbatch\nnode/add*\nnode/*/*\nuser/*/*");

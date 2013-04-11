@@ -1,26 +1,25 @@
 (function($) {
-  Drupal.behaviors.marketo = {
+  Drupal.behaviors.marketo_ma = {
     attach: function(context, settings) {
-      if (typeof settings.marketo !== 'undefined' && settings.marketo.track) {
+      if (typeof settings.marketo_ma !== 'undefined' && settings.marketo_ma.track) {
         jQuery.ajax({
-          url: document.location.protocol + settings.marketo.library,
+          url: document.location.protocol + settings.marketo_ma.library,
           dataType: 'script',
           cache: true,
           success: function() {
-            Munchkin.init(settings.marketo.key);
-            if (typeof settings.marketo.actions !== 'undefined') {
-              jQuery.each(settings.marketo.actions, function(){
-                marketoMunchkinFunction(this.action, this.data, this.hash);
+            Munchkin.init(settings.marketo_ma.key);
+            if (typeof settings.marketo_ma.actions !== 'undefined') {
+              jQuery.each(settings.marketo_ma.actions, function() {
+                Drupal.behaviors.marketo_ma.marketoMunchkinFunction(this.action, this.data, this.hash);
               });
             }
           }
         });
       }
+    },
+    marketoMunchkinFunction: function(leadType, data, hash) {
+      mktoMunchkinFunction(leadType, data, hash);
     }
-  }
+  };
 
 })(jQuery);
-
-function marketoMunchkinFunction(leadType, data, hash) {
-  mktoMunchkinFunction(leadType, data, hash);
-}

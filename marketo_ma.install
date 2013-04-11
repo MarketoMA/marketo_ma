@@ -2,13 +2,14 @@
 
 /**
  * @file
- * marketo ma module install/schema hooks
+ * Install hooks for Marketo MA module.
  */
 
 /**
  * Implements hook_uninstall().
  */
 function marketo_ma_uninstall() {
+  variable_del('marketo_ma_logging');
   variable_del('marketo_ma_munchkin_account_id');
   variable_del('marketo_ma_munchkin_api_private_key');
   variable_del('marketo_ma_munchkin_javascript_library');
