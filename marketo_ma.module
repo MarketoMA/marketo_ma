@@ -216,17 +216,21 @@ function _marketo_ma_associate_lead_soap($lead) {
     $secret_key = variable_get('marketo_ma_soap_encryption_key');
     $access_key = variable_get('marketo_ma_soap_user_id');
     $soap_endpoint = variable_get('marketo_ma_soap_endpoint');
-    if (variable_get('marketo_ma_logging', FALSE)) {
-      watchdog('marketo', 'Associating lead !email [@method] <pre>@data</pre>', array(
-        '!email' => $lead['email'],
-        '@method' => 'soap',
-        '@data' => print_r($lead['data'], TRUE)), WATCHDOG_INFO);
-    }
+
     try {
-      $client = new marketoClient($access_key, $secret_key, $soap_endpoint);
-      $result = $client->syncLead($lead['email'], $lead['data']);
-      if (!$result) {
-        throw new Exception('No response from SOAP request');
+      $client = new MarketoClient($access_key, $secret_key, $soap_endpoint);
+      $result = $client->syncLead($lead['data'], $lead['email']);
+      if ($result) {
+        if (variable_get('marketo_ma_logging', FALSE)) {
+          watchdog('marketo', 'Associating lead !email [@method] <pre>@data @result</pre>', array(
+            '!email' => $lead['email'],
+            '@method' => 'soap',
+            '@data' => print_r($lead['data'], TRUE),
+            '@result' => print_r($result, TRUE)), WATCHDOG_INFO);
+        }
+      }
+      else {
+        watchdog('marketo', 'Unable to sync lead !email. No response from SOAP request', array('!email' => $lead['email']), WATCHDOG_ERROR);
       }
     }
     catch (Exception $e) {
@@ -273,7 +277,7 @@ function _marketo_ma_get_fields() {
     $result = array();
 
     try {
-      $client = new marketoClient($access_key, $secret_key, $soap_endpoint);
+      $client = new MarketoClient($access_key, $secret_key, $soap_endpoint);
       $result = $client->getFields();
       if (!$result) {
         watchdog('marketo', 'Unable to retrieve field information. Please check SOAP API configuration', WATCHDOG_ERROR);
