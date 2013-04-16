@@ -5,6 +5,9 @@
  * Class and methods for interacting with the Marketo SOAP API.
  */
 
+/**
+ * Marketo Interface
+ */
 interface MarketoInterface {
 
   /**
@@ -35,6 +38,9 @@ interface MarketoInterface {
   public function syncLead($lead, $key, $cookie);
 }
 
+/**
+ * Marketo Client
+ */
 class MarketoClient implements MarketoInterface {
 
   // http://app.marketo.com/soap/mktows/2_0?WSDL
@@ -51,17 +57,23 @@ class MarketoClient implements MarketoInterface {
    *   A shared secret-key (aka Encryption Key) defined in Marketo admin
    * @param string $endpoint
    *   SOAP endpoint URL
+   * @param array $options
+   *   Optional array of SoapClient options 
    */
-  public function __construct($user_id, $encryption_key, $endpoint) {
+  public function __construct($user_id, $encryption_key, $endpoint, $options = array()) {
     $this->userId = $user_id;
     $this->encryptionKey = $encryption_key;
     $this->endpoint = $endpoint;
 
     $wsdl = $this->endpoint . '?WSDL';
 
-    $options = array("connection_timeout" => 20, "location" => $this->endpoint);
+    $default_options = array(
+      "connection_timeout" => 20,
+      "location" => $this->endpoint,
+    );
+    $soap_options = array_merge($default_options, $options);
 
-    $this->client = new SoapClient($wsdl, $options);
+    $this->client = new SoapClient($wsdl, $soap_options);
   }
 
   /**

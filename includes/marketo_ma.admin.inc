@@ -11,8 +11,54 @@
 function marketo_ma_admin_settings_form($form, &$form_state) {
   module_load_include('inc', 'marketo_ma', 'includes/marketo_ma');
 
+  $form['marketo_ma_munchkin_account_id'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Munchkin Account ID'),
+    '#default_value' => variable_get('marketo_ma_munchkin_account_id', ''),
+    '#required' => TRUE,
+  );
+  $form['marketo_ma_advanced'] = array(
+    '#title' => t('Advanced Settings'),
+    '#type' => 'fieldset',
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+  );
+  $form['marketo_ma_advanced']['marketo_ma_visibility_pages'] = array(
+    '#title' => t('Add tracking to specific pages'),
+    '#type' => 'radios',
+    '#options' => array(
+      t('Every page except the listed pages'),
+      t('The listed pages only'),
+    ),
+    '#default_value' => variable_get('marketo_ma_visibility_pages', 0),
+    '#required' => TRUE,
+  );
+  $form['marketo_ma_advanced']['marketo_ma_pages'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Pages'),
+    '#title_display' => 'invisible',
+    '#default_value' => variable_get('marketo_ma_pages', MARKETO_MA_PAGES),
+    '#description' => t("Specify pages by using their paths. Enter one path per line. The '*' character is a wildcard. Example paths are %blog for the blog page and %blog-wildcard for every personal blog. %front is the front page.", array(
+      '%blog' => 'blog',
+      '%blog-wildcard' => 'blog/*',
+      '%front' => '<front>')
+    ),
+    '#rows' => 10,
+  );
+  $form['marketo_ma_advanced']['marketo_ma_munchkin_javascript_library'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Munchkin Javascript Library'),
+    '#default_value' => variable_get('marketo_ma_munchkin_javascript_library', '//munchkin.marketo.net/munchkin.js'),
+    '#required' => TRUE,
+  );
+  $form['marketo_ma_advanced']['marketo_ma_logging'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Verbose Logging'),
+    '#default_value' => variable_get('marketo_ma_logging', FALSE),
+    '#description' => t('If checked, additional data will be added to watchdog.'),
+  );
   $form['marketo_ma_tracking_options'] = array(
-    '#title' => t('Tracking Options'),
+    '#title' => t('Lead Tracking Options'),
     '#type' => 'fieldset',
     '#collapsible' => TRUE,
     '#collapsed' => FALSE,
@@ -34,28 +80,6 @@ function marketo_ma_admin_settings_form($form, &$form_state) {
     '#title' => t('Default Lead Source'),
     '#default_value' => variable_get('marketo_ma_munchkin_lead_source'),
     '#description' => t('If set, LeadSource will be set to this value unless specifically overridden during data collection.'),
-  );
-  $form['marketo_ma_tracking_options']['marketo_ma_visibility_pages'] = array(
-    '#title' => t('Add tracking to specific pages'),
-    '#type' => 'radios',
-    '#options' => array(
-      t('Every page except the listed pages'),
-      t('The listed pages only'),
-    ),
-    '#default_value' => variable_get('marketo_ma_visibility_pages', 0),
-    '#required' => TRUE,
-  );
-  $form['marketo_ma_tracking_options']['marketo_ma_pages'] = array(
-    '#type' => 'textarea',
-    '#title' => t('Pages'),
-    '#title_display' => 'invisible',
-    '#default_value' => variable_get('marketo_ma_pages', MARKETO_MA_PAGES),
-    '#description' => t("Specify pages by using their paths. Enter one path per line. The '*' character is a wildcard. Example paths are %blog for the blog page and %blog-wildcard for every personal blog. %front is the front page.", array(
-      '%blog' => 'blog',
-      '%blog-wildcard' => 'blog/*',
-      '%front' => '<front>')
-    ),
-    '#rows' => 10,
   );
   $form['marketo_ma_tracking_options']['marketo_ma_webform_fields'] = array(
     '#type' => 'textarea',
@@ -91,13 +115,6 @@ function marketo_ma_admin_settings_form($form, &$form_state) {
     $form['marketo_ma_tracking_options']['marketo_ma_webform_fields_soap']['#disabled'] = TRUE;
   }
 
-  $form['marketo_ma_tracking_options']['marketo_ma_logging'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Verbose Logging'),
-    '#default_value' => variable_get('marketo_ma_logging', FALSE),
-    '#description' => t('If checked, additional data will be added to watchdog.'),
-  );
-
   $form['marketo_ma_munchkin'] = array(
     '#title' => t('Munchkin Javascript API'),
     '#type' => 'fieldset',
@@ -105,31 +122,13 @@ function marketo_ma_admin_settings_form($form, &$form_state) {
     '#collapsible' => TRUE,
     '#collapsed' => FALSE,
   );
-  $form['marketo_ma_munchkin']['marketo_ma_munchkin_account_id'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Munchkin Account ID'),
-    '#default_value' => variable_get('marketo_ma_munchkin_account_id', ''),
-    '#required' => TRUE,
-  );
   $form['marketo_ma_munchkin']['marketo_ma_munchkin_api_private_key'] = array(
     '#type' => 'textfield',
     '#title' => t('API Private Key'),
     '#default_value' => variable_get('marketo_ma_munchkin_api_private_key', ''),
     '#required' => TRUE,
   );
-  $form['marketo_ma_munchkin']['marketo_ma_munchkin_advanced'] = array(
-    '#title' => t('Advanced Settings'),
-    '#type' => 'fieldset',
-    '#collapsible' => TRUE,
-    '#collapsed' => TRUE,
-  );
-  $form['marketo_ma_munchkin']['marketo_ma_munchkin_advanced']['marketo_ma_munchkin_javascript_library'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Munchkin Javascript Library'),
-    '#default_value' => variable_get('marketo_ma_munchkin_javascript_library', '//munchkin.marketo.net/munchkin.js'),
-    '#required' => TRUE,
-  );
-  $form['marketo_ma_munchkin']['marketo_ma_munchkin_advanced']['marketo_ma_munchkin_partition'] = array(
+  $form['marketo_ma_munchkin']['marketo_ma_munchkin_partition'] = array(
     '#type' => 'textfield',
     '#title' => t('Workspace (Partition)'),
     '#default_value' => variable_get('marketo_ma_munchkin_partition', ''),
@@ -146,19 +145,50 @@ function marketo_ma_admin_settings_form($form, &$form_state) {
     '#type' => 'textfield',
     '#title' => t('SOAP endpoint'),
     '#default_value' => variable_get('marketo_ma_soap_endpoint', ''),
-    '#required' => TRUE,
+    '#required' => FALSE,
   );
   $form['marketo_ma_soap']['marketo_ma_soap_user_id'] = array(
     '#type' => 'textfield',
     '#title' => t('User ID'),
     '#default_value' => variable_get('marketo_ma_soap_user_id', ''),
-    '#required' => TRUE,
+    '#required' => FALSE,
   );
   $form['marketo_ma_soap']['marketo_ma_soap_encryption_key'] = array(
     '#type' => 'textfield',
     '#title' => t('Encryption Key'),
     '#default_value' => variable_get('marketo_ma_soap_encryption_key', ''),
-    '#required' => TRUE,
+    '#required' => FALSE,
+  );
+  $form['marketo_ma_soap']['marketo_ma_soap_proxy'] = array(
+    '#title' => t('SoapClient Proxy Settings'),
+    '#type' => 'fieldset',
+    '#description' => t('For making an HTTP connection through a proxy server, the options proxy_host, proxy_port, proxy_login and proxy_password are also available.'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+  );
+  $form['marketo_ma_soap']['marketo_ma_soap_proxy']['marketo_ma_soap_proxy_host'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Proxy Host'),
+    '#default_value' => variable_get('marketo_ma_soap_proxy_host', ''),
+    '#required' => FALSE,
+  );
+  $form['marketo_ma_soap']['marketo_ma_soap_proxy']['marketo_ma_soap_proxy_port'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Proxy Port'),
+    '#default_value' => variable_get('marketo_ma_soap_proxy_port', ''),
+    '#required' => FALSE,
+  );
+  $form['marketo_ma_soap']['marketo_ma_soap_proxy']['marketo_ma_soap_proxy_login'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Proxy Login'),
+    '#default_value' => variable_get('marketo_ma_soap_proxy_login', ''),
+    '#required' => FALSE,
+  );
+  $form['marketo_ma_soap']['marketo_ma_soap_proxy']['marketo_ma_soap_proxy_password'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Proxy Password'),
+    '#default_value' => variable_get('marketo_ma_soap_proxy_password', ''),
+    '#required' => FALSE,
   );
   return system_settings_form($form);
 }
@@ -167,17 +197,23 @@ function marketo_ma_admin_settings_form($form, &$form_state) {
  * Implements hook_form_validate().
  */
 function marketo_ma_admin_settings_form_validate($form, &$form_state) {
-  $form_state['values']['marketo_ma_soap_endpoint'] = trim($form_state['values']['marketo_ma_soap_endpoint']);
-  $form_state['values']['marketo_ma_soap_user_id'] = trim($form_state['values']['marketo_ma_soap_user_id']);
-  $form_state['values']['marketo_ma_soap_encryption_key'] = trim($form_state['values']['marketo_ma_soap_encryption_key']);
+  // If using a soap option attempt validation.
+  if (
+    $form_state['values']['marketo_ma_tracking_method'] == 'soap' ||
+    $form_state['values']['marketo_ma_tracking_method'] == 'soap_async'
+  ) {
+    $form_state['values']['marketo_ma_soap_endpoint'] = trim($form_state['values']['marketo_ma_soap_endpoint']);
+    $form_state['values']['marketo_ma_soap_user_id'] = trim($form_state['values']['marketo_ma_soap_user_id']);
+    $form_state['values']['marketo_ma_soap_encryption_key'] = trim($form_state['values']['marketo_ma_soap_encryption_key']);
 
-  $soap_is_valid = _marketo_ma_validate_soap_configuration(
-    $form_state['values']['marketo_ma_soap_user_id'], $form_state['values']['marketo_ma_soap_encryption_key'], $form_state['values']['marketo_ma_soap_endpoint']
-  );
-  if (!$soap_is_valid) {
-    form_set_error('marketo_ma_soap_endpoint', 'Unable to validate SOAP API settings.');
-    form_set_error('marketo_ma_soap_user_id');
-    form_set_error('marketo_ma_soap_encryption_key');
+    $soap_is_valid = _marketo_ma_validate_soap_configuration(
+      $form_state['values']['marketo_ma_soap_user_id'], $form_state['values']['marketo_ma_soap_encryption_key'], $form_state['values']['marketo_ma_soap_endpoint']
+    );
+    if (!$soap_is_valid) {
+      form_set_error('marketo_ma_soap_endpoint', 'Unable to validate SOAP API settings.');
+      form_set_error('marketo_ma_soap_user_id');
+      form_set_error('marketo_ma_soap_encryption_key');
+    }
   }
 }
 

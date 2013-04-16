@@ -221,7 +221,7 @@ function _marketo_ma_associate_lead_soap($lead) {
     $soap_endpoint = variable_get('marketo_ma_soap_endpoint');
 
     try {
-      $client = new MarketoClient($access_key, $secret_key, $soap_endpoint);
+      $client = new MarketoClient($access_key, $secret_key, $soap_endpoint, _marketo_ma_soap_proxy_settings());
       $result = $client->syncLead($lead['data'], $lead['email']);
       if ($result) {
         if (variable_get('marketo_ma_logging', FALSE)) {
@@ -280,7 +280,7 @@ function _marketo_ma_get_fields() {
     $result = array();
 
     try {
-      $client = new MarketoClient($access_key, $secret_key, $soap_endpoint);
+      $client = new MarketoClient($access_key, $secret_key, $soap_endpoint, _marketo_ma_soap_proxy_settings());
       $result = $client->getFields();
       if (!$result) {
         watchdog('marketo', 'Unable to retrieve field information. Please check SOAP API configuration', WATCHDOG_ERROR);
@@ -387,4 +387,33 @@ function _marketo_ma_visibility_pages() {
     }
   }
   return $page_match;
+}
+
+/**
+ * Returns SoapClient proxy settings if configured.
+ * 
+ * @return array
+ *   Proxy settings
+ */
+function _marketo_ma_soap_proxy_settings() {
+  $proxy = array();
+  $proxy['proxy_host'] = variable_get('marketo_ma_soap_proxy_host', '');
+  $proxy['proxy_port'] = variable_get('marketo_ma_soap_proxy_port', '');
+  $proxy['proxy_login'] = variable_get('marketo_ma_soap_proxy_login', '');
+  $proxy['proxy_password'] = variable_get('marketo_ma_soap_proxy_password', '');
+
+  if (empty($proxy['proxy_host'])) {
+    unset($proxy['proxy_host']);
+  }
+  if (empty($proxy['proxy_port'])) {
+    unset($proxy['proxy_port']);
+  }
+  if (empty($proxy['proxy_login'])) {
+    unset($proxy['proxy_login']);
+  }
+  if (empty($proxy['proxy_password'])) {
+    unset($proxy['proxy_password']);
+  }
+
+  return $proxy;
 }

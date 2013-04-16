@@ -143,7 +143,7 @@ class MarketoModuleConfigTestCase extends MarketoTestCase {
    */
   public function testSubmitWithoutValues() {
     $edit = array(
-      'marketo_ma_tracking_method' => '',
+      'marketo_ma_tracking_method' => 'munchkin',
       'marketo_ma_munchkin_lead_source' => '',
       'marketo_ma_visibility_pages' => 0,
       'marketo_ma_pages' => '',
@@ -153,6 +153,10 @@ class MarketoModuleConfigTestCase extends MarketoTestCase {
       'marketo_ma_soap_endpoint' => '',
       'marketo_ma_soap_user_id' => '',
       'marketo_ma_soap_encryption_key' => '',
+      'marketo_ma_soap_proxy_host' => '',
+      'marketo_ma_soap_proxy_port' => '',
+      'marketo_ma_soap_proxy_login' => '',
+      'marketo_ma_soap_proxy_password' => '',
     );
     $this->drupalPost($this->adminPath, $edit, 'Save configuration');
     $this->assertText('field is required', 'Fields are required');
@@ -160,9 +164,6 @@ class MarketoModuleConfigTestCase extends MarketoTestCase {
 
   /**
    * Test to see if the form can be saved.
-   * 
-   * Note that the SOAP API can not be validated unless real values are
-   * supplied to the test.
    */
   public function testSubmitWithValues() {
     $marketo_ma_munchkin_lead_source = $this->randomName();
@@ -173,7 +174,12 @@ class MarketoModuleConfigTestCase extends MarketoTestCase {
     $marketo_ma_soap_endpoint = 'http://' . $this->randomName() . '.example.com';
     $marketo_ma_soap_user_id = $this->randomName();
     $marketo_ma_soap_encryption_key = $this->randomName();
+    $marketo_ma_soap_proxy_host = $this->randomName() . '.example.com';
+    $marketo_ma_soap_proxy_port = rand(8000, 9000);
+    $marketo_ma_soap_proxy_login = $this->randomName();
+    $marketo_ma_soap_proxy_password = $this->randomName();
 
+    // Tracking method initially set to munchkin.
     $edit = array(
       'marketo_ma_tracking_method' => 'munchkin',
       'marketo_ma_munchkin_lead_source' => $marketo_ma_munchkin_lead_source,
@@ -185,6 +191,10 @@ class MarketoModuleConfigTestCase extends MarketoTestCase {
       'marketo_ma_soap_endpoint' => $marketo_ma_soap_endpoint,
       'marketo_ma_soap_user_id' => $marketo_ma_soap_user_id,
       'marketo_ma_soap_encryption_key' => $marketo_ma_soap_encryption_key,
+      'marketo_ma_soap_proxy_host' => $marketo_ma_soap_proxy_host,
+      'marketo_ma_soap_proxy_port' => $marketo_ma_soap_proxy_port,
+      'marketo_ma_soap_proxy_login' => $marketo_ma_soap_proxy_login,
+      'marketo_ma_soap_proxy_password' => $marketo_ma_soap_proxy_password,
     );
 
     $this->drupalGet($this->adminPath);
@@ -198,6 +208,11 @@ class MarketoModuleConfigTestCase extends MarketoTestCase {
     foreach ($edit as $name => $value) {
       $this->assertFieldByName($name, $value);
     }
+
+    // Set tracking method to soap, this should fail as endpoint is invalid.
+    $edit['marketo_ma_tracking_method'] = 'soap';
+    $this->drupalPost($this->adminPath, $edit, 'Save configuration');
+    $this->assertText('Unable to validate SOAP API settings');
   }
 
 }

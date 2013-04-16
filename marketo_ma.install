@@ -19,6 +19,10 @@ function marketo_ma_uninstall() {
   variable_del('marketo_ma_pages');
   variable_del('marketo_ma_soap_encryption_key');
   variable_del('marketo_ma_soap_endpoint');
+  variable_del('marketo_ma_soap_proxy_host');
+  variable_del('marketo_ma_soap_proxy_login');
+  variable_del('marketo_ma_soap_proxy_password');
+  variable_del('marketo_ma_soap_proxy_port');
   variable_del('marketo_ma_soap_user_id');
   variable_del('marketo_ma_tracking_method');
   variable_del('marketo_ma_visibility_pages');
