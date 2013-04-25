@@ -206,8 +206,27 @@ function marketo_ma_admin_settings_form_validate($form, &$form_state) {
     $form_state['values']['marketo_ma_soap_user_id'] = trim($form_state['values']['marketo_ma_soap_user_id']);
     $form_state['values']['marketo_ma_soap_encryption_key'] = trim($form_state['values']['marketo_ma_soap_encryption_key']);
 
+    $proxy = array();
+    $proxy['proxy_host'] = trim($form_state['values']['marketo_ma_soap_proxy_host']);
+    $proxy['proxy_port'] = trim($form_state['values']['marketo_ma_soap_proxy_port']);
+    $proxy['proxy_login'] = trim($form_state['values']['marketo_ma_soap_proxy_login']);
+    $proxy['proxy_password'] = trim($form_state['values']['marketo_ma_soap_proxy_password']);
+
+    if (empty($proxy['proxy_host'])) {
+      unset($proxy['proxy_host']);
+    }
+    if (empty($proxy['proxy_port'])) {
+      unset($proxy['proxy_port']);
+    }
+    if (empty($proxy['proxy_login'])) {
+      unset($proxy['proxy_login']);
+    }
+    if (empty($proxy['proxy_password'])) {
+      unset($proxy['proxy_password']);
+    }
+
     $soap_is_valid = _marketo_ma_validate_soap_configuration(
-      $form_state['values']['marketo_ma_soap_user_id'], $form_state['values']['marketo_ma_soap_encryption_key'], $form_state['values']['marketo_ma_soap_endpoint']
+      $form_state['values']['marketo_ma_soap_user_id'], $form_state['values']['marketo_ma_soap_encryption_key'], $form_state['values']['marketo_ma_soap_endpoint'], $proxy
     );
     if (!$soap_is_valid) {
       form_set_error('marketo_ma_soap_endpoint', 'Unable to validate SOAP API settings.');
@@ -230,10 +249,10 @@ function marketo_ma_admin_settings_form_validate($form, &$form_state) {
  * @return bool
  *   Returns TRUE if SOAP settings are validated successfully
  */
-function _marketo_ma_validate_soap_configuration($access_key, $secret_key, $soap_endpoint) {
+function _marketo_ma_validate_soap_configuration($access_key, $secret_key, $soap_endpoint, $proxy) {
   module_load_include('inc', 'marketo_ma', 'includes/marketo_ma.soap');
   try {
-    $client = new MarketoClient($access_key, $secret_key, $soap_endpoint);
+    $client = new MarketoClient($access_key, $secret_key, $soap_endpoint, $proxy);
     $result = $client->getFields();
     if (!$result) {
       $result = FALSE;
