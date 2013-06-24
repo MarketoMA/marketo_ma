@@ -10,7 +10,7 @@
 function marketo_ma_rules_action_info() {
   $actions = array(
     'add_lead' => array(
-      'label' => t('Add data to Marketo lead.'),
+      'label' => t('Add data to Marketo lead'),
       'parameter' => array(
         'account' => array(
           'type' => 'user',
