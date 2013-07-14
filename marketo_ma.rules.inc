@@ -31,7 +31,7 @@ function marketo_ma_rules_action_info() {
 
 
 /**
- * Process data passed as a list from action firing and execute Marketo lead update.
+ * Process data passed as a list from action firing and execute lead update.
  */
 function marketo_ma_actions_add_lead($account, $data) {
 

@@ -349,11 +349,10 @@ function _marketo_ma_soap_is_configured() {
  */
 function _marketo_ma_visibility_pages() {
   static $page_match;
-  module_load_include('inc', 'marketo_ma', 'includes/marketo_ma');
 
   // Cache visibility result if function is called more than once.
   if (!isset($page_match)) {
-
+    module_load_include('inc', 'marketo_ma', 'includes/marketo_ma');
     $visibility = variable_get('marketo_ma_visibility_pages', 0);
     $setting_pages = variable_get('marketo_ma_pages', MARKETO_MA_PAGES);
 
@@ -396,23 +395,27 @@ function _marketo_ma_visibility_pages() {
  *   Proxy settings
  */
 function _marketo_ma_soap_proxy_settings() {
-  $proxy = array();
-  $proxy['proxy_host'] = variable_get('marketo_ma_soap_proxy_host', '');
-  $proxy['proxy_port'] = variable_get('marketo_ma_soap_proxy_port', '');
-  $proxy['proxy_login'] = variable_get('marketo_ma_soap_proxy_login', '');
-  $proxy['proxy_password'] = variable_get('marketo_ma_soap_proxy_password', '');
+  static $proxy;
 
-  if (empty($proxy['proxy_host'])) {
-    unset($proxy['proxy_host']);
-  }
-  if (empty($proxy['proxy_port'])) {
-    unset($proxy['proxy_port']);
-  }
-  if (empty($proxy['proxy_login'])) {
-    unset($proxy['proxy_login']);
-  }
-  if (empty($proxy['proxy_password'])) {
-    unset($proxy['proxy_password']);
+  if (!isset($proxy)) {
+    $proxy = array();
+    $proxy['proxy_host'] = variable_get('marketo_ma_soap_proxy_host', '');
+    $proxy['proxy_port'] = variable_get('marketo_ma_soap_proxy_port', '');
+    $proxy['proxy_login'] = variable_get('marketo_ma_soap_proxy_login', '');
+    $proxy['proxy_password'] = variable_get('marketo_ma_soap_proxy_password', '');
+
+    if (empty($proxy['proxy_host'])) {
+      unset($proxy['proxy_host']);
+    }
+    if (empty($proxy['proxy_port'])) {
+      unset($proxy['proxy_port']);
+    }
+    if (empty($proxy['proxy_login'])) {
+      unset($proxy['proxy_login']);
+    }
+    if (empty($proxy['proxy_password'])) {
+      unset($proxy['proxy_password']);
+    }
   }
 
   return $proxy;
