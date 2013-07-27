@@ -295,6 +295,33 @@ function _marketo_ma_get_fields() {
 }
 
 /**
+ * Tests to see if Marketo MA has a valid configuration.
+ * 
+ * @staticvar bool $configured
+ * @return bool
+ *   Returns TRUE if Munchkin settings are configured
+ */
+function _marketo_ma_is_configured() {
+  static $configured;
+
+  if (!isset($configured)) {
+    $track = variable_get('marketo_ma_tracking_method');
+    if (
+      ($track == 'munchkin' & _marketo_ma_munchkin_is_configured()) ||
+      ($track == 'soap' & _marketo_ma_soap_is_configured()) ||
+      ($track == 'soap_async' & _marketo_ma_soap_is_configured())
+    ) {
+      $configured = TRUE;
+    }
+    else {
+      $configured = FALSE;
+    }
+  }
+
+  return $configured;
+}
+
+/**
  * Tests to see if munchkin is configured.
  * 
  * @staticvar bool $configured

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * Rules integration for Marketo MA
@@ -29,18 +30,21 @@ function marketo_ma_rules_action_info() {
   return $actions;
 }
 
-
 /**
  * Process data passed as a list from action firing and execute lead update.
  */
 function marketo_ma_actions_add_lead($account, $data) {
-
-  $output = array();
-  foreach ($data as $row) {
-    $r = explode("|", $row);
-    $output[$r[0]] = $r[1];
+  if (_marketo_ma_is_configured()) {
+    if ($account->mail) {
+      $output = array();
+      foreach ($data as $row) {
+        $r = explode("|", $row);
+        $output[$r[0]] = $r[1];
+      }
+      marketo_ma_add_lead($account->mail, $output);
+    }
   }
-  if ($account->mail) {
-    marketo_ma_add_lead($account->mail, $output);
+  else {
+    watchdog('marketo', 'Rule action failed, Marketo MA is not configured properly.', array(), WATCHDOG_ALERT);
   }
 }
