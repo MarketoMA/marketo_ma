@@ -62,7 +62,7 @@ function marketo_ma_rules_action_add_lead($account, $data) {
 
 /**
  * Retrieves a lead from Marketo.
- * 
+ *
  * @param type $account
  * @return array
  */
@@ -70,7 +70,6 @@ function marketo_ma_rules_action_get_lead($account) {
   $lead = NULL;
   if ($account->mail) {
     $lead = json_encode(_marketo_ma_get_lead($account->mail));
-    
   }
   return array(
     'marketo_ma_lead' => $lead,

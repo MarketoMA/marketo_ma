@@ -296,7 +296,7 @@ function _marketo_ma_get_fields() {
 
 /**
  * Retrieves a lead from Marketo using SOAP API.
- * 
+ *
  * @return array
  *   Marketo lead
  */
