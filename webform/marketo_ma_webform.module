@@ -51,11 +51,11 @@ function _marketo_ma_webform_save_webform($form, &$form_state) {
   $nid = $node->nid;
 
   db_merge(MARKETO_MA_SCHEMA_WEBFORM)
-      ->key(array('nid' => $nid))
-      ->fields(array(
-        MARKETO_MA_WEBFORM_FIELD_ACTIVE => $values['marketo_ma_webform_is_active'],
-      ))
-      ->execute();
+    ->key(array('nid' => $nid))
+    ->fields(array(
+      MARKETO_MA_WEBFORM_FIELD_ACTIVE => $values['marketo_ma_webform_is_active'],
+    ))
+    ->execute();
 }
 
 /**
@@ -64,12 +64,12 @@ function _marketo_ma_webform_save_webform($form, &$form_state) {
 function marketo_ma_webform_webform_component_insert($component) {
   module_load_include('inc', 'marketo_ma', 'includes/marketo_ma');
   db_insert(MARKETO_MA_SCHEMA_WEBFORM_COMPONENT)
-      ->fields(array(
-        'nid' => $component['nid'],
-        'cid' => $component['cid'],
-        MARKETO_MA_WEBFORM_COMPONENT_KEY => $component['marketo']['marketo_ma_webform_component_key'],
-      ))
-      ->execute();
+    ->fields(array(
+      'nid' => $component['nid'],
+      'cid' => $component['cid'],
+      MARKETO_MA_WEBFORM_COMPONENT_KEY => $component['marketo']['marketo_ma_webform_component_key'],
+    ))
+    ->execute();
 }
 
 /**
@@ -79,14 +79,14 @@ function marketo_ma_webform_webform_component_update($component) {
   module_load_include('inc', 'marketo_ma', 'includes/marketo_ma');
 
   db_merge(MARKETO_MA_SCHEMA_WEBFORM_COMPONENT)
-      ->key(array(
-        'nid' => $component['nid'],
-        'cid' => $component['cid'],
-      ))
-      ->fields(array(
-        MARKETO_MA_WEBFORM_COMPONENT_KEY => $component['marketo']['marketo_ma_webform_component_key'],
-      ))
-      ->execute();
+    ->key(array(
+      'nid' => $component['nid'],
+      'cid' => $component['cid'],
+    ))
+    ->fields(array(
+      MARKETO_MA_WEBFORM_COMPONENT_KEY => $component['marketo']['marketo_ma_webform_component_key'],
+    ))
+    ->execute();
 }
 
 /**
@@ -95,9 +95,9 @@ function marketo_ma_webform_webform_component_update($component) {
 function marketo_ma_webform_webform_component_delete($component) {
   module_load_include('inc', 'marketo_ma', 'includes/marketo_ma');
   db_delete(MARKETO_MA_SCHEMA_WEBFORM_COMPONENT)
-      ->condition('nid', $component['nid'])
-      ->condition('cid', $component['cid'])
-      ->execute();
+    ->condition('nid', $component['nid'])
+    ->condition('cid', $component['cid'])
+    ->execute();
 }
 
 /**
@@ -110,11 +110,11 @@ function marketo_ma_webform_form_webform_component_edit_form_alter(&$form, &$for
   $cid = $form['cid']['#value'];
 
   $result = db_select(MARKETO_MA_SCHEMA_WEBFORM_COMPONENT)
-      ->fields(MARKETO_MA_SCHEMA_WEBFORM_COMPONENT)
-      ->condition('nid', $nid, '=')
-      ->condition('cid', $cid, '=')
-      ->execute()
-      ->fetchAssoc();
+    ->fields(MARKETO_MA_SCHEMA_WEBFORM_COMPONENT)
+    ->condition('nid', $nid, '=')
+    ->condition('cid', $cid, '=')
+    ->execute()
+    ->fetchAssoc();
 
   $form['marketo'] = array(
     '#title' => t('Marketo Options'),
@@ -134,9 +134,7 @@ function marketo_ma_webform_form_webform_component_edit_form_alter(&$form, &$for
    * marketo_ma_webform_fields is multi-line, pipe "|" delimited data
    * which needs to be parsed. First split it into rows of data.
    */
-  $raw_options = preg_split('/(\r\n?|\n)/',
-      trim(variable_get('marketo_ma_webform_fields',
-              MARKETO_MA_WEBFORM_FIELD_DEFAULTS)));
+  $raw_options = preg_split('/(\r\n?|\n)/', trim(variable_get('marketo_ma_webform_fields', MARKETO_MA_WEBFORM_FIELD_DEFAULTS)));
   $options = array();
 
   // Loop over all the rows getting the keys and values for the fields.
@@ -163,10 +161,10 @@ function marketo_ma_webform_node_load($nodes, $types) {
 
   // Select all webforms that match these node IDs.
   $result = db_select(MARKETO_MA_SCHEMA_WEBFORM)
-      ->fields(MARKETO_MA_SCHEMA_WEBFORM)
-      ->condition('nid', array_keys($nodes), 'IN')
-      ->execute()
-      ->fetchAllAssoc('nid', PDO::FETCH_ASSOC);
+    ->fields(MARKETO_MA_SCHEMA_WEBFORM)
+    ->condition('nid', array_keys($nodes), 'IN')
+    ->execute()
+    ->fetchAllAssoc('nid', PDO::FETCH_ASSOC);
 
   foreach ($result as $nid => $webform) {
     $nodes[$nid]->webform['marketo']['marketo_ma_webform_is_active'] = $webform[MARKETO_MA_WEBFORM_FIELD_ACTIVE];
@@ -178,7 +176,7 @@ function marketo_ma_webform_node_load($nodes, $types) {
  */
 function marketo_ma_webform_webform_submission_insert($node, $submission) {
   if (isset($node->webform['marketo']['marketo_ma_webform_is_active']) &&
-      $node->webform['marketo']['marketo_ma_webform_is_active']) {
+    $node->webform['marketo']['marketo_ma_webform_is_active']) {
     $data = _marketo_ma_webform_component_mapping($node, $submission);
 
     /*
@@ -200,12 +198,12 @@ function marketo_ma_webform_webform_submission_insert($node, $submission) {
 
 /**
  * Maps webform components to marketo fields.
- * 
+ *
  * @param object $node
  *   The node object containing the current webform
  * @param object $submission
  *   The webform submission object to be saved into the database
- * 
+ *
  * @return array
  *   Component to marketo key mapping
  */
@@ -216,15 +214,42 @@ function _marketo_ma_webform_component_mapping($node, $submission) {
   // TODO: Change this to only a single db hit. cid in (). then process result.
   foreach ($submission->data as $i => $element) {
     $result = db_select(MARKETO_MA_SCHEMA_WEBFORM_COMPONENT)
-        ->fields(MARKETO_MA_SCHEMA_WEBFORM_COMPONENT)
-        ->condition('nid', $components[$i]['nid'], '=')
-        ->condition('cid', $components[$i]['cid'], '=')
-        ->execute()
-        ->fetchAssoc();
+      ->fields(MARKETO_MA_SCHEMA_WEBFORM_COMPONENT)
+      ->condition('nid', $components[$i]['nid'], '=')
+      ->condition('cid', $components[$i]['cid'], '=')
+      ->execute()
+      ->fetchAssoc();
     if ($result && $result['marketo_ma_key'] !== MARKETO_MA_WEBFORM_COMPONENT_NONE) {
-      $mapping[$result['marketo_ma_key']] = $element['value'][0];
+      if (_marketo_ma_webform_is_webform_v3()) {
+        $mapping[$result['marketo_ma_key']] = $element['value'][0];
+      }
+      else {
+        $mapping[$result['marketo_ma_key']] = $element[0];
+      }
     }
   }
 
   return $mapping;
+}
+
+/**
+ * Checks the Webform module to see if it is version 3.x.
+ *
+ * We must determine if we are using Webform 3.x or something later.
+ * Webform 4.x introduced a change to the submission structure
+ * that we must be aware of.
+ * https://drupal.org/node/1609324#submission-structure
+ *
+ * @return bool
+ *   Returns TRUE if the Webform module being used is version 3.x
+ */
+function _marketo_ma_webform_is_webform_v3() {
+  static $is_webform_v3;
+  if (!isset($is_webform_v3)) {
+    $webform_info = system_get_info('module', 'webform');
+    $webform_version = str_replace(DRUPAL_CORE_COMPATIBILITY . '-', '', $webform_info['version']);
+    $v3 = drupal_parse_dependency("Webform (3.x)");
+    $is_webform_v3 = is_null(drupal_check_incompatibility($v3, $webform_version));
+  }
+  return $is_webform_v3;
 }
