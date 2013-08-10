@@ -48,6 +48,9 @@ function marketo_ma_rules_action_info() {
 
 /**
  * Process data passed as a list from action firing and execute lead update.
+ *
+ * @param $account
+ * @param $data
  */
 function marketo_ma_rules_action_add_lead($account, $data) {
   if ($account->mail) {
@@ -63,7 +66,7 @@ function marketo_ma_rules_action_add_lead($account, $data) {
 /**
  * Retrieves a lead from Marketo.
  *
- * @param type $account
+ * @param $account
  * @return array
  */
 function marketo_ma_rules_action_get_lead($account) {
