@@ -1,0 +1,7 @@
+Marketo MA Changelog
+---------------------
+
+Marketo MA 7.x-1.x, xxxx-xx-xx
+------------------------------
+#2053673: Handle submission structure changes made in Webform 4.x
+#2062165: Added CHANGELOG.txt
