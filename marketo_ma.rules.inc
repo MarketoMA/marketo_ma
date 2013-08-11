@@ -53,7 +53,7 @@ function marketo_ma_rules_action_info() {
  * @param $data
  */
 function marketo_ma_rules_action_add_lead($account, $data) {
-  if ($account->mail) {
+  if (!empty($account->mail)) {
     $output = array();
     foreach ($data as $row) {
       $r = explode("|", $row);
@@ -71,10 +71,10 @@ function marketo_ma_rules_action_add_lead($account, $data) {
  */
 function marketo_ma_rules_action_get_lead($account) {
   $lead = NULL;
-  if ($account->mail) {
-    $lead = json_encode(_marketo_ma_get_lead($account->mail));
+  if (!empty($account->mail)) {
+    $lead = _marketo_ma_get_lead($account->mail);
   }
   return array(
-    'marketo_ma_lead' => $lead,
+    'marketo_ma_lead' => json_encode($lead),
   );
 }

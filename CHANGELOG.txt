@@ -5,3 +5,7 @@ Marketo MA 7.x-1.x, xxxx-xx-xx
 ------------------------------
 #2053673: Handle submission structure changes made in Webform 4.x
 #2062165: Added CHANGELOG.txt
+#2062181: Create rule action to retrieve lead data from Marketo
+  Rule action "Add data to Marketo lead" has been changed
+  to "Send lead data to Marketo" and underlying function has changed name
+  from "add_lead" to "marketo_ma_rules_action_add_lead".
