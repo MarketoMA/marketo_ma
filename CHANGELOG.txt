@@ -9,3 +9,4 @@ Marketo MA 7.x-1.x, xxxx-xx-xx
   Rule action "Add data to Marketo lead" has been changed
   to "Send lead data to Marketo" and underlying function has changed name
   from "add_lead" to "marketo_ma_rules_action_add_lead".
+#2066465: Added basic drush support

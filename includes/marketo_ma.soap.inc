@@ -24,6 +24,16 @@ interface MarketoInterface {
    *   Type of lead key provided, defaults to "email"
    */
   public function getLead($key, $type);
+  
+  /**
+   * Retrieves lead activity information.
+   * 
+   * @param string $key
+   *   Lead Key, typically email address
+   * @param string $type
+   *   Type of lead key provided, defaults to "email"
+   */
+  public function getLeadActivity($key, $type);
 
   /**
    * Inserts or updates a lead.
@@ -139,6 +149,36 @@ class MarketoClient implements MarketoInterface {
     }
 
     return $leads;
+  }
+  
+  /**
+   * {@inheritdoc}
+   */
+  public function getLeadActivity($key, $type = 'email') {
+    $lead = new stdClass();
+    $lead->leadKey = new stdClass();
+    $lead->leadKey->keyType = strtoupper($type);
+    $lead->leadKey->keyValue = $key;
+    $lead->activityFilter = new stdClass();
+    $lead->startPosition = new stdClass();
+    $lead->batchSize = 100;
+
+    try {
+      $result = $this->request('getLeadActivity', $lead);
+      $activity = $this->prepareLeadActivityResults($result);
+    }
+    catch (Exception $e) {
+
+      if (isset($e->detail->serviceException->code) && $e->detail->serviceException->code == MarketoError::ERR_LEAD_NOT_FOUND) {
+        // No leads were found.
+        $activity = array();
+      }
+      else {
+        throw new Exception($e);
+      }
+    }
+
+    return $activity;
   }
 
   /**
@@ -258,6 +298,26 @@ class MarketoClient implements MarketoInterface {
     }
 
     return $leads;
+  }
+  
+  /**
+   * Parses lead activity results into a more useful format.
+   * 
+   * @param object $marketo_result
+   *   SOAP response
+   * 
+   * @return array
+   *   An array of objects defining lead activity data
+   */
+  protected function prepareLeadActivityResults($marketo_result) {
+    $activity = array();
+    
+    foreach ($marketo_result->leadActivityList->activityRecordList->activityRecord as $event) {
+      //unset($event->activityAttributes);
+      $activity[] = $event;
+    }
+    
+    return $activity;
   }
 
 }

@@ -326,6 +326,37 @@ function _marketo_ma_get_lead($key) {
 }
 
 /**
+ * Retrieves lead activity from Marketo.
+ *
+ * @return array
+ *   Marketo lead
+ */
+function marketo_ma_get_lead_activity($key) {
+  if (_marketo_ma_soap_is_configured()) {
+    module_load_include('inc', 'marketo_ma', 'includes/marketo_ma.soap');
+
+    $secret_key = variable_get('marketo_ma_soap_encryption_key');
+    $access_key = variable_get('marketo_ma_soap_user_id');
+    $soap_endpoint = variable_get('marketo_ma_soap_endpoint');
+
+    $result = array();
+
+    try {
+      $client = new MarketoClient($access_key, $secret_key, $soap_endpoint, _marketo_ma_soap_proxy_settings());
+      $result = $client->getLeadActivity($key);
+      if (!$result) {
+        watchdog('marketo', 'Lead data not found for !key', array('!key' => $key), WATCHDOG_ERROR);
+      }
+    }
+    catch (Exception $e) {
+      watchdog('marketo', 'Unable to retrieve lead activity. <pre>@error</pre>', array('error' => $e->getMessage()), WATCHDOG_ERROR);
+    }
+  }
+
+  return $result;
+}
+
+/**
  * Tests to see if Marketo MA has a valid configuration.
  * 
  * @staticvar bool $configured
