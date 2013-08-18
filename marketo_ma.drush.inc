@@ -54,10 +54,10 @@ function drush_marketo_ma_mma_get_lead($user = 1) {
     foreach ($fields as $field) {
       $rows[] = array(dt('Account'), $field, $account->$field);
     }
-    $marketo = _marketo_ma_get_lead($account->mail);
+    $marketo = marketo_ma_get_lead($account->mail);
   }
   else if (valid_email_address($user)) {
-    $marketo = _marketo_ma_get_lead($user);
+    $marketo = marketo_ma_get_lead($user);
   }
   if (!empty($marketo)) {
     $rows[] = array(dt('Marketo'), 'Id', $marketo[0]->Id);

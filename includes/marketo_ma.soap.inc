@@ -21,17 +21,17 @@ interface MarketoInterface {
    * @param string $key
    *   Lead Key, typically email address
    * @param string $type
-   *   Type of lead key provided, defaults to "email"
+   *   Lead key type, auto-detection attempted if not supplied
    */
   public function getLead($key, $type);
-  
+
   /**
    * Retrieves lead activity information.
    * 
    * @param string $key
    *   Lead Key, typically email address
    * @param string $type
-   *   Type of lead key provided, defaults to "email"
+   *   Lead key type, auto-detection attempted if not supplied
    */
   public function getLeadActivity($key, $type);
 
@@ -108,6 +108,32 @@ class MarketoClient implements MarketoInterface {
   }
 
   /**
+   * Determines lead key type for a given key.
+   * 
+   * @param string $key
+   *   The key to examine
+   * 
+   * @return string
+   *   Lead key type
+   */
+  protected function keyType($key) {
+    if (filter_var($key, FILTER_VALIDATE_EMAIL)) {
+      $type = 'EMAIL';
+    }
+    elseif (is_int($key) || (is_string($key) && ctype_digit($key))) {
+      $type = 'IDNUM';
+    }
+    elseif (filter_var($key, FILTER_VALIDATE_REGEXP, array('options' => array('regexp' => '/^id:.*&token:.*/')))) {
+      $type = 'COOKIE';
+    }
+    else {
+      $type = 'UNKNOWN';
+    }
+
+    return $type;
+  }
+
+  /**
    * Sends request to Marketo.
    * 
    * @param string $operation
@@ -127,12 +153,12 @@ class MarketoClient implements MarketoInterface {
   /**
    * {@inheritdoc}
    */
-  public function getLead($key, $type = 'email') {
+  public function getLead($key, $type = NULL) {
     $lead = new stdClass();
     $lead->leadKey = new stdClass();
-    $lead->leadKey->keyType = strtoupper($type);
+    $lead->leadKey->keyType = (is_null($type)) ? $this->keyType($key) : strtoupper($type);
     $lead->leadKey->keyValue = $key;
-
+    
     try {
       $result = $this->request('getLead', $lead);
       $leads = $this->prepareLeadResults($result);
@@ -150,14 +176,14 @@ class MarketoClient implements MarketoInterface {
 
     return $leads;
   }
-  
+
   /**
    * {@inheritdoc}
    */
-  public function getLeadActivity($key, $type = 'email') {
+  public function getLeadActivity($key, $type = NULL) {
     $lead = new stdClass();
     $lead->leadKey = new stdClass();
-    $lead->leadKey->keyType = strtoupper($type);
+    $lead->leadKey->keyType = (is_null($type)) ? $this->keyType($key) : strtoupper($type);
     $lead->leadKey->keyValue = $key;
     $lead->activityFilter = new stdClass();
     $lead->startPosition = new stdClass();
@@ -165,7 +191,12 @@ class MarketoClient implements MarketoInterface {
 
     try {
       $result = $this->request('getLeadActivity', $lead);
-      $activity = $this->prepareLeadActivityResults($result);
+      if($result->leadActivityList->returnCount > 0) {
+        $activity = $this->prepareLeadActivityResults($result);
+      }
+      else {
+        $activity = array();
+      }
     }
     catch (Exception $e) {
 
@@ -299,7 +330,7 @@ class MarketoClient implements MarketoInterface {
 
     return $leads;
   }
-  
+
   /**
    * Parses lead activity results into a more useful format.
    * 

@@ -72,7 +72,7 @@ function marketo_ma_rules_action_add_lead($account, $data) {
 function marketo_ma_rules_action_get_lead($account) {
   $lead = NULL;
   if (!empty($account->mail)) {
-    $lead = _marketo_ma_get_lead($account->mail);
+    $lead = marketo_ma_get_lead($account->mail);
   }
   return array(
     'marketo_ma_lead' => json_encode($lead),

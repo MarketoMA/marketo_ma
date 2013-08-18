@@ -300,7 +300,7 @@ function _marketo_ma_get_fields() {
  * @return array
  *   Marketo lead
  */
-function _marketo_ma_get_lead($key) {
+function marketo_ma_get_lead($key) {
   if (_marketo_ma_soap_is_configured()) {
     module_load_include('inc', 'marketo_ma', 'includes/marketo_ma.soap');
 
@@ -313,8 +313,8 @@ function _marketo_ma_get_lead($key) {
     try {
       $client = new MarketoClient($access_key, $secret_key, $soap_endpoint, _marketo_ma_soap_proxy_settings());
       $result = $client->getLead($key);
-      if (!$result) {
-        watchdog('marketo', 'Lead data not found for !key', array('!key' => $key), WATCHDOG_ERROR);
+      if (!$result && variable_get('marketo_ma_logging', FALSE)) {
+        watchdog('marketo', 'Lead data not found for !key', array('!key' => $key), WATCHDOG_INFO);
       }
     }
     catch (Exception $e) {
@@ -344,8 +344,8 @@ function marketo_ma_get_lead_activity($key) {
     try {
       $client = new MarketoClient($access_key, $secret_key, $soap_endpoint, _marketo_ma_soap_proxy_settings());
       $result = $client->getLeadActivity($key);
-      if (!$result) {
-        watchdog('marketo', 'Lead data not found for !key', array('!key' => $key), WATCHDOG_ERROR);
+      if (!$result && variable_get('marketo_ma_logging', FALSE)) {
+        watchdog('marketo', 'Lead data not found for !key', array('!key' => $key), WATCHDOG_INFO);
       }
     }
     catch (Exception $e) {
