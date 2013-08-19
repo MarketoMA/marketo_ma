@@ -27,6 +27,7 @@ function marketo_ma_uninstall() {
   variable_del('marketo_ma_tracking_method');
   variable_del('marketo_ma_visibility_pages');
   variable_del('marketo_ma_webform_fields');
+  variable_del('marketo_ma_webform_fields_soap');
 }
 
 /**
