@@ -43,7 +43,7 @@ function marketo_ma_menu() {
 
 function _marketo_ma_display_lead($account) {
   $output = "";
-  $marketo = _marketo_ma_get_lead($account->mail);
+  $marketo = marketo_ma_get_lead($account->mail);
   if (!empty($marketo)) {
     $rows[] = array('Id', $marketo[0]->Id);
     foreach ($marketo[0]->attributes as $key => $value) {
