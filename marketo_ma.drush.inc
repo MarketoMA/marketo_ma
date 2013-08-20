@@ -13,24 +13,30 @@ function marketo_ma_drush_command() {
   $items['mma-get-lead'] = array(
     'description' => dt('Get Marketo lead information for the specified user or email address.'),
     'arguments' => array(
-      'user' => dt('A uid, user name, or email address.'),
+      'key' => dt('A uid, user name, or email address. If using --remote this should be an IDNUM, EMAIL, or COOKIE Marketo value.'),
     ),
     'examples' => array(
       'drush mma-get-lead 14' => dt('Get lead data for user account 14.'),
-      'drush mma-get-lead john.doe' => dt('Get lead data for user john.doe.'),
-      'drush mmal john@example.com' => dt('Get lead data associated with email address john@example.com.'),
+      'drush mmal john@example.com' => dt('Search for account john@example.com locally then try to match to a Marketo record.'),
+      'drush mmal john@example.com --remote' => dt('Search Marketo for john@example.com then match to a local account if possible.'),
+    ),
+    'options' => array(
+      'remote' => dt('Search Marketo then try to match a local user account.'),
     ),
     'aliases' => array('mmal'),
   );
   $items['mma-get-activity'] = array(
     'description' => dt('Get Marketo activity for the specified lead.'),
     'arguments' => array(
-      'user' => dt('A uid, user name, or email address.'),
+      'key' => dt('A uid, user name, or email address. If using --remote this should be an IDNUM, EMAIL, or COOKIE Marketo value.'),
     ),
     'examples' => array(
       'drush mma-get-activity 14' => dt('Get activity events for user account 14.'),
       'drush mma-get-activity john.doe' => dt('Get activity events for user john.doe.'),
       'drush mmaa john@example.com' => dt('Get activity events associated with email address john@example.com.'),
+    ),
+    'options' => array(
+      'remote' => dt('Search Marketo then try to match a local user account.'),
     ),
     'aliases' => array('mmaa'),
   );
@@ -45,22 +51,37 @@ function marketo_ma_drush_command() {
   return $items;
 }
 
-function drush_marketo_ma_mma_get_lead($user = 1) {
+function drush_marketo_ma_mma_get_lead($key = NULL) {
+  if (is_null($key)) {
+    drush_log('No key provided', 'error');
+    return;
+  }
   $rows[] = array(dt('Group'), dt('Key'), dt('Value'));
-  $uid = _drush_user_get_uid($user);
-  if ($uid !== FALSE) {
-    $account = user_load($uid);
+  $remote = drush_get_option('remote', FALSE);
+  if ($remote) {
+    $marketo = marketo_ma_get_lead($key);
+    if (!empty($marketo)) {
+      $account = user_load_by_mail($marketo[0]->Email);
+    }
+  }
+  else {
+    $uid = _drush_user_get_uid($key);
+    if ($uid !== FALSE) {
+      $account = user_load($uid);
+      $marketo = marketo_ma_get_lead($account->mail);
+    }
+  }
+
+  if ($account) {
     $fields = array('uid', 'name', 'mail');
     foreach ($fields as $field) {
       $rows[] = array(dt('Account'), $field, $account->$field);
     }
-    $marketo = marketo_ma_get_lead($account->mail);
   }
-  else if (valid_email_address($user)) {
-    $marketo = marketo_ma_get_lead($user);
-  }
+
   if (!empty($marketo)) {
     $rows[] = array(dt('Marketo'), 'Id', $marketo[0]->Id);
+    $rows[] = array(dt('Marketo'), 'Email', $marketo[0]->Email);
     foreach ($marketo[0]->attributes as $key => $value) {
       $rows[] = array(dt('Marketo'), $key, $value);
     }
@@ -71,15 +92,22 @@ function drush_marketo_ma_mma_get_lead($user = 1) {
   }
 }
 
-function drush_marketo_ma_mma_get_activity($user = 1) {
-  $rows[] = array(dt('ID'), dt('Date/Time'), dt('Activity Type'), dt('Asset Name'));
-  $uid = _drush_user_get_uid($user);
-  if ($uid !== FALSE) {
-    $account = user_load($uid);
-    $activity = marketo_ma_get_lead_activity($account->mail);
+function drush_marketo_ma_mma_get_activity($key = NULL) {
+  if (is_null($key)) {
+    drush_log('No key provided', 'error');
+    return;
   }
-  else if (valid_email_address($user)) {
-    $activity = marketo_ma_get_lead_activity($user);
+  $rows[] = array(dt('ID'), dt('Date/Time'), dt('Activity Type'), dt('Asset Name'));
+  $remote = drush_get_option('remote', FALSE);
+  if ($remote) {
+    $activity = marketo_ma_get_lead_activity($key);
+  }
+  else {
+    $uid = _drush_user_get_uid($key);
+    if ($uid !== FALSE) {
+      $account = user_load($uid);
+      $activity = marketo_ma_get_lead_activity($account->mail);
+    }
   }
 
   if (!empty($activity)) {
