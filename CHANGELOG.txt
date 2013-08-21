@@ -14,3 +14,4 @@ Marketo MA 7.x-1.x, xxxx-xx-xx
   Function "_marketo_ma_get_lead" renamed to "marketo_ma_get_lead", it is safe
   to call this function directly.
 #2067857: Variable marketo_ma_webform_fields_soap is now deleted upon uninstall
+#2067861: Added ability to view lead and activity information for a given user
