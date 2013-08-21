@@ -18,66 +18,7 @@ function marketo_ma_menu() {
     'access arguments' => array('administer marketo'),
     'file' => 'includes/marketo_ma.admin.inc',
   );
-  $items['user/%user/marketo'] = array(
-    'title' => 'Marketo',
-    'page callback' => '_marketo_ma_display_lead',
-    'page arguments' => array(1),
-    'access arguments' => array('marketo_ma_view_all_leads'),
-    'type' => MENU_LOCAL_TASK,
-    'weight' => 100,
-  );
-  $items['user/%user/marketo/lead'] = array(
-    'title' => 'Lead',
-    'type' => MENU_DEFAULT_LOCAL_TASK,
-  );
-  $items['user/%user/marketo/activity'] = array(
-    'title' => 'Activity',
-    'page callback' => '_marketo_ma_display_lead_activity',
-    'page arguments' => array(1),
-    'access arguments' => array('marketo_ma_view_all_leads'),
-    'type' => MENU_LOCAL_TASK,
-    'weight' => 100,
-  );
   return $items;
-}
-
-function _marketo_ma_display_lead($account) {
-  $output = "";
-  $marketo = marketo_ma_get_lead($account->mail);
-  if (!empty($marketo)) {
-    $rows[] = array('Id', $marketo[0]->Id);
-    foreach ($marketo[0]->attributes as $key => $value) {
-      $rows[] = array($key, $value);
-    }
-    $header = array(t('Key'), t('Value'));
-    $output = theme('table', array('header' => $header, 'rows' => $rows));
-  }
-  else {
-    //throw new Exception('Booom');
-    $output = t("No lead information found for @mail.", array('@mail' => $account->mail));
-  }
-  return $output;
-}
-
-function _marketo_ma_display_lead_activity($account) {
-  $output = "";
-  $activity = marketo_ma_get_lead_activity($account->mail);
-  if (!empty($activity)) {
-    $header = array(t('ID'), t('Date/Time'), t('Activity Type'), t('Asset Name'));
-    $fields = array('id', 'activityDateTime', 'activityType', 'mktgAssetName');
-    foreach ($activity as $event) {
-      $row = array();
-      foreach ($fields as $field) {
-        $row[] = $event->$field;
-      }
-      $rows[] = $row;
-    }
-    $output = theme('table', array('header' => $header, 'rows' => $rows));
-  }
-  else {
-    $output = t("No activity found for @mail.", array('@mail' => $account->mail));
-  }
-  return $output;
 }
 
 /**
@@ -88,10 +29,6 @@ function marketo_ma_permission() {
     'administer marketo' => array(
       'title' => t('Administer Marketo MA'),
       'description' => t('Configure Marketo settings such as page visibility, Munchkin keys, and SOAP API endpoint'),
-    ),
-    'marketo_ma_view_all_leads' => array(
-      'title' => t('View All Leads'),
-      'description' => t('Request and view updated Marketo lead data'),
     ),
   );
 }

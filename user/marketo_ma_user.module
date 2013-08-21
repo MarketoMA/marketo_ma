@@ -6,6 +6,55 @@
  */
 
 /**
+ * Implements hook_menu().
+ */
+function marketo_ma_user_menu() {
+  $items['user/%user/marketo'] = array(
+    'title' => 'Marketo',
+    'page callback' => '_marketo_ma_user_display_lead',
+    'page arguments' => array(1),
+    'access callback' => 'marketo_ma_user_view_lead_data_callback',
+    'access arguments' => array(1),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 100,
+  );
+  $items['user/%user/marketo/lead'] = array(
+    'title' => 'Lead',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+  );
+  $items['user/%user/marketo/activity'] = array(
+    'title' => 'Activity',
+    'page callback' => '_marketo_ma_user_display_lead_activity',
+    'page arguments' => array(1),
+    'access callback' => 'marketo_ma_user_view_lead_data_callback',
+    'access arguments' => array(1),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 100,
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function marketo_ma_user_permission() {
+  return array(
+    'access all marketo lead data' => array(
+      'title' => t('View all lead data'),
+      'description' => t('Allows viewing of Marketo lead and activity data for any user.'),
+    ),
+    'access own marketo lead data' => array(
+      'title' => t('View own lead data'),
+    ),
+  );
+}
+
+function marketo_ma_user_view_lead_data_callback($account){
+  global $user;
+  return user_access('access all marketo lead data', $user) || (user_access('access own marketo lead data', $user) && $user->uid == $account->uid);
+}
+
+/**
  * Implements hook_user_insert().
  */
 function marketo_ma_user_user_insert(&$edit, $account, $category) {
@@ -28,4 +77,43 @@ function marketo_ma_user_user_update(&$edit, $account, $category) {
     );
     marketo_ma_add_lead($data['Email'], $data);
   }
+}
+
+
+function _marketo_ma_user_display_lead($account) {
+  $output = "";
+  $marketo = marketo_ma_get_lead($account->mail);
+  if (!empty($marketo)) {
+    $rows[] = array('Id', $marketo[0]->Id);
+    foreach ($marketo[0]->attributes as $key => $value) {
+      $rows[] = array($key, $value);
+    }
+    $header = array(t('Key'), t('Value'));
+    $output = theme('table', array('header' => $header, 'rows' => $rows));
+  }
+  else {
+    $output = t("No lead information found for @mail.", array('@mail' => $account->mail));
+  }
+  return $output;
+}
+
+function _marketo_ma_user_display_lead_activity($account) {
+  $output = "";
+  $activity = marketo_ma_get_lead_activity($account->mail);
+  if (!empty($activity)) {
+    $header = array(t('ID'), t('Date/Time'), t('Activity Type'), t('Asset Name'));
+    $fields = array('id', 'activityDateTime', 'activityType', 'mktgAssetName');
+    foreach ($activity as $event) {
+      $row = array();
+      foreach ($fields as $field) {
+        $row[] = $event->$field;
+      }
+      $rows[] = $row;
+    }
+    $output = theme('table', array('header' => $header, 'rows' => $rows));
+  }
+  else {
+    $output = t("No activity found for @mail.", array('@mail' => $account->mail));
+  }
+  return $output;
 }
