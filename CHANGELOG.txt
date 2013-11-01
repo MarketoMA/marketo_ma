@@ -15,3 +15,7 @@ Marketo MA 7.x-1.x, xxxx-xx-xx
   to call this function directly.
 #2067857: Variable marketo_ma_webform_fields_soap is now deleted upon uninstall
 #2067861: Added ability to view lead and activity information for a given user
+#2123391: Modified marketo_ma_add_lead function to pass marketoCookie param
+  _mkto_trk cookie value will now be sent to Marketo when using either of the
+  SOAP methods and the request to save the lead was made by either an anonymous
+  visitor or by the lead updating their own data.

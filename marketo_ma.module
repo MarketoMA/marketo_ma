@@ -73,6 +73,14 @@ function marketo_ma_add_lead($email, $data = array(), $merge = FALSE) {
   }
   $marketo_ma_data[$email]['email'] = $email;
 
+  // If the user executing this method is anonymous or is actually the lead
+  // being modified we will pass along the _mkto_trk cookie value so any
+  // activity associated with the cookie gets merged to the lead
+  global $user;
+  if (($user->uid == 0 || $user->mail == $email) && isset($_COOKIE['_mkto_trk'])) {
+    $marketo_ma_data[$email]['marketoCookie'] = $_COOKIE['_mkto_trk'];
+  }
+
   $_SESSION['marketo_ma_data'] = $marketo_ma_data;
   return TRUE;
 }
@@ -148,6 +156,7 @@ function _marketo_ma_output_tracking_code() {
  *   - data: An associative array containing marketo fields and their values
  *     - FirstName
  *     - LastName
+ *   - marketoCookie: NULL or the value of $_COOKIE['_mkto_trk']
  */
 function _marketo_ma_associate_lead($lead) {
 
@@ -220,9 +229,16 @@ function _marketo_ma_associate_lead_soap($lead) {
     $access_key = variable_get('marketo_ma_soap_user_id');
     $soap_endpoint = variable_get('marketo_ma_soap_endpoint');
 
+    if (array_key_exists('marketoCookie', $lead)) {
+      $mkto_trk = $lead['marketoCookie'];
+    }
+    else {
+      $mkto_trk = NULL;
+    }
+
     try {
       $client = new MarketoClient($access_key, $secret_key, $soap_endpoint, _marketo_ma_soap_proxy_settings());
-      $result = $client->syncLead($lead['data'], $lead['email']);
+      $result = $client->syncLead($lead['data'], $lead['email'], $mkto_trk);
       if ($result) {
         if (variable_get('marketo_ma_logging', FALSE)) {
           watchdog('marketo', 'Associating lead !email [@method] <pre>@data @result</pre>', array(
