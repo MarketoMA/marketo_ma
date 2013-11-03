@@ -98,9 +98,10 @@ function _marketo_ma_cleanup() {
  * Implements hook_page_alter().
  */
 function marketo_ma_page_alter(&$page) {
+  global $user;
   $marketo_ma_data = marketo_ma_get_queue();
 
-  if (_marketo_ma_visibility_pages() || count($marketo_ma_data) > 0) {
+  if ((_marketo_ma_visibility_pages() && _marketo_ma_visibility_roles($user)) || count($marketo_ma_data) > 0) {
 
     /*
      * @todo handle case where visibility = false, count > 0, and
@@ -475,6 +476,38 @@ function _marketo_ma_visibility_pages() {
     }
   }
   return $page_match;
+}
+
+/**
+ * Based on visibility setting this function returns TRUE if Marketo MA code
+ * should be added for the current role and otherwise FALSE.
+ */
+function _marketo_ma_visibility_roles($account) {
+  static $role_match;
+
+  // Cache visibility result if function is called more than once.
+  if (!isset($role_match)) {
+    $visibility = variable_get('marketo_ma_visibility_roles', 0);
+    $enabled = $visibility;
+    $roles = variable_get('marketo_ma_roles', array());
+
+    if (array_sum($roles) > 0) {
+      // One or more roles are selected.
+      foreach (array_keys($account->roles) as $rid) {
+        // Is the current user a member of one of these roles?
+        if (isset($roles[$rid]) && $rid == $roles[$rid]) {
+          // Current user is a member of a role that should be tracked/excluded from tracking.
+          $enabled = !$visibility;
+          break;
+        }
+      }
+    }
+    else {
+      // No role is selected for tracking, therefore all roles should be tracked.
+      $enabled = TRUE;
+    }
+  }
+  return $enabled;
 }
 
 /**
