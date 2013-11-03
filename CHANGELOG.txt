@@ -3,15 +3,22 @@ Marketo MA Changelog
 
 Marketo MA 7.x-1.x, xxxx-xx-xx
 ------------------------------
-#2053673: Handle submission structure changes made in Webform 4.x
-#2062165: Added CHANGELOG.txt
-#2062181: Create rule action to retrieve lead data from Marketo
+- #2053673: Handle submission structure changes made in Webform 4.x
+- #2062165: Added CHANGELOG.txt
+- #2062181: Create rule action to retrieve lead data from Marketo
   Rule action "Add data to Marketo lead" has been changed
   to "Send lead data to Marketo" and underlying function has changed name
   from "add_lead" to "marketo_ma_rules_action_add_lead".
-#2066465: Added basic drush support
-#2068255: Added keyType auto-detection when querying Marketo for lead data.
+- #2066465: Added basic drush support
+- #2068255: Added keyType auto-detection when querying Marketo for lead data.
   Function "_marketo_ma_get_lead" renamed to "marketo_ma_get_lead", it is safe
   to call this function directly.
-#2067857: Variable marketo_ma_webform_fields_soap is now deleted upon uninstall
-#2067861: Added ability to view lead and activity information for a given user
+- #2067857: Variable marketo_ma_webform_fields_soap is now deleted upon uninstall
+- #2067861: Added ability to view lead and activity information for a given user
+- #2123391: Modified marketo_ma_add_lead function to pass marketoCookie param
+  _mkto_trk cookie value will now be sent to Marketo when using either of the
+  SOAP methods and the request to save the lead was made by either an anonymous
+  visitor or by the lead updating their own data.
+- #2126019: Added settings for including or excluding tracking based on user role
+- Reorganized admin settings form to use vertical tabs and display more
+  information related to webform configuration.
