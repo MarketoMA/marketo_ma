@@ -223,7 +223,6 @@ function marketo_ma_admin_settings_form($form, &$form_state) {
     '#title' => t('Roles'),
     '#default_value' => variable_get('marketo_ma_roles', array()),
     '#options' => $role_options,
-    '#description' => t("Excluding administrative roles is recommended"),
   );
 
   return system_settings_form($form);
