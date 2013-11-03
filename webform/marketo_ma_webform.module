@@ -21,54 +21,17 @@ function marketo_ma_webform_permission() {
  * Implements hook_form_FORM_ID_alter().
  */
 function marketo_ma_webform_form_marketo_ma_admin_settings_form_alter(&$form, &$form_state, $form_id) {
+  module_load_include('inc', 'webform', 'includes/webform.admin');
   $form['marketo_ma_tabs']['marketo_ma_webform'] = array(
     '#title' => t('Webform Integration'),
     '#type' => 'fieldset',
+    '#description' => t('Configuration is managed on each individual webform. This section lists all of the content on the site that may have a webform attached to it.'),
     '#weight' => 10,
   );
-$form['marketo_ma_tabs']['marketo_ma_webform']['marketo_ma_webform_fields'] = array(
-    '#type' => 'textarea',
-    '#title' => t('Marketo fields'),
-    '#description' => t('Pipe "|" delimited strings of [API Name]|[Friendly Label]. Enter one field per line. This information can be found in the Marketo admin page at Admin > Field Management > Export Field Names.<p>Once SOAP API settings have been configured, these fields can be automatically obtained from Marketo using the button below</p>'),
-    '#rows' => 10,
-    '#prefix' => '<div id="marketo-webform-fields-wrapper">',
-    '#suffix' => '</div>',
+  $form['marketo_ma_tabs']['marketo_ma_webform']['marketo_ma_webform_list'] = array(
+    '#markup' => marketo_ma_webform_list()
   );
-
-  if (isset($form_state['triggering_element']['#array_parents']) && in_array('marketo_ma_webform_fields_soap', $form_state['triggering_element']['#array_parents'])) {
-    $data = _marketo_ma_get_fields();
-    $mwf_default = "";
-    foreach ($data as $key => $value) {
-      $mwf_default .= $key . "|" . $value . "\n";
-    }
-    $form['marketo_ma_tabs']['marketo_ma_webform']['marketo_ma_webform_fields']['#value'] = $mwf_default;
-  }
-  else {
-    $form['marketo_ma_tabs']['marketo_ma_webform']['marketo_ma_webform_fields']['#default_value'] = variable_get('marketo_ma_webform_fields', MARKETO_MA_WEBFORM_FIELD_DEFAULTS);
-  }
-
-  $form['marketo_ma_tabs']['marketo_ma_webform']['marketo_ma_webform_fields_soap'] = array(
-    '#type' => 'button',
-    '#value' => t('Retrieve from Marketo'),
-    '#ajax' => array(
-      'callback' => '_marketo_ma_webform_fields_soap_callback',
-      'wrapper' => 'marketo-webform-fields-wrapper',
-    ),
-  );
-  // If SOAP settings have not been configured, the button should be disabled.
-  if (!_marketo_ma_soap_is_configured()) {
-    $form['marketo_ma_tabs']['marketo_ma_webform']['marketo_ma_webform_fields_soap']['#disabled'] = TRUE;
-  }
 }
-
-
-/**
- * Callback for updating webform fields.
- */
-function _marketo_ma_webform_fields_soap_callback($form, &$form_state) {
-  return $form['marketo_ma_tabs']['marketo_ma_webform']['marketo_ma_webform_fields'];
-}
-
 
 /**
  * Implements hook_form_FORM_ID_alter().
@@ -305,4 +268,63 @@ function _marketo_ma_webform_is_webform_v3() {
     $is_webform_v3 = is_null(drupal_check_incompatibility($v3, $webform_version));
   }
   return $is_webform_v3;
+}
+
+function marketo_ma_webform_list() {
+  $webform_types = webform_variable_get('webform_node_types');
+
+  $nodes = array();
+  if ($webform_types) {
+    //select nid, count(nid) as components from marketo_ma_webform_component where marketo_ma_key <> 'none';
+    $components = db_select(MARKETO_MA_SCHEMA_WEBFORM_COMPONENT, 'mmwc');
+    $components->addField('mmwc', 'nid');
+    $components->addExpression('count(' . MARKETO_MA_WEBFORM_COMPONENT_KEY . ')', 'components');
+    $components->condition('marketo_ma_key', 'none', '<>');
+    $components->groupBy('nid');
+    
+    $nodes = db_select('node', 'n');
+    $nodes->leftJoin(MARKETO_MA_SCHEMA_WEBFORM, 'mmw', 'n.nid = mmw.nid');
+    $nodes->leftJoin($components, 'mmwc', 'n.nid = mmwc.nid');
+    $nodes->fields('n', array('nid', 'title'));
+    $nodes->addField('mmw', MARKETO_MA_WEBFORM_FIELD_ACTIVE);
+    $nodes->addField('mmwc', 'components');
+    $result = $nodes->condition('n.type', $webform_types, 'IN')
+      ->execute()
+      ->fetchAllAssoc('nid');
+  }
+  
+  return marketo_ma_webform_theme_list($result);
+}
+
+/**
+ * Generate a list of all webforms avaliable on this site.
+ */
+function marketo_ma_webform_theme_list($nodes) {
+  $header = array(
+    t('Title'),
+    t('Tracking Enabled'),
+    t('Components Mapped'),
+    array('data' => t('Manage'), 'colspan' => '3')
+  );
+
+  $rows = array();
+  foreach ($nodes as $node) {
+    $rows[] = array(
+      l($node->title, 'node/' . $node->nid),
+      $node->is_active ? t('Yes'): t('No'),
+      $node->components,
+      node_access('update', $node) ? l(t('Form components'), 'node/' . $node->nid . '/webform') : '',
+      node_access('update', $node) ? l(t('Form Settings'), 'node/' . $node->nid . '/webform/configure') : '',
+      node_access('update', $node) ? l(t('Node'), 'node/' . $node->nid . '/edit') : '',
+    );
+  }
+
+  if (empty($rows)) {
+    $message = t('There are currently no webforms on your site.');
+    $rows[] = array(
+      array('data' => $message, 'colspan' => 4),
+    );
+  }
+
+  return theme('table', array('header' => $header, 'rows' => $rows));
 }

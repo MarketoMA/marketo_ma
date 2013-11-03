@@ -135,6 +135,46 @@ function marketo_ma_admin_settings_form($form, &$form_state) {
     '#default_value' => variable_get('marketo_ma_soap_proxy_password', ''),
     '#required' => FALSE,
   );
+  
+    $form['marketo_ma_tabs']['marketo_ma_fields'] = array(
+    '#title' => t('Field Definition'),
+    '#type' => 'fieldset',
+    '#description' => t('The fields defined here will be available for mapping to Webform and User Profile fields'),
+  );
+  $form['marketo_ma_tabs']['marketo_ma_fields']['marketo_ma_webform_fields'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Marketo fields'),
+    '#description' => t('Pipe "|" delimited strings of [API Name]|[Friendly Label]. Enter one field per line. This information can be found in the Marketo admin page at Admin > Field Management > Export Field Names.<p>Once SOAP API settings have been configured, these fields can be automatically obtained from Marketo using the button below</p>'),
+    '#rows' => 10,
+    '#prefix' => '<div id="marketo-webform-fields-wrapper">',
+    '#suffix' => '</div>',
+  );
+
+  if (isset($form_state['triggering_element']['#array_parents']) && in_array('marketo_ma_webform_fields_soap', $form_state['triggering_element']['#array_parents'])) {
+    $data = _marketo_ma_get_fields();
+    $mwf_default = "";
+    foreach ($data as $key => $value) {
+      $mwf_default .= $key . "|" . $value . "\n";
+    }
+    $form['marketo_ma_tabs']['marketo_ma_fields']['marketo_ma_webform_fields']['#value'] = $mwf_default;
+  }
+  else {
+    $form['marketo_ma_tabs']['marketo_ma_fields']['marketo_ma_webform_fields']['#default_value'] = variable_get('marketo_ma_webform_fields', MARKETO_MA_WEBFORM_FIELD_DEFAULTS);
+  }
+
+  $form['marketo_ma_tabs']['marketo_ma_fields']['marketo_ma_webform_fields_soap'] = array(
+    '#type' => 'button',
+    '#value' => t('Retrieve from Marketo'),
+    '#ajax' => array(
+      'callback' => '_marketo_ma_webform_fields_soap_callback',
+      'wrapper' => 'marketo-webform-fields-wrapper',
+    ),
+  );
+  // If SOAP settings have not been configured, the button should be disabled.
+  if (!_marketo_ma_soap_is_configured()) {
+    $form['marketo_ma_tabs']['marketo_ma_fields']['marketo_ma_webform_fields_soap']['#disabled'] = TRUE;
+  }
+
 
   $form['marketo_ma_tabs']['marketo_ma_page_vis'] = array(
     '#title' => t('Page Visibility'),
@@ -258,4 +298,11 @@ function _marketo_ma_validate_soap_configuration($access_key, $secret_key, $soap
     $result = FALSE;
   }
   return $result;
+}
+
+/**
+ * Callback for updating webform fields.
+ */
+function _marketo_ma_webform_fields_soap_callback($form, &$form_state) {
+  return $form['marketo_ma_tabs']['marketo_ma_fields']['marketo_ma_webform_fields'];
 }
