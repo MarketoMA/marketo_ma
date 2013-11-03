@@ -27,21 +27,6 @@ function marketo_ma_default_rules_configuration() {
         }
       },
       { "list_add" : { "list" : [ "marketoparams" ], "item" : "mail|[account:mail]" } },
-      { "list_add" : {
-          "list" : [ "marketoparams" ],
-          "item" : "site_lead_source|[site:current-page:url]"
-        }
-      },
-      { "list_add" : {
-          "list" : [ "marketoparams" ],
-          "item" : "FirstName|[site:current-user:field-first-name]"
-        }
-      },
-      { "list_add" : {
-          "list" : [ "marketoparams" ],
-          "item" : "LastName|[site:current-user:field-last-name]"
-        }
-      },
       { "marketo_ma_rules_action_add_lead" : { "account" : [ "site:current-user" ], "data" : [ "marketoparams" ] } }
     ]
   }
@@ -63,16 +48,6 @@ EOD;
         }
       },
       { "list_add" : { "list" : [ "marketoparams" ], "item" : "mail|[account:mail]" } },
-      { "list_add" : {
-          "list" : [ "marketoparams" ],
-          "item" : "FirstName|[account:field-first-name]"
-        }
-      },
-      { "list_add" : {
-          "list" : [ "marketoparams" ],
-          "item" : "LastName|[account:field-last-name]"
-        }
-      },
       { "marketo_ma_rules_action_add_lead" : { "account" : [ "account" ], "data" : [ "marketoparams" ] } }
     ]
   }
