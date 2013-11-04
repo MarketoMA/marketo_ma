@@ -81,13 +81,13 @@ function marketo_ma_user_form_marketo_ma_admin_settings_form_alter(&$form, &$for
     '#tree' => TRUE,
   );
 
-  $user_fields = field_read_fields(array('entity_type' => 'user'));
+  $user_fields = field_info_instances('user', 'user');
   $fieldmap = variable_get('marketo_ma_user_fieldmap', array());
   $options = _marketo_ma_get_field_options();
 
   foreach ($user_fields as $key => $value) {
     $form['marketo_ma_tabs']['marketo_ma_user']['marketo_ma_user_fieldmap'][$key] = array(
-      '#title' => $value['field_name'],
+      '#title' => $value['label'] . ' (' . $value['field_name'] . ')',
       '#type' => 'select',
       '#options' => array(MARKETO_MA_WEBFORM_COMPONENT_NONE => '- None -') + $options,
     );
