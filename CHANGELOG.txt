@@ -22,3 +22,7 @@ Marketo MA 7.x-1.x, xxxx-xx-xx
 - #2126019: Added settings for including or excluding tracking based on user role
 - Reorganized admin settings form to use vertical tabs and display more
   information related to webform configuration.
+- #2123395: Added default rules which can be used as examples or extended to do
+  something more useful, perhaps adding more data to the list of values being
+  sent. If using the marketo_ma_user module these three rules should not be used
+  as they duplicate functionality already in place.
