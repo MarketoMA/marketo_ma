@@ -114,10 +114,10 @@ function marketo_ma_user_user_login(&$edit, $account) {
  */
 function marketo_ma_user_user_insert(&$edit, $account, $category) {
   $triggers = variable_get('marketo_ma_user_triggers', array());
-  if (array_key_exists('insert', $triggers) && $triggers['insert'] && isset($edit['mail'])) {
+  if (array_key_exists('insert', $triggers) && $triggers['insert'] && isset($account->mail)) {
     $data = _marketo_ma_user_get_mapped_fields($account);
-    $data['Email'] = $edit['mail'];
-    marketo_ma_add_lead($data['Email'], $data);
+    $data['Email'] = $account->mail;
+    marketo_ma_add_lead($account->mail, $data);
   }
 }
 
