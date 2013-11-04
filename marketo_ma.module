@@ -281,6 +281,29 @@ function _marketo_ma_queue_lead($lead) {
 }
 
 /**
+ * Returns defined fields as an associative array useful for select options
+ * 
+ * @return array
+ */
+function _marketo_ma_get_field_options() {
+  /*
+   * marketo_ma_webform_fields is multi-line, pipe "|" delimited data
+   * which needs to be parsed. First split it into rows of data.
+   */
+  $raw_options = preg_split('/(\r\n?|\n)/', trim(variable_get('marketo_ma_webform_fields', MARKETO_MA_WEBFORM_FIELD_DEFAULTS)));
+  $options = array();
+
+  // Loop over all the rows getting the keys and values for the fields.
+  foreach ($raw_options as $row) {
+    $field = explode('|', trim($row));
+    $options[trim($field[0])] = trim($field[1]) . ' (' . trim($field[0]) . ')';
+  }
+  asort($options);
+
+  return $options;
+}
+
+/**
  * Retrieves fields from Marketo using SOAP API.
  * 
  * @return array

@@ -29,7 +29,7 @@ function marketo_ma_webform_form_marketo_ma_admin_settings_form_alter(&$form, &$
     '#weight' => 10,
   );
   $form['marketo_ma_tabs']['marketo_ma_webform']['marketo_ma_webform_list'] = array(
-    '#markup' => marketo_ma_webform_list()
+    '#markup' => marketo_ma_webform_list(),
   );
 }
 
@@ -270,18 +270,23 @@ function _marketo_ma_webform_is_webform_v3() {
   return $is_webform_v3;
 }
 
+/**
+ * Finds Webforms and associated Marketo configuration for display.
+ * 
+ * @return string
+ *   A themed table of webforms defined on the site
+ */
 function marketo_ma_webform_list() {
   $webform_types = webform_variable_get('webform_node_types');
 
   $nodes = array();
   if ($webform_types) {
-    //select nid, count(nid) as components from marketo_ma_webform_component where marketo_ma_key <> 'none';
     $components = db_select(MARKETO_MA_SCHEMA_WEBFORM_COMPONENT, 'mmwc');
     $components->addField('mmwc', 'nid');
     $components->addExpression('count(' . MARKETO_MA_WEBFORM_COMPONENT_KEY . ')', 'components');
     $components->condition('marketo_ma_key', 'none', '<>');
     $components->groupBy('nid');
-    
+
     $nodes = db_select('node', 'n');
     $nodes->leftJoin(MARKETO_MA_SCHEMA_WEBFORM, 'mmw', 'n.nid = mmw.nid');
     $nodes->leftJoin($components, 'mmwc', 'n.nid = mmwc.nid');
@@ -292,7 +297,7 @@ function marketo_ma_webform_list() {
       ->execute()
       ->fetchAllAssoc('nid');
   }
-  
+
   return marketo_ma_webform_theme_list($result);
 }
 
@@ -304,14 +309,14 @@ function marketo_ma_webform_theme_list($nodes) {
     t('Title'),
     t('Tracking Enabled'),
     t('Components Mapped'),
-    array('data' => t('Manage'), 'colspan' => '3')
+    array('data' => t('Manage'), 'colspan' => '3'),
   );
 
   $rows = array();
   foreach ($nodes as $node) {
     $rows[] = array(
       l($node->title, 'node/' . $node->nid),
-      $node->is_active ? t('Yes'): t('No'),
+      $node->is_active ? t('Yes') : t('No'),
       $node->components,
       node_access('update', $node) ? l(t('Form components'), 'node/' . $node->nid . '/webform') : '',
       node_access('update', $node) ? l(t('Form Settings'), 'node/' . $node->nid . '/webform/configure') : '',

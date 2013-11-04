@@ -10,7 +10,7 @@
  */
 function marketo_ma_default_rules_configuration() {
   $config = array();
-  
+
   $rules = array();
   $rules['rules_update_marketo_lead_on_create'] = <<<EOD
 { "rules_update_marketo_lead_on_create" : {
@@ -32,7 +32,7 @@ function marketo_ma_default_rules_configuration() {
   }
 }
 EOD;
-  
+
   $rules['rules_update_marketo_lead_on_login'] = <<<EOD
 { "rules_update_marketo_lead_on_login" : {
     "LABEL" : "Update Marketo lead on login",
@@ -53,7 +53,7 @@ EOD;
   }
 }
 EOD;
-  
+
   $rules['rules_update_marketo_lead_on_user_update'] = <<<EOD
 { "rules_update_marketo_lead_on_user_update" : {
     "LABEL" : "Update Marketo lead on user update",

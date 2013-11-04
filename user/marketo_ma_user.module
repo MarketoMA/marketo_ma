@@ -49,19 +49,74 @@ function marketo_ma_user_permission() {
   );
 }
 
-function marketo_ma_user_view_lead_data_callback($account){
+function marketo_ma_user_view_lead_data_callback($account) {
   global $user;
   return user_access('access all marketo lead data', $user) || (user_access('access own marketo lead data', $user) && $user->uid == $account->uid);
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function marketo_ma_user_form_marketo_ma_admin_settings_form_alter(&$form, &$form_state, $form_id) {
+  module_load_include('inc', 'webform', 'includes/webform.admin');
+  $form['marketo_ma_tabs']['marketo_ma_user'] = array(
+    '#title' => t('User Integration'),
+    '#type' => 'fieldset',
+    '#weight' => 5,
+  );
+  $form['marketo_ma_tabs']['marketo_ma_user']['marketo_ma_user_triggers'] = array(
+    '#title' => t('Trigger a lead update on the following events:'),
+    '#type' => 'checkboxes',
+    '#default_value' => variable_get('marketo_ma_user_triggers', array()),
+    '#options' => array(
+      'login' => t('User login'),
+      'insert' => t('User registration / creation'),
+      'update' => t('User update')
+    ),
+  );
+  $form['marketo_ma_tabs']['marketo_ma_user']['marketo_ma_user_fieldmap'] = array(
+    '#title' => t('User field mapping'),
+    '#type' => 'fieldset',
+    '#description' => t('When a lead update is triggered, the fields mapped below will be included in the data sent to Marketo. Select the associated Marketo field for each User field displayed.'),
+    '#tree' => TRUE,
+  );
+
+  $user_fields = field_read_fields(array('entity_type' => 'user'));
+  $fieldmap = variable_get('marketo_ma_user_fieldmap', array());
+  $options = _marketo_ma_get_field_options();
+
+  foreach ($user_fields as $key => $value) {
+    $form['marketo_ma_tabs']['marketo_ma_user']['marketo_ma_user_fieldmap'][$key] = array(
+      '#title' => $value['field_name'],
+      '#type' => 'select',
+      '#options' => array(MARKETO_MA_WEBFORM_COMPONENT_NONE => '- None -') + $options,
+    );
+    if (array_key_exists($key, $fieldmap)) {
+      $form['marketo_ma_tabs']['marketo_ma_user']['marketo_ma_user_fieldmap'][$key]['#default_value'] = $fieldmap[$key];
+    }
+  }
+}
+
+/**
+ * Implements hook_user_login().
+ */
+function marketo_ma_user_user_login(&$edit, $account) {
+  $triggers = variable_get('marketo_ma_user_triggers', array());
+  if (array_key_exists('login', $triggers) && $triggers['login'] && isset($account->mail)) {
+    $data = _marketo_ma_user_get_mapped_fields($account);
+    $data['Email'] = $account->mail;
+    marketo_ma_add_lead($account->mail, $data);
+  }
 }
 
 /**
  * Implements hook_user_insert().
  */
 function marketo_ma_user_user_insert(&$edit, $account, $category) {
-  if (isset($edit['mail'])) {
-    $data = array(
-      'Email' => $edit['mail'],
-    );
+  $triggers = variable_get('marketo_ma_user_triggers', array());
+  if (array_key_exists('insert', $triggers) && $triggers['insert'] && isset($edit['mail'])) {
+    $data = _marketo_ma_user_get_mapped_fields($account);
+    $data['Email'] = $edit['mail'];
     marketo_ma_add_lead($data['Email'], $data);
   }
 }
@@ -70,16 +125,40 @@ function marketo_ma_user_user_insert(&$edit, $account, $category) {
  * Implements hook_user_update().
  */
 function marketo_ma_user_user_update(&$edit, $account, $category) {
-  // @todo Likely fields we want to capture and send beyond email address
-  if (isset($edit['mail'])) {
-    $data = array(
-      'Email' => $edit['mail'],
-    );
-    marketo_ma_add_lead($data['Email'], $data);
+  $triggers = variable_get('marketo_ma_user_triggers', array());
+  if (array_key_exists('update', $triggers) && $triggers['update'] && isset($account->mail)) {
+    // @todo decide how to handle an email address change
+    // See https://api.drupal.org/comment/23088#comment-23088
+    // When email changes, can we create a new lead then merge the two?
+    $data = _marketo_ma_user_get_mapped_fields($account);
+    $data['Email'] = $account->mail;
+    marketo_ma_add_lead($account->mail, $data);
   }
 }
 
+/**
+ * Returns Drupal user fields which have been mapped to Marketo fields
+ * 
+ * @param $account
+ * @return array
+ */
+function _marketo_ma_user_get_mapped_fields($account) {
+  $data = array();
+  $fieldmap = variable_get('marketo_ma_user_fieldmap', array());
+  foreach ($fieldmap as $key => $value) {
+    if ($value != 'none' && isset($account->{$key}['und'][0]['value'])) {
+      $data[$value] = $account->{$key}['und'][0]['value'];
+    }
+  }
+  return $data;
+}
 
+/**
+ * Returns a formatted table of lead information
+ * 
+ * @param $account
+ * @return string
+ */
 function _marketo_ma_user_display_lead($account) {
   $output = "";
   $marketo = marketo_ma_get_lead($account->mail);
@@ -97,6 +176,12 @@ function _marketo_ma_user_display_lead($account) {
   return $output;
 }
 
+/**
+ * Returns a formatted table of lead activity
+ * 
+ * @param $account
+ * @return string
+ */
 function _marketo_ma_user_display_lead_activity($account) {
   $output = "";
   $activity = marketo_ma_get_lead_activity($account->mail);

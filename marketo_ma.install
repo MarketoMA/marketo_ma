@@ -25,6 +25,8 @@ function marketo_ma_uninstall() {
   variable_del('marketo_ma_soap_proxy_port');
   variable_del('marketo_ma_soap_user_id');
   variable_del('marketo_ma_tracking_method');
+  variable_del('marketo_ma_user_fieldmap');
+  variable_del('marketo_ma_user_triggers');
   variable_del('marketo_ma_visibility_pages');
   variable_del('marketo_ma_visibility_roles');
   variable_del('marketo_ma_webform_fields');

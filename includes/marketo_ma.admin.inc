@@ -10,12 +10,12 @@
  */
 function marketo_ma_admin_settings_form($form, &$form_state) {
   module_load_include('inc', 'marketo_ma', 'includes/marketo_ma');
-  
+
   $form['marketo_ma_basic'] = array(
     '#title' => t('Basic Settings'),
     '#type' => 'fieldset',
   );
-  
+
   $form['marketo_ma_basic']['marketo_ma_munchkin_account_id'] = array(
     '#type' => 'textfield',
     '#title' => t('Account ID'),
@@ -45,7 +45,7 @@ function marketo_ma_admin_settings_form($form, &$form_state) {
   $form['marketo_ma_tabs'] = array(
     '#type' => 'vertical_tabs',
   );
-  
+
   $form['marketo_ma_tabs']['marketo_ma_api'] = array(
     '#title' => t('API Configuration'),
     '#type' => 'fieldset',
@@ -80,7 +80,7 @@ function marketo_ma_admin_settings_form($form, &$form_state) {
     '#required' => FALSE,
     '#description' => t('Value can be found on the Munchkin Admin page at Admin > Integration > Munchkin'),
   );
-  
+
   $form['marketo_ma_tabs']['marketo_ma_api']['marketo_ma_soap'] = array(
     '#title' => t('SOAP API'),
     '#type' => 'fieldset',
@@ -135,8 +135,8 @@ function marketo_ma_admin_settings_form($form, &$form_state) {
     '#default_value' => variable_get('marketo_ma_soap_proxy_password', ''),
     '#required' => FALSE,
   );
-  
-    $form['marketo_ma_tabs']['marketo_ma_fields'] = array(
+
+  $form['marketo_ma_tabs']['marketo_ma_fields'] = array(
     '#title' => t('Field Definition'),
     '#type' => 'fieldset',
     '#description' => t('The fields defined here will be available for mapping to Webform and User Profile fields'),
@@ -174,7 +174,6 @@ function marketo_ma_admin_settings_form($form, &$form_state) {
   if (!_marketo_ma_soap_is_configured()) {
     $form['marketo_ma_tabs']['marketo_ma_fields']['marketo_ma_webform_fields_soap']['#disabled'] = TRUE;
   }
-
 
   $form['marketo_ma_tabs']['marketo_ma_page_vis'] = array(
     '#title' => t('Page Visibility'),
