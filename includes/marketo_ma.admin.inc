@@ -214,7 +214,7 @@ function marketo_ma_admin_settings_form($form, &$form_state) {
       1 => t('All roles except those selected below'),
       0 => t('Only the roles selected below'),
     ),
-    '#default_value' => variable_get('marketo_ma_visibility_roles', 0),
+    '#default_value' => variable_get('marketo_ma_visibility_roles', 1),
     '#required' => TRUE,
   );
   $role_options = array_map('check_plain', user_roles());
