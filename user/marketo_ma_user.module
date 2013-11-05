@@ -89,15 +89,24 @@ function marketo_ma_user_form_marketo_ma_admin_settings_form_alter(&$form, &$for
   $fieldmap = variable_get('marketo_ma_user_fieldmap', array());
   $options = _marketo_ma_get_field_options();
 
-  foreach ($user_fields as $key => $value) {
-    $form['marketo_ma_tabs']['marketo_ma_user']['marketo_ma_user_fieldmap'][$key] = array(
-      '#title' => $value['label'] . ' (' . $value['field_name'] . ')',
-      '#type' => 'select',
-      '#options' => array(MARKETO_MA_WEBFORM_COMPONENT_NONE => '- None -') + $options,
-    );
-    if (array_key_exists($key, $fieldmap)) {
-      $form['marketo_ma_tabs']['marketo_ma_user']['marketo_ma_user_fieldmap'][$key]['#default_value'] = $fieldmap[$key];
+  if (count($user_fields)) {
+    foreach ($user_fields as $key => $value) {
+      $form['marketo_ma_tabs']['marketo_ma_user']['marketo_ma_user_fieldmap'][$key] = array(
+        '#title' => $value['label'] . ' (' . $value['field_name'] . ')',
+        '#type' => 'select',
+        '#options' => array(MARKETO_MA_WEBFORM_COMPONENT_NONE => '- None -') + $options,
+      );
+      if (array_key_exists($key, $fieldmap)) {
+        $form['marketo_ma_tabs']['marketo_ma_user']['marketo_ma_user_fieldmap'][$key]['#default_value'] = $fieldmap[$key];
+      }
     }
+  }
+  else {
+    $form['marketo_ma_tabs']['marketo_ma_user']['marketo_ma_user_fieldmap']['none'] = array(
+      '#type' => 'item',
+      '#title' => t('There are currently no user account fields available for mapping'),
+      '#description' => t('Fields can be managed in <a href="@url">Account settings</a>.', array('@url' => url('admin/config/people/accounts/fields'))),
+    );
   }
 }
 
