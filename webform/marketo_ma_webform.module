@@ -317,7 +317,7 @@ function marketo_ma_webform_theme_list($nodes) {
     $rows[] = array(
       l($node->title, 'node/' . $node->nid),
       $node->is_active ? t('Yes') : t('No'),
-      $node->components,
+      $node->components ? $node->components : 0,
       node_access('update', $node) ? l(t('Form components'), 'node/' . $node->nid . '/webform') : '',
       node_access('update', $node) ? l(t('Form Settings'), 'node/' . $node->nid . '/webform/configure') : '',
       node_access('update', $node) ? l(t('Node'), 'node/' . $node->nid . '/edit') : '',
