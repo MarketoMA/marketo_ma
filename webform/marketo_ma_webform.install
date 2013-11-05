@@ -9,8 +9,6 @@
  * Implements hook_schema().
  */
 function marketo_ma_webform_schema() {
-  module_load_include('inc', 'marketo_ma', 'includes/marketo_ma');
-
   $schema = array();
   $schema[MARKETO_MA_SCHEMA_WEBFORM] = array(
     'description' => 'Webform Settings',
