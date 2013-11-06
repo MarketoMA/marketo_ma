@@ -9,6 +9,8 @@
  * Builds and returns the Marketo settings form.
  */
 function marketo_ma_admin_settings_form($form, &$form_state) {
+  module_load_include('inc', 'marketo_ma', 'includes/marketo_ma');
+
   $form['marketo_ma_basic'] = array(
     '#title' => t('Basic Settings'),
     '#type' => 'fieldset',
