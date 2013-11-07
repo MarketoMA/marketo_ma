@@ -6,6 +6,8 @@ Marketo MA 7.x-1.x, XXXX-XX-XX
 - #2127663: Updated default value of user action triggers to be "on"
 - #2127679: 0 now displayed in column when no webform components are mapped
 - #2127659: Display message when no fields are available to be mapped
+- Refactored where constants are defined
+- #2130395: Resolved undefined index on webform component sort
 
 Marketo MA 7.x-1.2-beta1, 2013-11-04
 ------------------------------
