@@ -59,8 +59,6 @@ function marketo_ma_webform_form_webform_configure_form_alter(&$form, &$form_sta
  * Inserts marketo webform settings into the database.
  */
 function _marketo_ma_webform_save_webform($form, &$form_state) {
-  module_load_include('inc', 'marketo_ma', 'includes/marketo_ma');
-
   $node = $form['#node'];
   $values = $form_state['values'];
 
@@ -78,7 +76,6 @@ function _marketo_ma_webform_save_webform($form, &$form_state) {
  * Implements hook_webform_component_insert().
  */
 function marketo_ma_webform_webform_component_insert($component) {
-  module_load_include('inc', 'marketo_ma', 'includes/marketo_ma');
   db_insert(MARKETO_MA_SCHEMA_WEBFORM_COMPONENT)
     ->fields(array(
       'nid' => $component['nid'],
@@ -92,8 +89,6 @@ function marketo_ma_webform_webform_component_insert($component) {
  * Implements hook_webform_component_update().
  */
 function marketo_ma_webform_webform_component_update($component) {
-  module_load_include('inc', 'marketo_ma', 'includes/marketo_ma');
-
   db_merge(MARKETO_MA_SCHEMA_WEBFORM_COMPONENT)
     ->key(array(
       'nid' => $component['nid'],
@@ -109,7 +104,6 @@ function marketo_ma_webform_webform_component_update($component) {
  * Implements hook_webform_component_delete().
  */
 function marketo_ma_webform_webform_component_delete($component) {
-  module_load_include('inc', 'marketo_ma', 'includes/marketo_ma');
   db_delete(MARKETO_MA_SCHEMA_WEBFORM_COMPONENT)
     ->condition('nid', $component['nid'])
     ->condition('cid', $component['cid'])
@@ -120,8 +114,6 @@ function marketo_ma_webform_webform_component_delete($component) {
  * Implements hook_form_alter().
  */
 function marketo_ma_webform_form_webform_component_edit_form_alter(&$form, &$form_state, $form_id) {
-  module_load_include('inc', 'marketo_ma', 'includes/marketo_ma');
-
   $nid = $form['nid']['#value'];
   $cid = $form['cid']['#value'];
 
@@ -173,8 +165,6 @@ function marketo_ma_webform_node_load($nodes, $types) {
     return;
   }
 
-  module_load_include('inc', 'marketo_ma', 'includes/marketo_ma');
-
   // Select all webforms that match these node IDs.
   $result = db_select(MARKETO_MA_SCHEMA_WEBFORM)
     ->fields(MARKETO_MA_SCHEMA_WEBFORM)
@@ -224,7 +214,6 @@ function marketo_ma_webform_webform_submission_insert($node, $submission) {
  *   Component to marketo key mapping
  */
 function _marketo_ma_webform_component_mapping($node, $submission) {
-  module_load_include('inc', 'marketo_ma', 'includes/marketo_ma');
   $mapping = array();
   $components = $node->webform['components'];
   // TODO: Change this to only a single db hit. cid in (). then process result.
