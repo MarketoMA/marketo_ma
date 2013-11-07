@@ -89,15 +89,17 @@ function marketo_ma_webform_webform_component_insert($component) {
  * Implements hook_webform_component_update().
  */
 function marketo_ma_webform_webform_component_update($component) {
-  db_merge(MARKETO_MA_SCHEMA_WEBFORM_COMPONENT)
-    ->key(array(
-      'nid' => $component['nid'],
-      'cid' => $component['cid'],
-    ))
-    ->fields(array(
-      MARKETO_MA_WEBFORM_COMPONENT_KEY => $component['marketo']['marketo_ma_webform_component_key'],
-    ))
-    ->execute();
+  if (isset($component['marketo'])) {
+    db_merge(MARKETO_MA_SCHEMA_WEBFORM_COMPONENT)
+      ->key(array(
+        'nid' => $component['nid'],
+        'cid' => $component['cid'],
+      ))
+      ->fields(array(
+        MARKETO_MA_WEBFORM_COMPONENT_KEY => $component['marketo']['marketo_ma_webform_component_key'],
+      ))
+      ->execute();
+  }
 }
 
 /**
