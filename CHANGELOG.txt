@@ -10,6 +10,7 @@ Marketo MA 7.x-1.x, XXXX-XX-XX
 - #2130395: Resolved undefined index on webform component sort
 - Users with only a single lead activity record and users associated with more
   than one lead will now display lead information properly
+- #2132165: Remove field from fieldmap on delete
 
 Marketo MA 7.x-1.2-beta1, 2013-11-04
 ------------------------------

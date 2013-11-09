@@ -145,6 +145,15 @@ function marketo_ma_user_user_update(&$edit, $account, $category) {
 }
 
 /**
+ * Implements hook_field_delete_field().
+ */
+function marketo_ma_user_field_delete_field($field) {
+  $fieldmap = variable_get('marketo_ma_user_fieldmap', array());
+  unset($fieldmap[$field['field_name']]);
+  variable_set('marketo_ma_user_fieldmap', $fieldmap);
+}
+
+/**
  * Returns Drupal user fields which have been mapped to Marketo fields.
  * 
  * @param $account
