@@ -87,7 +87,7 @@ function marketo_ma_add_lead($email, $data = array(), $merge = FALSE) {
 
   // If the user executing this method is anonymous or is actually the lead
   // being modified we will pass along the _mkto_trk cookie value so any
-  // activity associated with the cookie gets merged to the lead
+  // activity associated with the cookie gets merged to the lead.
   global $user;
   if (($user->uid == 0 || $user->mail == $email) && isset($_COOKIE['_mkto_trk'])) {
     $marketo_ma_data[$email]['marketoCookie'] = $_COOKIE['_mkto_trk'];
@@ -293,11 +293,12 @@ function _marketo_ma_queue_lead($lead) {
 }
 
 /**
- * Returns defined fields as an associative array useful for select options
+ * Returns defined fields as an associative array useful for select options.
  * 
  * @return array
+ *   Key/value pairs of defined Marketo fields
  */
-function _marketo_ma_get_field_options() {
+function _marketo_ma_get_field_options($labels = TRUE, $sort = TRUE) {
   /*
    * marketo_ma_webform_fields is multi-line, pipe "|" delimited data
    * which needs to be parsed. First split it into rows of data.
@@ -308,9 +309,16 @@ function _marketo_ma_get_field_options() {
   // Loop over all the rows getting the keys and values for the fields.
   foreach ($raw_options as $row) {
     $field = explode('|', trim($row));
-    $options[trim($field[0])] = trim($field[1]) . ' (' . trim($field[0]) . ')';
+    if ($labels) {
+      $options[trim($field[0])] = trim($field[1]) . ' (' . trim($field[0]) . ')';
+    }
+    else {
+      $options[trim($field[0])] = trim($field[1]);
+    }
   }
-  asort($options);
+  if ($sort) {
+    asort($options);
+  }
 
   return $options;
 }
@@ -486,7 +494,7 @@ function _marketo_ma_soap_is_configured() {
 }
 
 /**
- * Based on visibility setting determines if marketo should be included.
+ * Based on page visibility setting determines if marketo should be included.
  */
 function _marketo_ma_visibility_pages() {
   static $page_match;
@@ -529,8 +537,7 @@ function _marketo_ma_visibility_pages() {
 }
 
 /**
- * Based on visibility setting this function returns TRUE if Marketo MA code
- * should be added for the current role and otherwise FALSE.
+ * Based on role visibility setting determines if marketo should be included.
  */
 function _marketo_ma_visibility_roles($account) {
   static $role_match;

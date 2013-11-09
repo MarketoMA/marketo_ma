@@ -158,7 +158,7 @@ class MarketoClient implements MarketoInterface {
     $lead->leadKey = new stdClass();
     $lead->leadKey->keyType = (is_null($type)) ? $this->keyType($key) : strtoupper($type);
     $lead->leadKey->keyValue = $key;
-    
+
     try {
       $result = $this->request('getLead', $lead);
       $leads = $this->prepareLeadResults($result);
@@ -191,12 +191,7 @@ class MarketoClient implements MarketoInterface {
 
     try {
       $result = $this->request('getLeadActivity', $lead);
-      if($result->leadActivityList->returnCount > 0) {
-        $activity = $this->prepareLeadActivityResults($result);
-      }
-      else {
-        $activity = array();
-      }
+      $activity = $this->prepareLeadActivityResults($result);
     }
     catch (Exception $e) {
 
@@ -314,18 +309,22 @@ class MarketoClient implements MarketoInterface {
    *   An array of objects defining lead data
    */
   protected function prepareLeadResults($marketo_result) {
-    $leads = array();
-
-    if (is_object($marketo_result->result->leadRecordList->leadRecord)) {
-      $marketo_result->result->leadRecordList->leadRecord = array($marketo_result->result->leadRecordList->leadRecord);
+    if ($marketo_result->result->count == 1) {
+      $leads[] = $marketo_result->result->leadRecordList->leadRecord;
+    }
+    elseif ($marketo_result->result->count > 1) {
+      $leads = $marketo_result->result->leadRecordList->leadRecord;
+    }
+    else {
+      $leads = array();
     }
 
-    foreach ($marketo_result->result->leadRecordList->leadRecord as $lead) {
+    foreach ($leads as &$lead) {
+      $lead->attributes = array();
       foreach ($lead->leadAttributeList->attribute as $attribute) {
         $lead->attributes[$attribute->attrName] = $attribute->attrValue;
       }
       unset($lead->leadAttributeList);
-      $leads[] = $lead;
     }
 
     return $leads;
@@ -341,13 +340,24 @@ class MarketoClient implements MarketoInterface {
    *   An array of objects defining lead activity data
    */
   protected function prepareLeadActivityResults($marketo_result) {
-    $activity = array();
-    
-    foreach ($marketo_result->leadActivityList->activityRecordList->activityRecord as $event) {
-      //unset($event->activityAttributes);
-      $activity[] = $event;
+    if ($marketo_result->leadActivityList->returnCount > 1) {
+      $activity = $marketo_result->leadActivityList->activityRecordList->activityRecord;
     }
-    
+    elseif ($marketo_result->leadActivityList->returnCount == 1) {
+      $activity[] = $marketo_result->leadActivityList->activityRecordList->activityRecord;
+    }
+    else {
+      $activity = array();
+    }
+
+    foreach ($activity as &$event) {
+      $event->attributes = array();
+      foreach ($event->activityAttributes->attribute as $attribute) {
+        $event->attributes[$attribute->attrName] = $attribute->attrValue;
+      }
+      unset($event->activityAttributes);
+    }
+
     return $activity;
   }
 

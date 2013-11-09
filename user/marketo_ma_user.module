@@ -49,6 +49,9 @@ function marketo_ma_user_permission() {
   );
 }
 
+/**
+ * Access callback for viewing lead information.
+ */
 function marketo_ma_user_view_lead_data_callback($account) {
   global $user;
   return user_access('access all marketo lead data', $user) || (user_access('access own marketo lead data', $user) && $user->uid == $account->uid);
@@ -83,30 +86,22 @@ function marketo_ma_user_form_marketo_ma_admin_settings_form_alter(&$form, &$for
     '#type' => 'fieldset',
     '#description' => t('When a lead update is triggered, the fields mapped below will be included in the data sent to Marketo. Select the associated Marketo field for each User field displayed.'),
     '#tree' => TRUE,
+    '#theme' => 'marketo_ma_user_fieldmap',
   );
 
   $user_fields = field_info_instances('user', 'user');
   $fieldmap = variable_get('marketo_ma_user_fieldmap', array());
   $options = _marketo_ma_get_field_options();
 
-  if (count($user_fields)) {
-    foreach ($user_fields as $key => $value) {
-      $form['marketo_ma_tabs']['marketo_ma_user']['marketo_ma_user_fieldmap'][$key] = array(
-        '#title' => $value['label'] . ' (' . $value['field_name'] . ')',
-        '#type' => 'select',
-        '#options' => array(MARKETO_MA_WEBFORM_COMPONENT_NONE => '- None -') + $options,
-      );
-      if (array_key_exists($key, $fieldmap)) {
-        $form['marketo_ma_tabs']['marketo_ma_user']['marketo_ma_user_fieldmap'][$key]['#default_value'] = $fieldmap[$key];
-      }
-    }
-  }
-  else {
-    $form['marketo_ma_tabs']['marketo_ma_user']['marketo_ma_user_fieldmap']['none'] = array(
-      '#type' => 'item',
-      '#title' => t('There are currently no user account fields available for mapping'),
-      '#description' => t('Fields can be managed in <a href="@url">Account settings</a>.', array('@url' => url('admin/config/people/accounts/fields'))),
+  foreach ($user_fields as $key => $value) {
+    $form['marketo_ma_tabs']['marketo_ma_user']['marketo_ma_user_fieldmap'][$key] = array(
+      '#title' => $value['label'] . ' (' . $value['field_name'] . ')',
+      '#type' => 'select',
+      '#options' => array(MARKETO_MA_WEBFORM_COMPONENT_NONE => '- None -') + $options,
     );
+    if (array_key_exists($key, $fieldmap)) {
+      $form['marketo_ma_tabs']['marketo_ma_user']['marketo_ma_user_fieldmap'][$key]['#default_value'] = $fieldmap[$key];
+    }
   }
 }
 
@@ -150,7 +145,7 @@ function marketo_ma_user_user_update(&$edit, $account, $category) {
 }
 
 /**
- * Returns Drupal user fields which have been mapped to Marketo fields
+ * Returns Drupal user fields which have been mapped to Marketo fields.
  * 
  * @param $account
  * @return array
@@ -167,51 +162,150 @@ function _marketo_ma_user_get_mapped_fields($account) {
 }
 
 /**
- * Returns a formatted table of lead information
+ * Returns a formatted table of lead information.
  * 
  * @param $account
  * @return string
  */
 function _marketo_ma_user_display_lead($account) {
-  $output = "";
-  $marketo = marketo_ma_get_lead($account->mail);
-  if (!empty($marketo)) {
-    $rows[] = array('Id', $marketo[0]->Id);
-    foreach ($marketo[0]->attributes as $key => $value) {
-      $rows[] = array($key, $value);
-    }
-    $header = array(t('Key'), t('Value'));
-    $output = theme('table', array('header' => $header, 'rows' => $rows));
-  }
-  else {
-    $output = t("No lead information found for @mail.", array('@mail' => $account->mail));
-  }
-  return $output;
+  $leads = marketo_ma_get_lead($account->mail);
+  return theme('marketo_ma_user_lead', array(
+    'lead' => $leads,
+    'email' => $account->mail,
+    'fields' => _marketo_ma_get_field_options(FALSE, FALSE)
+  ));
 }
 
 /**
- * Returns a formatted table of lead activity
+ * Returns a formatted table of lead activity.
  * 
  * @param $account
  * @return string
  */
 function _marketo_ma_user_display_lead_activity($account) {
-  $output = "";
   $activity = marketo_ma_get_lead_activity($account->mail);
-  if (!empty($activity)) {
-    $header = array(t('ID'), t('Date/Time'), t('Activity Type'), t('Asset Name'));
-    $fields = array('id', 'activityDateTime', 'activityType', 'mktgAssetName');
-    foreach ($activity as $event) {
-      $row = array();
-      foreach ($fields as $field) {
-        $row[] = $event->$field;
-      }
-      $rows[] = $row;
+  return theme('marketo_ma_user_activity', array('activity' => $activity, 'email' => $account->mail));
+}
+
+/**
+ * Implements hook_theme().
+ */
+function marketo_ma_user_theme() {
+  $theme = array(
+    'marketo_ma_user_fieldmap' => array(
+      'render element' => 'element',
+    ),
+    'marketo_ma_user_activity' => array(
+      'variables' => array(
+        'activity' => array(),
+        'email' => NULL,
+      ),
+    ),
+    'marketo_ma_user_lead' => array(
+      'variables' => array(
+        'lead' => array(),
+        'email' => NULL,
+        'fields' => array(),
+      ),
+    ),
+  );
+  return $theme;
+}
+
+/**
+ * Theme function for formatting user profile fieldmap form.
+ * 
+ * @param array $vars
+ *   element: Form element
+ */
+function theme_marketo_ma_user_fieldmap($vars) {
+  $element = $vars['element'];
+
+  $table = array(
+    'header' => array(
+      'drupal' => t('Drupal'),
+      'marketo' => t('Marketo'),
+    ),
+    'rows' => array(),
+    'empty' => t('There are currently no user account fields available for mapping. Fields can be managed in <a href="@url">Account settings</a>.', array('@url' => url('admin/config/people/accounts/fields'))),
+  );
+
+  foreach (element_children($element) as $key) {
+    $row = array();
+    $row['data'] = array();
+    $row['data'][] = $element[$key]['#title'];
+    // Do not want the title to render again.
+    unset($element[$key]['#title']);
+    $row['data'][] = drupal_render($element[$key]);
+    $table['rows'][] = $row;
+  }
+
+  return theme('table', $table);
+}
+
+/**
+ * Theme function for formatting lead activity.
+ * 
+ * @param array $vars
+ *   activity: Arrary of activity data
+ *   email: Email address associated with activity data
+ */
+function theme_marketo_ma_user_activity($vars) {
+  $activity = $vars['activity'];
+  $email = $vars['email'];
+
+  $table = array(
+    'header' => array(
+      t('ID'),
+      t('Date/Time'),
+      t('Activity Type'),
+      t('Asset Name'),
+    ),
+    'rows' => array(),
+    'empty' => t("No activity found for @mail.", array('@mail' => $email)),
+  );
+
+  $fields = array('id', 'activityDateTime', 'activityType', 'mktgAssetName');
+  foreach ($activity as $event) {
+    $row = array();
+    foreach ($fields as $field) {
+      $row[] = $event->$field;
     }
-    $output = theme('table', array('header' => $header, 'rows' => $rows));
+    $table['rows'][] = $row;
   }
-  else {
-    $output = t("No activity found for @mail.", array('@mail' => $account->mail));
+  return theme('table', $table);
+}
+
+/**
+ * Theme function for formatting lead data.
+ * 
+ * @param array $vars
+ *   lead: Arrary of lead data
+ *   email: Email address associated with activity data
+ *   fields: Array of defined Marketo fields
+ */
+function theme_marketo_ma_user_lead($vars) {
+  $leads = $vars['lead'];
+  $email = $vars['email'];
+  $fields = $vars['fields'];
+
+  $table = array(
+    'header' => array(t('Key'), t('Value')),
+    'rows' => array(),
+    'empty' => t("No lead found for @mail.", array('@mail' => $email)),
+  );
+
+  foreach ($leads as $lead) {
+    $table['rows'][] = array(array(
+        'data' => 'ID ' . $lead->Id,
+        'colspan' => 2,
+        'header' => TRUE,
+    ));
+    foreach ($lead->attributes as $key => $value) {
+      $label = (array_key_exists($key, $fields)) ? $fields[$key] : $key;
+      $table['rows'][] = array($label, $value);
+    }
   }
-  return $output;
+
+  return theme('table', $table);
 }
