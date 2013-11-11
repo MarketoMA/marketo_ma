@@ -9,9 +9,9 @@
  * Form builder for managing a webform configuration.
  */
 function marketo_ma_webform_settings_form($form, &$form_state, $node) {
-  $is_active = isset($node->webform['marketo']['marketo_ma_webform_is_active']) ? $node->webform['marketo']['marketo_ma_webform_is_active'] : FALSE;
-
   $form['#node'] = $node;
+  $is_active = _marketo_ma_webform_is_active($node->nid);
+  
   $form['marketo_ma_webform_is_active'] = array(
     '#title' => t('Capture Data'),
     '#type' => 'checkbox',
