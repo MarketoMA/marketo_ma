@@ -1,6 +1,12 @@
 Marketo MA Changelog
 ---------------------
 
+Marketo MA 7.x-1.x, XXXX-XX-XX
+------------------------------
+- #2132635: Improved webform configuration experience
+  Configuration is now managed on a single page at node/{ID}/webform/marketo
+- Performance improvements for Marketo MA Webform module
+
 Marketo MA 7.x-1.2-beta2, 2013-11-09
 ------------------------------
 - #2127663: Updated default value of user action triggers to be "on"
