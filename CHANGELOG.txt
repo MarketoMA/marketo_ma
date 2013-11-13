@@ -1,7 +1,7 @@
 Marketo MA Changelog
 ---------------------
 
-Marketo MA 7.x-1.x, XXXX-XX-XX
+Marketo MA 7.x-1.2-beta3, 2013-11-13
 ------------------------------
 - #2132635: Improved webform configuration experience
   Configuration is now managed on a single page at node/{ID}/webform/marketo
