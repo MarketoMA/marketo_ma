@@ -330,14 +330,13 @@ function _marketo_ma_get_field_options($labels = TRUE, $sort = TRUE) {
  *   Marketo fields
  */
 function _marketo_ma_get_fields() {
+  $result = array();
   if (_marketo_ma_soap_is_configured()) {
     module_load_include('inc', 'marketo_ma', 'includes/marketo_ma.soap');
 
     $secret_key = variable_get('marketo_ma_soap_encryption_key');
     $access_key = variable_get('marketo_ma_soap_user_id');
     $soap_endpoint = variable_get('marketo_ma_soap_endpoint');
-
-    $result = array();
 
     try {
       $client = new MarketoClient($access_key, $secret_key, $soap_endpoint, _marketo_ma_soap_proxy_settings());
@@ -361,14 +360,13 @@ function _marketo_ma_get_fields() {
  *   Marketo lead
  */
 function marketo_ma_get_lead($key) {
+  $result = array();
   if (_marketo_ma_soap_is_configured()) {
     module_load_include('inc', 'marketo_ma', 'includes/marketo_ma.soap');
 
     $secret_key = variable_get('marketo_ma_soap_encryption_key');
     $access_key = variable_get('marketo_ma_soap_user_id');
     $soap_endpoint = variable_get('marketo_ma_soap_endpoint');
-
-    $result = array();
 
     try {
       $client = new MarketoClient($access_key, $secret_key, $soap_endpoint, _marketo_ma_soap_proxy_settings());
@@ -392,14 +390,13 @@ function marketo_ma_get_lead($key) {
  *   Marketo lead
  */
 function marketo_ma_get_lead_activity($key) {
+  $result = array();
   if (_marketo_ma_soap_is_configured()) {
     module_load_include('inc', 'marketo_ma', 'includes/marketo_ma.soap');
 
     $secret_key = variable_get('marketo_ma_soap_encryption_key');
     $access_key = variable_get('marketo_ma_soap_user_id');
     $soap_endpoint = variable_get('marketo_ma_soap_endpoint');
-
-    $result = array();
 
     try {
       $client = new MarketoClient($access_key, $secret_key, $soap_endpoint, _marketo_ma_soap_proxy_settings());

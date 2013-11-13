@@ -7,6 +7,7 @@ Marketo MA 7.x-1.x, XXXX-XX-XX
   Configuration is now managed on a single page at node/{ID}/webform/marketo
 - Performance improvements for Marketo MA Webform module
 - #2133163: Corrected method for determining active flag
+- #2134953: Fixed undefined variables when SOAP API not configured
 
 Marketo MA 7.x-1.2-beta2, 2013-11-09
 ------------------------------
