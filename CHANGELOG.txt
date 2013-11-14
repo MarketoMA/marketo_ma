@@ -1,6 +1,10 @@
 Marketo MA Changelog
 ---------------------
 
+Marketo MA 7.x-1.2, 2013-11-14
+------------------------------
+- Updated README.txt to reflect changes since 7.x-1.1
+
 Marketo MA 7.x-1.2-beta3, 2013-11-13
 ------------------------------
 - #2132635: Improved webform configuration experience
