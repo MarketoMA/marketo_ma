@@ -4,7 +4,6 @@
  * @file
  * Module functions for Marketo MA.
  */
-
 define('MARKETO_MA_PAGES', "admin\nadmin/*\nbatch\nnode/add*\nnode/*/*\nuser/*/*");
 define('MARKETO_MA_TRACKING_METHOD_DEFAULT', 'munchkin');
 define('MARKETO_MA_WEBFORM_FIELD_DEFAULTS', "FirstName|First Name\nLastName|Last Name\nEmail|Email Address");
@@ -557,8 +556,11 @@ function _marketo_ma_visibility_roles($account) {
       }
     }
     else {
-      // No role is selected for tracking, therefore all roles should be tracked.
-      $enabled = TRUE;
+      /*
+       * No roles have been selected therefore we will return the visibility
+       * setting itself. "Only selected" will be FALSE and "All except" will be TRUE
+       */
+      $enabled = $visibility;
     }
   }
   return $enabled;

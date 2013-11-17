@@ -1,6 +1,11 @@
 Marketo MA Changelog
 ---------------------
 
+Marketo MA 7.x-1.x, XXXX-XX-XX
+------------------------------
+- #2137397: Tracking will now be OFF when role visibility is set to
+  "Only the roles selected below" and no roles are selected
+
 Marketo MA 7.x-1.2, 2013-11-14
 ------------------------------
 - Updated README.txt to reflect changes since 7.x-1.1
