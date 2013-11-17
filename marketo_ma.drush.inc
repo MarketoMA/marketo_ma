@@ -11,34 +11,27 @@
 function marketo_ma_drush_command() {
   $items = array();
   $items['mma-get-lead'] = array(
-    'description' => dt('Get Marketo lead information for the specified user or email address.'),
+    'description' => dt('Get Marketo lead and activity information for the given search criteria.'),
     'arguments' => array(
-      'key' => dt('A uid, user name, or email address. If using --remote this should be an IDNUM, EMAIL, or COOKIE Marketo value.'),
+      'key' => dt('An email address, Marketo lead ID, Marketo _mkto_trk cookie, Drupal uid, or Drupal name'),
     ),
     'examples' => array(
-      'drush mma-get-lead 14' => dt('Get lead data for user account 14.'),
-      'drush mmal john@example.com' => dt('Search for account john@example.com locally then try to match to a Marketo record.'),
-      'drush mmal john@example.com --remote' => dt('Search Marketo for john@example.com then match to a local account if possible.'),
+      'drush mma-get-lead john@example.com' => dt('Get leads with email address john@example.com.'),
+      'drush mmal john@example.com --activity' => dt('Get leads with email address john@example.com and include activity records.'),
+      'drush mmal john@example.com --activity --info=0' => dt('Show only activity for john@example.com'),
+      'drush mmal john@example.com --local' => dt('Get leads with email address john@example.com that also have a Drupal user account.'),
+      'drush mma-get-lead 14' => dt('Get leads for Marketo lead ID 14 or Drupal uid 14 and return merged results.'),
+      'drush mmal 14 --local' => dt('Get leads for Drupal uid 14 and ignores Marketo Lead ID 14.'),
+      'drush mmal 14 --remote' => dt('Get lead for Marketo lead ID 14 and ignores Drupal uid 14'),
+      'drush mmal "id:222-AAA-222&token:_mch-example.com-1384222270733-22222"' => dt('Get lead by _mkto_trk value.'),
     ),
     'options' => array(
-      'remote' => dt('Search Marketo then try to match a local user account.'),
+      'activity' => dt('Show lead activity (OFF by default).'),
+      'info' => dt('Show lead information (ON by default). Hide with --info=0'),
+      'local' => dt('Search only Drupal keys (mail, uid, name).'),
+      'remote' => dt('Search only Marketo keys (mail, lead ID, cookie)'),
     ),
     'aliases' => array('mmal'),
-  );
-  $items['mma-get-activity'] = array(
-    'description' => dt('Get Marketo activity for the specified lead.'),
-    'arguments' => array(
-      'key' => dt('A uid, user name, or email address. If using --remote this should be an IDNUM, EMAIL, or COOKIE Marketo value.'),
-    ),
-    'examples' => array(
-      'drush mma-get-activity 14' => dt('Get activity events for user account 14.'),
-      'drush mma-get-activity john.doe' => dt('Get activity events for user john.doe.'),
-      'drush mmaa john@example.com' => dt('Get activity events associated with email address john@example.com.'),
-    ),
-    'options' => array(
-      'remote' => dt('Search Marketo then try to match a local user account.'),
-    ),
-    'aliases' => array('mmaa'),
   );
   $items['mma-fields'] = array(
     'description' => dt('Get Marketo fields.'),
@@ -56,74 +49,93 @@ function drush_marketo_ma_mma_get_lead($key = NULL) {
     drush_log('No key provided', 'error');
     return;
   }
-  $rows[] = array(dt('Group'), dt('Key'), dt('Value'));
-  $remote = drush_get_option('remote', FALSE);
-  if ($remote) {
-    $marketo = marketo_ma_get_lead($key);
-    if (!empty($marketo)) {
-      $account = user_load_by_mail($marketo[0]->Email);
-    }
-  }
-  else {
-    $uid = _drush_user_get_uid($key);
-    if ($uid !== FALSE) {
-      $account = user_load($uid);
-      $marketo = marketo_ma_get_lead($account->mail);
-    }
-  }
 
-  if ($account) {
-    $fields = array('uid', 'name', 'mail');
-    foreach ($fields as $field) {
-      $rows[] = array(dt('Account'), $field, $account->$field);
-    }
-  }
-
-  if (!empty($marketo)) {
-    $rows[] = array(dt('Marketo'), 'Id', $marketo[0]->Id);
-    $rows[] = array(dt('Marketo'), 'Email', $marketo[0]->Email);
-    foreach ($marketo[0]->attributes as $key => $value) {
-      $rows[] = array(dt('Marketo'), $key, $value);
-    }
-  }
-
-  if (count($rows) > 1) {
-    drush_print_table($rows);
-  }
-}
-
-function drush_marketo_ma_mma_get_activity($key = NULL) {
-  if (is_null($key)) {
-    drush_log('No key provided', 'error');
+  $local = (bool) drush_get_option('local', FALSE);
+  $remote = (bool) drush_get_option('remote', FALSE);
+  if ($local && $remote) {
+    drush_log('--local and --remote cannot be used together', 'error');
     return;
   }
-  $rows[] = array(dt('ID'), dt('Date/Time'), dt('Activity Type'), dt('Asset Name'));
-  $remote = drush_get_option('remote', FALSE);
+
   if ($remote) {
-    $activity = marketo_ma_get_lead_activity($key);
+    $scope = 'marketo';
+  }
+  elseif ($local) {
+    $scope = 'drupal';
   }
   else {
-    $uid = _drush_user_get_uid($key);
-    if ($uid !== FALSE) {
-      $account = user_load($uid);
-      $activity = marketo_ma_get_lead_activity($account->mail);
-    }
+    $scope = strtolower(drush_get_option('scope', 'all'));
   }
 
-  if (!empty($activity)) {
-    $fields = array('id', 'activityDateTime', 'activityType', 'mktgAssetName');
-    foreach ($activity as $event) {
-      $row = array();
-      foreach ($fields as $field) {
-        $row[] = $event->$field;
+  $info = (bool) drush_get_option('info', TRUE);
+  $activity = (bool) drush_get_option('activity', FALSE);
+
+
+  $finds = array();
+
+  switch ($scope) {
+    case 'all':
+      $finds = _marketo_ma_search_drupal_lead($key, $activity) + _marketo_ma_search_marketo_lead($key, $activity);
+      break;
+
+    case 'drupal':
+      $finds = _marketo_ma_search_drupal_lead($key, $activity);
+      break;
+
+    case 'marketo':
+      $finds = _marketo_ma_search_marketo_lead($key, $activity);
+      break;
+
+    default:
+      drush_log('Valid scope options are: all, drupal, marketo', 'error');
+      return;
+      break;
+  }
+
+  switch (count($finds)) {
+    case 0:
+      drush_log("No leads found for $key", 'warning');
+      break;
+    case 1:
+      drush_log("Lead found for $key: [" . implode(",", array_keys($finds)) . "]", 'success');
+      break;
+
+    default:
+      drush_log("Multiple leads found for $key: [" . implode(",", array_keys($finds)) . "]", 'success');
+      break;
+  }
+
+  foreach ($finds as $leadid => $find) {
+    if ($info) {
+      drush_print('Marketo lead ID ' . $find['marketo']->Id);
+      $rows = array();
+      $rows[] = array(dt('Group'), dt('Key'), dt('Value'));
+      if ($find['drupal']->uid) {
+        $rows[] = array(dt('Account'), 'uid', $find['drupal']->uid);
+        $rows[] = array(dt('Account'), 'name', $find['drupal']->name);
+        $rows[] = array(dt('Account'), 'mail', $find['drupal']->mail);
       }
-      $rows[] = $row;
+      $rows[] = array(dt('Marketo'), 'Id', $find['marketo']->Id);
+      $rows[] = array(dt('Marketo'), 'Email', $find['marketo']->Email);
+      // Process Marketo attributes.
+      foreach ($find['marketo']->attributes as $attr => $value) {
+        $rows[] = array(dt('Marketo'), $attr, $value);
+      }
+      drush_print_table($rows, TRUE);
+    }
+
+    if ($activity && array_key_exists('activity', $find)) {
+      if (count($find['activity'])) {
+        drush_print('Activity for lead ID ' . $find['marketo']->Id);
+        _marketo_ma_print_activity_($find['activity']);
+      }
+      else {
+        drush_print('No activity found for lead ID ' . $find['marketo']->Id);
+      }
     }
   }
 
-  if (count($rows) > 1) {
-    drush_print_table($rows);
-  }
+  return;
 }
 
 function drush_marketo_ma_mma_fields() {
@@ -132,7 +144,7 @@ function drush_marketo_ma_mma_fields() {
   foreach ($fields as $key => $value) {
     $rows[] = array($key, $value);
   }
-  drush_print_table($rows);
+  drush_print_table($rows, TRUE);
 }
 
 function drush_marketo_ma_mma_verify() {
@@ -143,4 +155,76 @@ function drush_marketo_ma_mma_verify() {
   else {
     drush_log('Unable to connect to Marketo', 'error');
   }
+}
+
+/**
+ * Get uid(s) from a uid, user name, or email address.
+ * 
+ * @param string $search
+ *   A uid, user name, or email address
+ * 
+ * @return array
+ *   Associative array or records found keyed on uid
+ */
+function _marketo_ma_get_uid($search) {
+  // We use a DB query while looking for the uid to keep things speedy.
+  $uids = array();
+  if (is_numeric($search)) {
+    $query = db_query("SELECT uid, name, mail FROM {users} WHERE uid = :uid OR name = :name", array(':uid' => $search, ':name' => $search));
+  }
+  else {
+    $query = db_query("SELECT uid, name, mail FROM {users} WHERE mail = :mail OR name = :name", array(':mail' => $search, ':name' => $search));
+  }
+  return $query->fetchAllAssoc('uid');
+}
+
+function _marketo_ma_search_marketo_lead($key, $activity = FALSE) {
+  $result = array();
+  $marketo = marketo_ma_get_lead($key); // can return multiple
+  foreach ($marketo as $lead) {
+    $account = user_load_by_mail($lead->Email); // not sure about multiple
+    $result[$lead->Id] = array(
+      'marketo' => $lead,
+      'drupal' => $account,
+    );
+    if ($activity) {
+      $result[$lead->Id]['activity'] = marketo_ma_get_lead_activity($lead->Id);
+    }
+  }
+
+  return $result;
+}
+
+function _marketo_ma_search_drupal_lead($key, $activity = FALSE) {
+  $result = array();
+  $uids = _marketo_ma_get_uid($key); // can return multiple
+  foreach ($uids as $uid => $account) {
+    $marketo = marketo_ma_get_lead($account->mail);
+    foreach ($marketo as $lead) {
+      $result[$lead->Id] = array(
+        'marketo' => $lead,
+        'drupal' => $account,
+      );
+      if ($account) {
+        $result[$lead->Id]['activity'] = marketo_ma_get_lead_activity($lead->Id);
+      }
+    }
+  }
+
+  return $result;
+}
+
+function _marketo_ma_print_activity_($activity) {
+  $fields = array('id', 'activityDateTime', 'activityType', 'mktgAssetName');
+  $rows = array();
+  $rows[] = array(dt('ID'), dt('Date/Time'), dt('Activity Type'), dt('Asset Name'));
+  foreach ($activity as $event) {
+    $row = array();
+    foreach ($fields as $field) {
+      $row[] = $event->$field;
+    }
+    $rows[] = $row;
+  }
+
+  drush_print_table($rows, TRUE);
 }
