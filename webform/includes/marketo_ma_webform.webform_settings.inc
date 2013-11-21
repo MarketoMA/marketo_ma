@@ -85,6 +85,8 @@ function _marketo_ma_webform_save_webform($form, &$form_state) {
         ->execute();
     }
   }
+
+  drupal_set_message(t('The configuration options have been saved.'));
 }
 
 /**
