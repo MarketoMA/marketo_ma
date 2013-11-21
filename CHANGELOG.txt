@@ -8,6 +8,9 @@ Marketo MA 7.x-1.x, XXXX-XX-XX
 - #2135305: Removed mma-get-activity from drush commands and moved functionality
   to improved mma-get-lead command. Activity is now retrieved by adding the
   --activity option to mma-get-lead.
+- #2139977: Corrected issue related to removal of a mapped field from the field
+  definition list. When a field is removed, any currently mapped fields will
+  remain intact and display as an "Undefined Field (fieldname)".
 
 Marketo MA 7.x-1.2, 2013-11-14
 ------------------------------

@@ -11,7 +11,7 @@
 function marketo_ma_webform_settings_form($form, &$form_state, $node) {
   $form['#node'] = $node;
   $is_active = _marketo_ma_webform_is_active($node->nid);
-  
+
   $form['marketo_ma_webform_is_active'] = array(
     '#title' => t('Capture Data'),
     '#type' => 'checkbox',
@@ -25,15 +25,23 @@ function marketo_ma_webform_settings_form($form, &$form_state, $node) {
     '#theme' => 'marketo_ma_webform_fieldmap',
   );
 
-  $options = _marketo_ma_get_field_options();
+  $default_options = array(MARKETO_MA_WEBFORM_COMPONENT_NONE => '- None -');
+  $marketo_options = _marketo_ma_get_field_options();
+  $options = array_merge($default_options, $marketo_options);
   $fieldmap = _marketo_ma_webform_get_mapped_fields($node->nid);
   foreach ($node->webform['components'] as $cid => $component) {
     $form['components'][$cid] = array(
       '#title' => $component['name'] . ' (' . $component['form_key'] . ')',
+      '#title_display' => 'invisible',
       '#type' => 'select',
-      '#options' => array(MARKETO_MA_WEBFORM_COMPONENT_NONE => '- None -') + $options,
+      '#options' => $options,
     );
     if (array_key_exists($cid, $fieldmap)) {
+      if (!array_key_exists($fieldmap[$cid], $options)) {
+        $form['components'][$cid]['#options'] = array_merge(
+          array($fieldmap[$cid] => "Undefined Field ($fieldmap[$cid])"), $options
+        );
+      }
       $form['components'][$cid]['#default_value'] = $fieldmap[$cid];
     }
   }
@@ -101,8 +109,6 @@ function theme_marketo_ma_webform_fieldmap($vars) {
     $row = array();
     $row['data'] = array();
     $row['data'][] = $element[$key]['#title'];
-    // Do not want the title to render again.
-    unset($element[$key]['#title']);
     $row['data'][] = drupal_render($element[$key]);
     $table['rows'][] = $row;
   }

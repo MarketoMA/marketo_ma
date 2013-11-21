@@ -91,15 +91,24 @@ function marketo_ma_user_form_marketo_ma_admin_settings_form_alter(&$form, &$for
 
   $user_fields = field_info_instances('user', 'user');
   $fieldmap = variable_get('marketo_ma_user_fieldmap', array());
-  $options = _marketo_ma_get_field_options();
+  $default_options = array(MARKETO_MA_WEBFORM_COMPONENT_NONE => '- None -');
+  $marketo_options = _marketo_ma_get_field_options();
+  $options = array_merge($default_options, $marketo_options);
 
   foreach ($user_fields as $key => $value) {
     $form['marketo_ma_tabs']['marketo_ma_user']['marketo_ma_user_fieldmap'][$key] = array(
       '#title' => $value['label'] . ' (' . $value['field_name'] . ')',
+      '#title_display' => 'invisible',
       '#type' => 'select',
-      '#options' => array(MARKETO_MA_WEBFORM_COMPONENT_NONE => '- None -') + $options,
+      '#options' => $options
     );
     if (array_key_exists($key, $fieldmap)) {
+      if (!array_key_exists($fieldmap[$key], $options)) {
+        $form['marketo_ma_tabs']['marketo_ma_user']['marketo_ma_user_fieldmap'][$key]['#options'] = array_merge(
+          array($fieldmap[$key] => "Undefined Field ($fieldmap[$key])"), $options
+        );
+      }
+
       $form['marketo_ma_tabs']['marketo_ma_user']['marketo_ma_user_fieldmap'][$key]['#default_value'] = $fieldmap[$key];
     }
   }
@@ -243,8 +252,6 @@ function theme_marketo_ma_user_fieldmap($vars) {
     $row = array();
     $row['data'] = array();
     $row['data'][] = $element[$key]['#title'];
-    // Do not want the title to render again.
-    unset($element[$key]['#title']);
     $row['data'][] = drupal_render($element[$key]);
     $table['rows'][] = $row;
   }
