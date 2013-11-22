@@ -13,8 +13,8 @@ function marketo_ma_webform_menu() {
     'title' => 'Marketo',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('marketo_ma_webform_settings_form', 1),
-    'access callback' => 'node_access',
-    'access arguments' => array('update', 1),
+    'access callback' => 'marketo_ma_webform_permission_callback',
+    'access arguments' => array(1),
     'file' => 'includes/marketo_ma_webform.webform_settings.inc',
     'type' => MENU_LOCAL_TASK,
   );
@@ -31,6 +31,20 @@ function marketo_ma_webform_permission() {
       'description' => t('Administer Marketo settings on Webforms.'),
     ),
   );
+}
+
+/**
+ * Permission callback for managing webform setup.
+ *
+ * @param $node
+ *   The node holding the webform.
+ *
+ * @return bool
+ *   TRUE if access is allowed otherwise FALSE.
+ */
+function marketo_ma_webform_permission_callback($node) {
+  global $user;
+  return (user_access('administer marketo webform settings', $user) && node_access('update', $node));
 }
 
 /**
