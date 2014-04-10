@@ -94,6 +94,8 @@ function marketo_ma_webform_webform_component_delete($component) {
 
 /**
  * Implements hook_webform_submission_insert().
+ *
+ * TODO: refactor this growing function
  */
 function marketo_ma_webform_webform_submission_insert($node, $submission) {
   if (_marketo_ma_webform_is_active($node->nid)) {
@@ -101,12 +103,18 @@ function marketo_ma_webform_webform_submission_insert($node, $submission) {
     $data = array();
     $fieldmap = _marketo_ma_webform_get_mapped_fields($node->nid);
     foreach ($fieldmap as $cid => $key) {
-      // https://drupal.org/node/1609324#submission-structure
-      if (isset($submission->data[$cid]['value'])) {
-        $data[$key] = $submission->data[$cid]['value'][0];
-      }
-      else {
-        $data[$key] = $submission->data[$cid][0];
+      if ($key != MARKETO_MA_WEBFORM_COMPONENT_NONE) {
+        // https://drupal.org/node/1609324#submission-structure
+        if (isset($submission->data[$cid]['value'][0])) {
+          $data[$key] = $submission->data[$cid]['value'][0];
+        }
+        else if (isset($submission->data[$cid][0])) {
+          $data[$key] = $submission->data[$cid][0];
+        }
+        else {
+          // Handle mapped selectbox components with no option selected.
+          $data[$key] = '';
+        }
       }
     }
 
