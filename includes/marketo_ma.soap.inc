@@ -44,8 +44,10 @@ interface MarketoInterface {
    *   Lead Key, typically email address
    * @param object $cookie
    *   Marketo cookie information
+   * @param array $options
+   *   Array of additional options to configure lead syncing
    */
-  public function syncLead($lead, $key, $cookie);
+  public function syncLead($lead, $key, $cookie, $options);
 }
 
 /**
@@ -246,19 +248,31 @@ class MarketoClient implements MarketoInterface {
   /**
    * {@inheritdoc}
    */
-  public function syncLead($lead, $key = NULL, $cookie = NULL) {
+  public function syncLead($lead, $key = NULL, $cookie = NULL, $options = array()) {
+    // Merge default options
+    $options += array(
+      'returnLead' => FALSE,
+      'extendedResponse' => FALSE,
+    );
+
     $params = new stdClass();
     $params->marketoCookie = $cookie;
-    $params->returnLead = FALSE;
+    $params->returnLead = $options['returnLead'];
     $params->leadRecord = $this->leadRecord($lead, $key);
+    $ret = array(
+      'success' => FALSE,
+      'result' => NULL,
+    );
 
     try {
-      $result = $this->request('syncLead', $params);
+      $ret['result'] = $this->request('syncLead', $params);
+      $ret['success'] = TRUE;
     }
     catch (Exception $e) {
-      $result = FALSE;
+      $ret['result'] = $e->getMessage();
+      $ret['success'] = FALSE;
     }
-    return $result;
+    return ($options['extendedResponse']) ? $ret : $ret['result'];
   }
 
   /**

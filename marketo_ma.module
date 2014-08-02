@@ -252,25 +252,27 @@ function _marketo_ma_associate_lead_soap($lead) {
       $soap_settings = _marketo_ma_soap_proxy_settings();
       $soap_settings['trace'] = variable_get('marketo_ma_logging', FALSE);
       $client = new MarketoClient($access_key, $secret_key, $soap_endpoint, $soap_settings);
-      $result = $client->syncLead($lead['data'], $lead['email'], $mkto_trk);
-      if ($result) {
+      $sync = $client->syncLead($lead['data'], $lead['email'], $mkto_trk, array('extendedResponse' => TRUE));
+      if ($sync['success']) {
         if (variable_get('marketo_ma_logging', FALSE)) {
-          watchdog('marketo', 'Associating lead !email [@method] <br />Lead: <pre>@data @result</pre> Request XML: <pre>@request</pre> Response XML: <pre>@response</pre>', array(
+          watchdog('marketo', 'Associating lead !email [soap] <br />Lead: <pre>@data @result</pre>', array(
             '!email' => $lead['email'],
-            '@method' => 'soap',
             '@data' => print_r($lead['data'], TRUE),
-            '@result' => print_r($result, TRUE),
-            '@request' => $client->__getLastRequest(),
-            '@response' => $client->__getLastResponse(),
+            '@result' => print_r($sync['result'], TRUE),
             ), WATCHDOG_INFO);
         }
       }
       else {
-        watchdog('marketo', 'Unable to sync lead !email. No response from SOAP request', array('!email' => $lead['email']), WATCHDOG_ERROR);
+        watchdog('marketo', 'Unable to sync lead !email [soap] <pre>@error</pre> Request XML: <pre>@request</pre> Response XML: <pre>@response</pre>', array(
+          '!email' => $lead['email'],
+          '@error' => $sync['result'],
+          '@request' => $client->__getLastRequest(),
+          '@response' => $client->__getLastResponse(),
+          ), WATCHDOG_ERROR);
       }
     }
     catch (Exception $e) {
-      watchdog('marketo', 'Unable to sync lead !email.<pre>@error</pre>', array('!email' => $lead['email'], '@error' => $e->getMessage()), WATCHDOG_ERROR);
+      watchdog('marketo', 'Unable to sync lead !email [soap] <pre>@error</pre>', array('!email' => $lead['email'], '@error' => $e->getMessage()), WATCHDOG_ERROR);
     }
   }
 }
