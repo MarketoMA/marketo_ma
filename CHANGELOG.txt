@@ -1,6 +1,10 @@
 Marketo MA Changelog
 ---------------------
 
+Marketo MA 7.x-1.x, 2014-08-03
+------------------------------
+- Cleanup additional variables on uninstall
+
 Marketo MA 7.x-1.3, 2014-04-21
 ------------------------------
 - #2137397: Tracking will now be OFF when role visibility is set to

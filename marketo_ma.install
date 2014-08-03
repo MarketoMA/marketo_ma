@@ -17,6 +17,7 @@ function marketo_ma_uninstall() {
   variable_del('marketo_ma_munchkin_partition');
   variable_del('marketo_ma_munchkin_tracking_code_type');
   variable_del('marketo_ma_pages');
+  variable_del('marketo_ma_roles');
   variable_del('marketo_ma_soap_encryption_key');
   variable_del('marketo_ma_soap_endpoint');
   variable_del('marketo_ma_soap_proxy_host');
@@ -24,6 +25,7 @@ function marketo_ma_uninstall() {
   variable_del('marketo_ma_soap_proxy_password');
   variable_del('marketo_ma_soap_proxy_port');
   variable_del('marketo_ma_soap_user_id');
+  variable_del('marketo_ma_tabs__active_tab');
   variable_del('marketo_ma_tracking_method');
   variable_del('marketo_ma_user_fieldmap');
   variable_del('marketo_ma_user_triggers');
