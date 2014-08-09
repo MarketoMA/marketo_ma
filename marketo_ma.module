@@ -255,7 +255,7 @@ function _marketo_ma_associate_lead_soap($lead) {
       $sync = $client->syncLead($lead['data'], $lead['email'], $mkto_trk, array('extendedResponse' => TRUE));
       if ($sync['success']) {
         if (variable_get('marketo_ma_logging', FALSE)) {
-          watchdog('marketo', 'Associating lead !email [soap] <br />Lead: <pre>@data @result</pre>', array(
+          watchdog('marketo', 'Associating lead !email [soap] <pre>@data @result</pre>', array(
             '!email' => $lead['email'],
             '@data' => print_r($lead['data'], TRUE),
             '@result' => print_r($sync['result'], TRUE),
