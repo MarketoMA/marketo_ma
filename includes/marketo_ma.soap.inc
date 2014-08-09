@@ -151,6 +151,24 @@ class MarketoClient implements MarketoInterface {
   }
 
   /**
+   * Returns the XML sent in the last SOAP request.
+   * 
+   * @return string
+   */
+  public function __getLastRequest() {
+    return $this->client->__getLastRequest();
+  }
+
+  /**
+   * Returns the XML received in the last SOAP response.
+   *
+   * @return string
+   */
+  public function __getLastResponse() {
+    return $this->client->__getLastResponse();
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function getLead($key, $type = NULL) {
