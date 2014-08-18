@@ -39,46 +39,46 @@ At a minimum, you need to provide your Marketo Account ID and Munchkin API
 Private Key. The Munchking API Private key can be set/retrieved on your Marketo
 admin site under Admin > Integration > Munchkin > API Configuration.
 
-** Account ID **
+**Account ID**
 Your Marketo account ID
 
-** Munchkin Javascript Library **
+**Munchkin Javascript Library**
 Path to munchkin.js. Defaults to //munchkin.marketo.net/munchkin.js and highly
 likely that you want to leave it set to the default.
 
-** Default Lead Source **
+**Default Lead Source**
 If you would like all lead updates to include a default Lead Source you can
 set it here. If a LeadSource field is defined elsewhere in your lead data,
 perhaps as a webform component, it will take precedence over this setting.
 
-** Verbose Logging **
+**Verbose Logging**
 If checked, additional data will be added to watchdog.
 
-** Tracking Method **
+**Tracking Method**
 Multiple options are available for how captured data is submitted to Marketo.
 
-- ** Munchkin Javascript API **
+- **Munchkin Javascript API**
   Lead updates will be sent to Marketo as pages are viewed using the
   client-side Munchkin API.
 
-- ** SOAP API (Synchronous) **
+- **SOAP API (Synchronous)**
   Lead data will be sent to Marketo immediately but may increase page
   load time.
 
-- ** SOAP API (Asynchronous) **
+- **SOAP API (Asynchronous)**
   Lead updates are added to a queue when captured and data is sent to
   Marketo each time cron runs. Ensure you are running cron regularly.
 
-** Munchkin Javascript API - API Private Key **
+**Munchkin Javascript API - API Private Key**
 Your Munchkin API Private key. This can be set/retrieved on your Marketo
 admin site under Admin > Integration > Munchkin > API Configuration.
 Additional information can be found in the Marketo article
 [Enable Munchkin API Use](http://community.marketo.com/MarketoTutorial?id=kA250000000Kz4eCAC).
 
-** Munchkin Javascript API - Partition **
+**Munchkin Javascript API - Partition**
 This currently does nothing and is ignored.
 
-** SOAP API **
+**SOAP API**
 Values for these fields can be set/retrieved on your Marketo admin site under
 Admin > Integration > SOAP API. Additional information can be found in the
 Marketo article [Configuring Your SOAP API Settings](http://community.marketo.com/MarketoArticle?id=kA050000000KyoyCAC).
@@ -89,7 +89,7 @@ Marketo article [Configuring Your SOAP API Settings](http://community.marketo.co
 
 SOAP configuration will be validated upon save.
 
-** SOAP API - SoapClient Proxy Settings **
+**SOAP API - SoapClient Proxy Settings**
 Proxy settings can be set if your server needs to use a proxy for external requests.
 
 ### <a id="field-definition"></a> Field Definition
@@ -100,7 +100,7 @@ Admin > Field Management. Additional information regarding Marketo fields can be
 found in the Marketo articles [Field Management](http://community.marketo.com/MarketoDeepDive?id=kA5500000008RWQCA2)
 and [Export a List of All Marketo API Field Names](http://community.marketo.com/MarketoArticle?id=kA050000000KytHCAS).
 
-** Marketo Fields **
+**Marketo Fields**
 This section should contain a pipe "|" delimited list of the fields in the format
 "[Field API Name]|[Friendly Label]". Example:
     
@@ -112,7 +112,7 @@ This section should contain a pipe "|" delimited list of the fields in the forma
 
 Configure options for which pages should be tracked or excluded from tracking.
 
-** Add tracking to specific pages **
+**Add tracking to specific pages**
 This option defines the default rule for tracking pages
 
 - All pages except those listed below
@@ -132,7 +132,7 @@ a \* as a wildcard. The default setting is:
 
 Configure options for which roles should be tracked or excluded from tracking.
 
-** Add tracking to specific roles **
+**Add tracking to specific roles**
 This option defines the default rule for tracking user roles
 
 - All roles except those selected below
@@ -166,10 +166,7 @@ configuration page found at admin/config/search/marketo_ma.
 
 5. Save configuration
 
-**
-It is not necessary to define a mapping for email address as this field is
-automatically mapped to the Marketo "Email" field.
-**
+**It is not necessary to define a mapping for email address as this field is automatically mapped to the Marketo "Email" field.**
 
 ### <a id="webform-integration"></a> Webform Integration (Requires Marketo MA Webform)
 
@@ -177,16 +174,16 @@ Marketo settings for a given webform are managed on each individual node. This
 section displays a table of all content on the site that may have a webform
 attached to it and provides an overview of each item's current state.
 
-- ** Title **
+- **Title**
   The title of the webform.
   
-- ** Tracking Enabled **
+- **Tracking Enabled**
   A Yes/No value indicating if tracking is currently enabled for this webform.
   
-- ** Components Mapped **
+- **Components Mapped**
   The number of form components that have been mapped to a Marketo field.
   
-- ** Manage **
+- **Manage**
   A direct link to the Marketo component mapping page for this webform.
 
 ## Configuring a Webform for tracking
@@ -208,7 +205,6 @@ creating a webform can be found here http://drupal.org/documentation/modules/web
    all components and their associated Marketo mappings. Use the select boxes in
    the Marketo column to map each field. The options available to you are defined
    in the "Field Definition" section of the the Marketo MA config screen.
-   ** At a minimum must have a field mapped to the Marketo Email if you want data
-   to be captured. **
+   **At a minimum must have a field mapped to the Marketo Email if you want data to be captured.**
 
 5. Save the form
