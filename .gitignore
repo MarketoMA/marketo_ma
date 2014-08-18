@@ -1,1 +1,4 @@
-/TEST.txt
+tests/bin/
+tests/composer.lock
+tests/vendor/
+tests/behat.yml

@@ -1,0 +1,35 @@
+default:
+  context:
+    class: FeatureContext
+    parameters:
+      marketo_default_settings:
+        marketo_ma_logging: 0
+        marketo_ma_munchkin_account_id: foo
+        marketo_ma_munchkin_api_private_key: bar
+        marketo_ma_munchkin_javascript_library: //munchkin.marketo.net/munchkin.js
+        marketo_ma_munchkin_lead_source: ''
+        marketo_ma_munchkin_partition: ''
+        marketo_ma_pages: "admin\r\nadmin/*\r\nbatch\r\nnode/add*\r\nnode/*/*\r\nuser/*/*"
+        marketo_ma_roles:
+          1: 0
+          2: 0
+          3: 0
+        marketo_ma_soap_encryption_key: ''
+        marketo_ma_soap_endpoint: ''
+        marketo_ma_soap_proxy_host: ''
+        marketo_ma_soap_proxy_login: ''
+        marketo_ma_soap_proxy_password: ''
+        marketo_ma_soap_proxy_port: ''
+        marketo_ma_soap_user_id: ''
+        marketo_ma_tracking_method: munchkin
+        marketo_ma_user_fieldmap:
+          field_first_name: none
+          field_last_name: none
+        marketo_ma_user_triggers:
+          login: login
+          insert: insert
+          update: update
+        marketo_ma_visibility_pages: '0'
+        marketo_ma_visibility_roles: '1'
+        marketo_ma_webform_fields: "FirstName|First Name\r\nLastName|Last Name\r\nEmail|Email Address"
+        marketo_ma_webform_fields_soap: 'Retrieve from Marketo'
