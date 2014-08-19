@@ -108,7 +108,7 @@ function marketo_ma_webform_webform_submission_insert($node, $submission) {
         if (isset($submission->data[$cid]['value'][0])) {
           $data[$key] = $submission->data[$cid]['value'][0];
         }
-        else if (isset($submission->data[$cid][0])) {
+        elseif (isset($submission->data[$cid][0])) {
           $data[$key] = $submission->data[$cid][0];
         }
         else {

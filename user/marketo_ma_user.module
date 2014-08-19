@@ -89,7 +89,7 @@ function marketo_ma_user_form_marketo_ma_admin_settings_form_alter(&$form, &$for
     '#options' => array(
       'login' => t('User login'),
       'insert' => t('User registration / creation'),
-      'update' => t('User update')
+      'update' => t('User update'),
     ),
   );
   $form['marketo_ma_tabs']['marketo_ma_user']['marketo_ma_user_fieldmap'] = array(
@@ -108,10 +108,10 @@ function marketo_ma_user_form_marketo_ma_admin_settings_form_alter(&$form, &$for
 
   foreach ($user_fields as $key => $value) {
     $form['marketo_ma_tabs']['marketo_ma_user']['marketo_ma_user_fieldmap'][$key] = array(
-      '#title' => $value['label'] . ' (' . $value['field_name'] . ')',
+      '#title' => filter_xss($value['label'] . ' (' . $value['field_name'] . ')'),
       '#title_display' => 'invisible',
       '#type' => 'select',
-      '#options' => $options
+      '#options' => $options,
     );
     if (array_key_exists($key, $fieldmap)) {
       if (!array_key_exists($fieldmap[$key], $options)) {
@@ -177,6 +177,7 @@ function marketo_ma_user_field_delete_field($field) {
  * Returns Drupal user fields which have been mapped to Marketo fields.
  * 
  * @param $account
+ * 
  * @return array
  */
 function _marketo_ma_user_get_mapped_fields($account) {
@@ -194,6 +195,7 @@ function _marketo_ma_user_get_mapped_fields($account) {
  * Returns a formatted table of lead information.
  * 
  * @param $account
+ * 
  * @return string
  */
 function _marketo_ma_user_display_lead($account) {
@@ -201,7 +203,7 @@ function _marketo_ma_user_display_lead($account) {
   return theme('marketo_ma_user_lead', array(
     'lead' => $leads,
     'email' => $account->mail,
-    'fields' => _marketo_ma_get_field_options(FALSE, FALSE)
+    'fields' => _marketo_ma_get_field_options(FALSE, FALSE),
   ));
 }
 
@@ -209,6 +211,7 @@ function _marketo_ma_user_display_lead($account) {
  * Returns a formatted table of lead activity.
  * 
  * @param $account
+ * 
  * @return string
  */
 function _marketo_ma_user_display_lead_activity($account) {
@@ -323,11 +326,13 @@ function theme_marketo_ma_user_lead($vars) {
   );
 
   foreach ($leads as $lead) {
-    $table['rows'][] = array(array(
+    $table['rows'][] = array(
+      array(
         'data' => 'ID ' . $lead->Id,
         'colspan' => 2,
         'header' => TRUE,
-    ));
+      ),
+    );
     foreach ($lead->attributes as $key => $value) {
       $label = (array_key_exists($key, $fields)) ? $fields[$key] : $key;
       $table['rows'][] = array($label, $value);

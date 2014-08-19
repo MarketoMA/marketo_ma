@@ -6,7 +6,7 @@
  */
 
 /**
- * Enable user activity triggers
+ * Enable user activity triggers.
  */
 function marketo_ma_user_update_7100(&$sandbox) {
   variable_set('marketo_ma_user_triggers', array(

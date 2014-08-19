@@ -31,7 +31,7 @@ function marketo_ma_webform_settings_form($form, &$form_state, $node) {
   $fieldmap = _marketo_ma_webform_get_mapped_fields($node->nid);
   foreach ($node->webform['components'] as $cid => $component) {
     $form['components'][$cid] = array(
-      '#title' => $component['name'] . ' (' . $component['form_key'] . ')',
+      '#title' => filter_xss($component['name'] . ' (' . $component['form_key'] . ')'),
       '#title_display' => 'invisible',
       '#type' => 'select',
       '#options' => $options,

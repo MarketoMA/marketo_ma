@@ -44,6 +44,11 @@ function marketo_ma_drush_command() {
   return $items;
 }
 
+/**
+ * Callback function for mma-get-lead.
+ *
+ * @param string $key
+ */
 function drush_marketo_ma_mma_get_lead($key = NULL) {
   if (is_null($key)) {
     drush_log('No key provided', 'error');
@@ -138,6 +143,9 @@ function drush_marketo_ma_mma_get_lead($key = NULL) {
   return;
 }
 
+/**
+ * Callback function for mma-fields.
+ */
 function drush_marketo_ma_mma_fields() {
   $rows[] = array(dt('Name'), dt('Label'));
   $fields = _marketo_ma_get_fields();
@@ -147,6 +155,9 @@ function drush_marketo_ma_mma_fields() {
   drush_print_table($rows, TRUE);
 }
 
+/**
+ * Callback function for mma-verify.
+ */
 function drush_marketo_ma_mma_verify() {
   $fields = _marketo_ma_get_fields();
   if (count($fields) > 0) {
@@ -180,9 +191,9 @@ function _marketo_ma_get_uid($search) {
 
 function _marketo_ma_search_marketo_lead($key, $activity = FALSE) {
   $result = array();
-  $marketo = marketo_ma_get_lead($key); // can return multiple
+  $marketo = marketo_ma_get_lead($key); // Can return multiple.
   foreach ($marketo as $lead) {
-    $account = user_load_by_mail($lead->Email); // not sure about multiple
+    $account = user_load_by_mail($lead->Email); // Not sure about multiple.
     $result[$lead->Id] = array(
       'marketo' => $lead,
       'drupal' => $account,
@@ -197,7 +208,7 @@ function _marketo_ma_search_marketo_lead($key, $activity = FALSE) {
 
 function _marketo_ma_search_drupal_lead($key, $activity = FALSE) {
   $result = array();
-  $uids = _marketo_ma_get_uid($key); // can return multiple
+  $uids = _marketo_ma_get_uid($key); // Can return multiple.
   foreach ($uids as $uid => $account) {
     $marketo = marketo_ma_get_lead($account->mail);
     foreach ($marketo as $lead) {

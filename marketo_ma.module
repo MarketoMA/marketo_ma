@@ -4,6 +4,7 @@
  * @file
  * Module functions for Marketo MA.
  */
+
 define('MARKETO_MA_PAGES', "admin\nadmin/*\nbatch\nnode/add*\nnode/*/*\nuser/*/*");
 define('MARKETO_MA_TRACKING_METHOD_DEFAULT', 'munchkin');
 define('MARKETO_MA_WEBFORM_FIELD_DEFAULTS', "FirstName|First Name\nLastName|Last Name\nEmail|Email Address");
@@ -556,7 +557,7 @@ function _marketo_ma_visibility_roles($account) {
       foreach (array_keys($account->roles) as $rid) {
         // Is the current user a member of one of these roles?
         if (isset($roles[$rid]) && $rid == $roles[$rid]) {
-          // Current user is a member of a role that should be tracked/excluded from tracking.
+          // Current user is a member of a role that should be (in|ex)cluded.
           $enabled = !$visibility;
           break;
         }
@@ -565,7 +566,7 @@ function _marketo_ma_visibility_roles($account) {
     else {
       /*
        * No roles have been selected therefore we will return the visibility
-       * setting itself. "Only selected" will be FALSE and "All except" will be TRUE
+       * setting itself. "Only selected" will be FALSE and "All except" TRUE
        */
       $enabled = $visibility;
     }
