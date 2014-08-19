@@ -49,4 +49,4 @@ before_script:
 
 script:
   - cd $MODULE_DIR/tests
-  - bin/behat --tags="~travis&&~live&&~permissions&&~uninstall"
+  - bin/behat --tags="~travis&&~live&&~permissions"

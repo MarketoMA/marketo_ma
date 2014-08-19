@@ -30,6 +30,7 @@ Feature: Module setup
     | marketo_ma |
     | marketo_ma_user |
     | marketo_ma_webform |
+    And I run drush "vset" "marketo_ma_bogus 'bogus'"
 
     When I am logged in as a user with the "administrator" role
     And I go to "/admin/config/search/marketo_ma"
@@ -43,5 +44,5 @@ Feature: Module setup
     | marketo_ma_user |
     | marketo_ma_webform |
     | marketo_ma |
-    And I run drush "vget" "marketo_ma"
-    Then drush output should contain "No matching variable found."
+    And I run drush "vget" "marketo_ma --format=json"
+    Then drush output should contain "{\"marketo_ma_bogus\":\"bogus\"}"
