@@ -108,7 +108,7 @@ function marketo_ma_user_form_marketo_ma_admin_settings_form_alter(&$form, &$for
 
   foreach ($user_fields as $key => $value) {
     $form['marketo_ma_tabs']['marketo_ma_user']['marketo_ma_user_fieldmap'][$key] = array(
-      '#title' => filter_xss($value['label'] . ' (' . $value['field_name'] . ')'),
+      '#title' => check_plain($value['label'] . ' (' . $value['field_name'] . ')'),
       '#title_display' => 'invisible',
       '#type' => 'select',
       '#options' => $options,

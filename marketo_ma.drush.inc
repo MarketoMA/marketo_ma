@@ -94,13 +94,13 @@ function drush_marketo_ma_mma_get_lead($key = NULL) {
     default:
       drush_log('Valid scope options are: all, drupal, marketo', 'error');
       return;
-      break;
   }
 
   switch (count($finds)) {
     case 0:
       drush_log("No leads found for $key", 'warning');
       break;
+
     case 1:
       drush_log("Lead found for $key: [" . implode(",", array_keys($finds)) . "]", 'success');
       break;

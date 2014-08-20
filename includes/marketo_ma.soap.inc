@@ -249,7 +249,7 @@ class MarketoClient implements MarketoInterface {
    * {@inheritdoc}
    */
   public function syncLead($lead, $key = NULL, $cookie = NULL, $options = array()) {
-    // Merge default options
+    // Merge default options.
     $options += array(
       'returnLead' => FALSE,
       'extendedResponse' => FALSE,
