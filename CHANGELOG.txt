@@ -1,11 +1,15 @@
 Marketo MA Changelog
 ---------------------
 
-Marketo MA 7.x-1.4, 2014-08-20
+Marketo MA 7.x-1.5, 2014-08-20
 ------------------------------
 - #2293425: SOAP request/response XML now included in log on syncLead errors
 - Cleanup additional variables on uninstall
 - Addition of automated testing with Behat and Travis
+
+Marketo MA 7.x-1.4, 2014-08-20
+------------------------------
+- No change. Bad version.
 
 Marketo MA 7.x-1.3, 2014-04-21
 ------------------------------
