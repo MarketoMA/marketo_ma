@@ -152,7 +152,7 @@ function marketo_ma_admin_settings_form($form, &$form_state) {
     $data = _marketo_ma_get_fields();
     $mwf_default = "";
     foreach ($data as $key => $value) {
-      $mwf_default .= $key . "|" . $value . "\n";
+      $mwf_default .= $key . "|" . $value['displayName'] . "\n";
     }
     $form['marketo_ma_tabs']['marketo_ma_fields']['marketo_ma_webform_fields']['#value'] = $mwf_default;
   }

@@ -27,7 +27,7 @@ Feature: Marketo MA Drush features
 
   @drush @api @live
   Scenario: Execute drush commands
-    Given Marketo MA is configured using settings from "marketo_settings"
+    Given I populate the Marketo MA config using "marketo_settings"
     
     When I run drush "mma-verify"
     Then drush output should contain "Successfully connected to Marketo"

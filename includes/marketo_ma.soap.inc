@@ -288,7 +288,7 @@ class MarketoClient implements MarketoInterface {
     $fields = array();
 
     foreach ($data->result->metadata->fieldList->field as $field) {
-      $fields[$field->name] = $field->displayName;
+      $fields[$field->name] = (array) $field;
     }
 
     return $fields;

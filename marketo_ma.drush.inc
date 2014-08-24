@@ -36,6 +36,28 @@ function marketo_ma_drush_command() {
   $items['mma-fields'] = array(
     'description' => dt('Get Marketo fields.'),
     'aliases' => array('mmaf'),
+    'outputformat' => array(
+      'default' => 'table',
+      'pipe-format' => 'list',
+      'field-labels' => array(
+        'name' => 'Name',
+        'description' => 'Description',
+        'displayName' => 'Label',
+        'sourceObject' => 'sourceObject',
+        'dataType' => 'dataType',
+        'size' => 'size',
+        'isReadonly' => 'isReadonly',
+        'isUpdateBlocked' => 'isUpdateBlocked',
+        'isName' => 'isName',
+        'isPrimaryKey' => 'isPrimaryKey',
+        'isCustom' => 'isCustom',
+        'isDynamic' => 'isDynamic',
+        'dynamicFieldRef' => 'dynamicFieldRef',
+        'updatedAt' => 'updatedAt',
+      ),
+      'fields-default' => array('name', 'displayName'),
+      'output-data-type' => 'format-table',
+    ),
   );
   $items['mma-verify'] = array(
     'description' => dt('Verify this site can connect to Marketo.'),
@@ -74,7 +96,6 @@ function drush_marketo_ma_mma_get_lead($key = NULL) {
 
   $info = (bool) drush_get_option('info', TRUE);
   $activity = (bool) drush_get_option('activity', FALSE);
-
 
   $finds = array();
 
@@ -147,12 +168,11 @@ function drush_marketo_ma_mma_get_lead($key = NULL) {
  * Callback function for mma-fields.
  */
 function drush_marketo_ma_mma_fields() {
-  $rows[] = array(dt('Name'), dt('Label'));
   $fields = _marketo_ma_get_fields();
   foreach ($fields as $key => $value) {
-    $rows[] = array($key, $value);
+    $rows[$value['name']] = $value;
   }
-  drush_print_table($rows, TRUE);
+  return $rows;
 }
 
 /**
