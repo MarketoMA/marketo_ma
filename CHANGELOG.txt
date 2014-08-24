@@ -1,6 +1,11 @@
 Marketo MA Changelog
 ---------------------
 
+Marketo MA 7.x-1.x, 2014-08-24
+------------------------------
+- drush mma-fields now requires drush 6 or higher and allows display of
+  additional field attributes. See 'drush help mma-fields'.
+
 Marketo MA 7.x-1.5, 2014-08-20
 ------------------------------
 - #2293425: SOAP request/response XML now included in log on syncLead errors
