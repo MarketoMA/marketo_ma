@@ -85,12 +85,26 @@ function marketo_ma_add_lead($email, $data = array(), $merge = FALSE) {
   }
   $marketo_ma_data[$email]['email'] = $email;
 
+  // Check to see if there is a default lead source we should apply.
+  $source = variable_get('marketo_ma_munchkin_lead_source');
+  if (!array_key_exists('LeadSource', $marketo_ma_data[$email]['data']) && $source !== '') {
+    $marketo_ma_data[$email]['data']['LeadSource'] = $source;
+  }
+
   // If the user executing this method is anonymous or is actually the lead
   // being modified we will pass along the _mkto_trk cookie value so any
   // activity associated with the cookie gets merged to the lead.
   global $user;
   if (($user->uid == 0 || $user->mail == $email) && isset($_COOKIE['_mkto_trk'])) {
     $marketo_ma_data[$email]['marketoCookie'] = $_COOKIE['_mkto_trk'];
+  }
+
+  // Provide modules an opportunity to modify data.
+  // hook_marketo_ma_lead_alter(&$data)
+  drupal_alter('marketo_ma_lead', $marketo_ma_data[$email]);
+  foreach ($marketo_ma_data[$email]['data'] as $key => $value) {
+    // hook_marketo_ma_lead_firstname_alter(&$data)
+    drupal_alter('marketo_ma_lead_' . $key, $marketo_ma_data[$email]['data'][$key]);
   }
 
   $_SESSION['marketo_ma_data'] = $marketo_ma_data;
@@ -172,13 +186,6 @@ function _marketo_ma_output_tracking_code() {
  *   - marketoCookie: NULL or the value of $_COOKIE['_mkto_trk']
  */
 function _marketo_ma_associate_lead($lead) {
-
-  // Check to see if there is a default lead source we should apply.
-  $source = variable_get('marketo_ma_munchkin_lead_source');
-  if (!array_key_exists('LeadSource', $lead['data']) && $source !== '') {
-    $lead['data']['LeadSource'] = $source;
-  }
-
   $track = variable_get('marketo_ma_tracking_method');
   switch ($track) {
     case 'munchkin':
