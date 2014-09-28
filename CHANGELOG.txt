@@ -6,6 +6,9 @@ Marketo MA 7.x-1.x, 2014-08-24
 - drush mma-fields now requires drush 6 or higher and allows display of
   additional field attributes. See 'drush help mma-fields'.
 - #2335897: Hooks added to provide modules an opportunity to modify lead data.
+- #2190655: Introduced Marketo Forms 2.0 tracking method for Webforms. Webforms
+  can now override the default tracking method and when using Forms 2.0 can
+  specify the Marketo form which should be targeted.
 
 Marketo MA 7.x-1.5, 2014-08-20
 ------------------------------

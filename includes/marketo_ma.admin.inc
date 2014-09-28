@@ -27,6 +27,13 @@ function marketo_ma_admin_settings_form($form, &$form_state) {
     '#required' => TRUE,
     '#description' => t('Typically this does not need to be changed and should use the default value //munchkin.marketo.net/munchkin.js'),
   );
+  $form['marketo_ma_basic']['marketo_ma_instance_host'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Marketo Instance Host'),
+    '#default_value' => variable_get('marketo_ma_instance_host'),
+    '#required' => FALSE,
+    '#description' => t('Host for your Marketo instance. Example: app-sjqe.marketo.com'),
+  );
   $form['marketo_ma_basic']['marketo_ma_munchkin_lead_source'] = array(
     '#type' => 'textfield',
     '#title' => t('Default Lead Source'),

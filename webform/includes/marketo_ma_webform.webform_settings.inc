@@ -10,13 +10,60 @@
  */
 function marketo_ma_webform_settings_form($form, &$form_state, $node) {
   $form['#node'] = $node;
-  $is_active = _marketo_ma_webform_is_active($node->nid);
+  $is_active = 0;
+  $tracking_method = 'default';
+
+  $webform = _marketo_ma_webform_details($node->nid);
+  if ($webform) {
+    $is_active = $webform->is_active;
+    if (isset($webform->options['tracking_method'])) {
+      $tracking_method = $webform->options['tracking_method'];
+    }
+  }
 
   $form['marketo_ma_webform_is_active'] = array(
     '#title' => t('Capture Data'),
     '#type' => 'checkbox',
     '#description' => t('If checked, captured form information will be sent to Marketo'),
     '#default_value' => $is_active,
+  );
+  $form['marketo_ma_advanced'] = array(
+    '#title' => t('Advanced Options'),
+    '#type' => 'fieldset',
+    '#collapsible' => TRUE,
+    '#collapsed' => ($tracking_method == 'default'),
+  );
+
+  $methods = array('default' => t('Default (As defined in Marketo MA config)'));
+  if (_marketo_ma_munchkin_is_configured()) {
+    $methods['munchkin'] = t('Munchkin');
+  }
+  if (_marketo_ma_forms2_is_configured()) {
+    $methods['forms2'] = t('Forms 2.0');
+  }
+  if (_marketo_ma_soap_is_configured()) {
+    $methods['soap'] = t('SOAP API (Synchronous)');
+    $methods['soap_async'] = t('SOAP API (Asynchronous)');
+  }
+  $form['marketo_ma_advanced']['marketo_ma_webform_capture_method'] = array(
+    '#title' => t('Capture Method'),
+    '#type' => 'select',
+    '#description' => t('Use an alternate tracking method for this specific form.'),
+    '#default_value' => $tracking_method,
+    '#options' => $methods,
+  );
+
+  $formid = isset($webform->options['formid']) ? $webform->options['formid'] : '';
+  $form['marketo_ma_advanced']['marketo_ma_forms2_formid'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Form ID'),
+    '#description' => t('Required when capture method is "Forms 2.0". Form ID is a number and can be found in the Marketo form embed code.'),
+    '#default_value' => $formid,
+    '#states' => array(
+      'visible' => array(
+        ':input[name="marketo_ma_webform_capture_method"]' => array('value' => 'forms2'),
+      ),
+    ),
   );
 
   $form['components'] = array(
@@ -50,10 +97,24 @@ function marketo_ma_webform_settings_form($form, &$form_state, $node) {
   $form['actions']['submit'] = array(
     '#type' => 'submit',
     '#value' => t('Save'),
+    '#validate' => array('_marketo_ma_webform_validate_webform'),
     '#submit' => array('_marketo_ma_webform_save_webform'),
   );
 
   return $form;
+}
+
+/**
+ * Validation function for form.
+ */
+function _marketo_ma_webform_validate_webform($form, &$form_state) {
+  $values = $form_state['values'];
+  if (
+    $values['marketo_ma_webform_capture_method'] == 'forms2' &&
+    ($values['marketo_ma_forms2_formid'] == '' || !is_numeric($values['marketo_ma_forms2_formid']))
+  ) {
+    form_set_error('marketo_ma_forms2_formid', t('Form ID must be set to a number when using the Forms 2.0 capture method.'));
+  }
 }
 
 /**
@@ -65,10 +126,20 @@ function _marketo_ma_webform_save_webform($form, &$form_state) {
 
   $nid = $node->nid;
 
+  $options = array();
+  if ($values['marketo_ma_webform_capture_method'] != 'default') {
+    $options['tracking_method'] = $values['marketo_ma_webform_capture_method'];
+
+    if ($values['marketo_ma_webform_capture_method'] == 'forms2') {
+      $options['formid'] = check_plain(trim($values['marketo_ma_forms2_formid']));
+    }
+  }
+
   db_merge(MARKETO_MA_SCHEMA_WEBFORM)
     ->key(array('nid' => $nid))
     ->fields(array(
       MARKETO_MA_WEBFORM_FIELD_ACTIVE => $values['marketo_ma_webform_is_active'],
+      MARKETO_MA_WEBFORM_OPTIONS => serialize($options),
     ))
     ->execute();
 

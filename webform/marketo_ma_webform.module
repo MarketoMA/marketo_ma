@@ -98,7 +98,8 @@ function marketo_ma_webform_webform_component_delete($component) {
  * TODO: refactor this growing function
  */
 function marketo_ma_webform_webform_submission_insert($node, $submission) {
-  if (_marketo_ma_webform_is_active($node->nid)) {
+  $webform = _marketo_ma_webform_details($node->nid);
+  if ($webform && $webform->is_active) {
 
     $data = array();
     $fieldmap = _marketo_ma_webform_get_mapped_fields($node->nid);
@@ -130,7 +131,7 @@ function marketo_ma_webform_webform_submission_insert($node, $submission) {
     }
 
     if (array_key_exists('Email', $data)) {
-      marketo_ma_add_lead($data['Email'], $data);
+      marketo_ma_add_lead($data['Email'], $data, FALSE, $webform->options);
     }
   }
 }
@@ -174,6 +175,30 @@ function _marketo_ma_webform_is_active($nid) {
     ->execute()
     ->fetchAll();
   return (count($result) ? TRUE : FALSE);
+}
+
+/**
+ * Retrieves tracking settings for this webform.
+ *
+ * @param int $nid
+ *   Node ID
+ * 
+ * @return array
+ *   Array of details otherwise NULL if webform is not configured
+ */
+function _marketo_ma_webform_details($nid) {
+  $result = db_select(MARKETO_MA_SCHEMA_WEBFORM)
+    ->fields(MARKETO_MA_SCHEMA_WEBFORM)
+    ->condition('nid', $nid)
+    ->execute()
+    ->fetchObject();
+  if ($result) {
+    $result->options = unserialize($result->options);
+    return $result;
+  }
+  else {
+    return NULL;
+  }
 }
 
 /**

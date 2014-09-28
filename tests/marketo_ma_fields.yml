@@ -3,6 +3,7 @@ default:
     class: FeatureContext
     parameters:
       marketo_default_settings:
+        marketo_ma_instance_host: app-sjqe.marketo.com
         marketo_ma_logging: 0
         marketo_ma_munchkin_account_id: foo
         marketo_ma_munchkin_api_private_key: bar

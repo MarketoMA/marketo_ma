@@ -11,7 +11,7 @@ define('MARKETO_MA_WEBFORM_FIELD_DEFAULTS', "FirstName|First Name\nLastName|Last
 
 define('MARKETO_MA_SCHEMA_WEBFORM', 'marketo_ma_webform');
 define('MARKETO_MA_WEBFORM_FIELD_ACTIVE', 'is_active');
-define('MARKETO_MA_WEBFORM_FIELD_LEAD_SOURCE', 'lead_source');
+define('MARKETO_MA_WEBFORM_OPTIONS', 'options');
 
 define('MARKETO_MA_SCHEMA_WEBFORM_COMPONENT', 'marketo_ma_webform_component');
 define('MARKETO_MA_WEBFORM_COMPONENT_KEY', 'marketo_ma_key');
@@ -67,11 +67,17 @@ function marketo_ma_cron_queue_info() {
  * @param bool $merge
  *   If TRUE, $data will be merged if $email already exists else $data will
  *   be replaced
+ * @param array $options
+ *   Array of additional options to modify the behavior of lead synchronization
  * 
  * @return bool
  *   Returns TRUE upon completion
  */
-function marketo_ma_add_lead($email, $data = array(), $merge = FALSE) {
+function marketo_ma_add_lead($email, $data = array(), $merge = FALSE, $options = array()) {
+  $options += array(
+    'tracking_method' => 'default',
+  );
+
   $marketo_ma_data = array();
   if (isset($_SESSION['marketo_ma_data'])) {
     $marketo_ma_data = $_SESSION['marketo_ma_data'];
@@ -84,6 +90,7 @@ function marketo_ma_add_lead($email, $data = array(), $merge = FALSE) {
     $marketo_ma_data[$email]['data'] = $data;
   }
   $marketo_ma_data[$email]['email'] = $email;
+  $marketo_ma_data[$email]['options'] = $options;
 
   // Check to see if there is a default lead source we should apply.
   $source = variable_get('marketo_ma_munchkin_lead_source');
@@ -184,12 +191,24 @@ function _marketo_ma_output_tracking_code() {
  *     - FirstName
  *     - LastName
  *   - marketoCookie: NULL or the value of $_COOKIE['_mkto_trk']
+ *   - options: Array of options to modify the behavior of lead synchronization
+ *     - tracking_method: 'default' or a string indicating which method to use
+ *     - formid: Required when tracking_method is 'forms2'
  */
 function _marketo_ma_associate_lead($lead) {
   $track = variable_get('marketo_ma_tracking_method');
+  if (isset($lead['options']['tracking_method']) && $lead['options']['tracking_method'] != 'default') {
+    $track = $lead['options']['tracking_method'];
+  }
   switch ($track) {
     case 'munchkin':
       _marketo_ma_associate_lead_munchkin($lead);
+      break;
+
+    case 'forms2':
+      if (isset($lead['options']['formid'])) {
+        _marketo_ma_associate_lead_forms2($lead, $lead['options']['formid']);
+      }
       break;
 
     case 'soap_async':
@@ -230,6 +249,49 @@ function _marketo_ma_associate_lead_munchkin($lead) {
       'hash' => $hash,
     );
     drupal_add_js(array('marketo_ma' => array('actions' => array($action))), 'setting');
+  }
+}
+
+/**
+ * Captures lead data using the Forms 2.0 endpoint.
+ * 
+ * Reference: http://developers.marketo.com/documentation/websites/forms-2-0/
+ *
+ * @param array $lead
+ *   Lead data
+ */
+function _marketo_ma_associate_lead_forms2($lead, $formid, $scheme = 'https', $path = '/index.php/leadCapture/save2') {
+  if (_marketo_ma_forms2_is_configured()) {
+    $url = $scheme . '://' . variable_get('marketo_ma_instance_host') . $path;
+
+    $forms2 = array(
+      'formid' => $formid,
+      'formVid' => $formid,
+      'munchkinId' => variable_get('marketo_ma_munchkin_account_id'),
+    );
+    $options = array(
+      'method' => 'POST',
+      'headers' => array('Content-Type' => 'application/x-www-form-urlencoded'),
+      'data' => drupal_http_build_query(array_merge($lead['data'], $forms2)),
+    );
+
+    $response = drupal_http_request($url, $options);
+
+    if ($response->code == 200) {
+      if (variable_get('marketo_ma_logging', FALSE)) {
+        watchdog('marketo', 'Associating lead !email [forms2] <pre>@data</pre>', array(
+          '!email' => $lead['email'],
+          '@data' => print_r($lead['data'], TRUE)), WATCHDOG_INFO);
+      }
+    }
+    else {
+      watchdog('marketo', 'Unable to sync lead !email [forms2] <pre>@error</pre> Request: <pre>@request</pre> Response: <pre>@response</pre>', array(
+          '!email' => $lead['email'],
+          '@error' => $response->error,
+          '@request' => $response->request,
+          '@response' => $response->code . ' ' . $response->status_message,
+          ), WATCHDOG_ERROR);
+    }
   }
 }
 
@@ -469,6 +531,30 @@ function _marketo_ma_munchkin_is_configured() {
       variable_get('marketo_ma_munchkin_account_id', FALSE) &&
       variable_get('marketo_ma_munchkin_api_private_key', FALSE) &&
       variable_get('marketo_ma_munchkin_javascript_library', FALSE)
+    ) {
+      $configured = TRUE;
+    }
+    else {
+      $configured = FALSE;
+    }
+  }
+  return $configured;
+}
+
+/**
+ * Tests to see if forms2 is configured.
+ *
+ * @staticvar bool $configured
+ * @return bool
+ *   Returns TRUE if forms2 settings are configured
+ */
+function _marketo_ma_forms2_is_configured() {
+  static $configured;
+
+  if (!isset($configured)) {
+    if (
+      variable_get('marketo_ma_munchkin_account_id', FALSE) &&
+      variable_get('marketo_ma_instance_host', FALSE)
     ) {
       $configured = TRUE;
     }

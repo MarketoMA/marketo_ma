@@ -9,6 +9,7 @@
  * Implements hook_uninstall().
  */
 function marketo_ma_uninstall() {
+  variable_del('marketo_ma_instance_host');
   variable_del('marketo_ma_logging');
   variable_del('marketo_ma_munchkin_account_id');
   variable_del('marketo_ma_munchkin_api_private_key');
