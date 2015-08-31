@@ -120,25 +120,6 @@ class FeatureContext extends RawDrupalContext implements SnippetAcceptingContext
   }
 
   /**
-   * @Given I visit path :path belonging to a :type node with the title :title
-   */
-  public function iVisitPathBelongingToANodeWithTheTitle($path, $type, $title) {
-    // @todo make this easily extensible.
-    $node = (object) array(
-        'title' => $title,
-        'type' => $type,
-        'body' => $this->getDrupal()->random->string(255),
-    );
-    $this->dispatcher->dispatch('beforeNodeCreate', new EntityEvent($this, $node));
-    $saved = $this->getDriver()->createNode($node);
-    $this->dispatcher->dispatch('afterNodeCreate', new EntityEvent($this, $saved));
-    $this->nodes[] = $saved;
-
-    // Set internal page on the new node.
-    $this->getSession()->visit($this->locatePath('/node/' . $saved->nid . $path));
-  }
-
-  /**
    * @Then Munchkin tracking should be enabled
    */
   public function assertMunchkinTrackingEnabled() {

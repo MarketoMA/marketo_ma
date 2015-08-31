@@ -12,9 +12,6 @@ Feature: Browser tests
     When I am viewing a "Article" with the title "Foo"
     Then Munchkin tracking should be enabled
     
-    When I follow "Edit"
-    Then Munchkin tracking should be disabled
-    
     When I visit "/admin"
     Then Munchkin tracking should be disabled
     
@@ -37,9 +34,6 @@ Feature: Browser tests
     
     When I am viewing a "Article" with the title "Foo"
     Then Munchkin tracking should be disabled
-    
-    When I follow "Edit"
-    Then Munchkin tracking should be enabled
     
     When I visit "/admin"
     Then Munchkin tracking should be enabled
