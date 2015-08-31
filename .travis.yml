@@ -38,7 +38,7 @@ install:
   - ln -s $TRAVIS_BUILD_DIR $MODULE_DIR
   - cd $TRAVIS_BUILD_DIR/..
   - wget http://selenium-release.storage.googleapis.com/2.47/selenium-server-standalone-2.47.1.jar
-  - java -jar selenium-server-standalone-2.47.1.jar > /dev/null &
+  - java -jar selenium-server-standalone-2.47.1.jar > /dev/null 2>&1 &
   
 before_script:
   - cd $MODULE_DIR/tests

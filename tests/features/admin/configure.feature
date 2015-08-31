@@ -37,7 +37,7 @@ Feature: Module configuration
     When I go to "/admin/config/search/marketo_ma"
     And I fill in "marketo_ma_munchkin_account_id" with "bogus"
     And I fill in "marketo_ma_munchkin_api_private_key" with "bogus"
-    And I select the radio button "SOAP API (Synchronous)"
+    And I select the radio button "SOAP API (Synchronous)" with the id "edit-marketo-ma-tracking-method-soap"
     When I press "Save configuration"
     Then I should see "Unable to validate SOAP API settings."
   
