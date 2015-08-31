@@ -95,12 +95,13 @@ function marketo_ma_user_form_marketo_ma_admin_settings_form_alter(&$form, &$for
   $form['marketo_ma_tabs']['marketo_ma_user']['marketo_ma_user_fieldmap'] = array(
     '#title' => t('User field mapping'),
     '#type' => 'fieldset',
-    '#description' => t('When a lead update is triggered, the fields mapped below will be included in the data sent to Marketo. Select the associated Marketo field for each User field displayed.'),
+    '#description' => t('When a lead update is triggered, the fields mapped below will be included in the data sent to Marketo. Select the associated Marketo field for each User field displayed.<br />NOTE: Marketo Email Address is automatically set to [account:mail] and cannot be overridden with these settings.'),
     '#tree' => TRUE,
     '#theme' => 'marketo_ma_user_fieldmap',
   );
 
-  $user_fields = field_info_instances('user', 'user');
+  $user_fields = _marketo_ma_user_get_user_fields();
+  $user_fields += field_info_instances('user', 'user');
   $fieldmap = variable_get('marketo_ma_user_fieldmap', array());
   $default_options = array(MARKETO_MA_WEBFORM_COMPONENT_NONE => '- None -');
   $marketo_options = _marketo_ma_get_field_options();
@@ -174,6 +175,23 @@ function marketo_ma_user_field_delete_field($field) {
 }
 
 /**
+ * Returns core user fields which can be mapped to Marketo fields.
+ *
+ * @param int $uid
+ * @return array
+ */
+function _marketo_ma_user_get_user_fields($uid = 0) {
+  $data = array();
+  $account = user_load($uid);
+  foreach ($account as $key => $value) {
+    if (!is_array($value) && !is_object($value)) {
+      $data[$key] = ["field_name" => $key, "label" => "[account:" . $key . "]"];
+    }
+  }
+  return $data;
+}
+
+/**
  * Returns Drupal user fields which have been mapped to Marketo fields.
  * 
  * @param $account
@@ -184,8 +202,18 @@ function _marketo_ma_user_get_mapped_fields($account) {
   $data = array();
   $fieldmap = variable_get('marketo_ma_user_fieldmap', array());
   foreach ($fieldmap as $key => $value) {
-    if ($value != 'none' && isset($account->{$key}['und'][0]['value'])) {
-      $data[$value] = $account->{$key}['und'][0]['value'];
+    if ($value != 'none') {
+      if (!is_object($account->{$key}) && !is_array($account->{$key})) {
+        // These are the core user fields: uid, name, pass, mail, etc..
+        $data[$value] = $account->{$key};
+      }
+      elseif (isset($account->{$key}['und'][0]['value'])) {
+        // These are extended account fields which have been defined.
+        $data[$value] = $account->{$key}['und'][0]['value'];
+      }
+      else {
+        watchdog('marketo', 'An unhandled field mapping exists for <pre>@field</pre>', array('@field' => $key), WATCHDOG_WARNING);
+      }
     }
   }
   return $data;
