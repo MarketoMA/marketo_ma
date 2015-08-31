@@ -12,7 +12,7 @@ Feature: Browser tests
     When I am viewing a "Article" with the title "Foo"
     Then Munchkin tracking should be enabled
     
-    When I click "Edit"
+    When I follow "Edit"
     Then Munchkin tracking should be disabled
     
     When I visit "/admin"
@@ -29,7 +29,7 @@ Feature: Browser tests
     
   @page_visibility
   Scenario: Page visibilty when using "Only the pages listed"
-    Given Marketo MA is configured using settings from "marketo_except_page_vis"
+    Given Marketo MA is configured using settings from "marketo_page_vis_only"
     And I am logged in as a user with the "administrator" role
     
     When I am on the homepage
@@ -38,7 +38,7 @@ Feature: Browser tests
     When I am viewing a "Article" with the title "Foo"
     Then Munchkin tracking should be disabled
     
-    When I click "Edit"
+    When I follow "Edit"
     Then Munchkin tracking should be enabled
     
     When I visit "/admin"
