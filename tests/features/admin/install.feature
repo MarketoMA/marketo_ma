@@ -45,4 +45,4 @@ Feature: Module setup
     | marketo_ma_webform |
     | marketo_ma |
     And I run drush "vget" "marketo_ma --format=json"
-    Then drush output should contain "{\"marketo_ma_bogus\":\"bogus\"}"
+    Then drush output should contain '{"marketo_ma_bogus":"bogus"}'
