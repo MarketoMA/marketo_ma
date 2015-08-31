@@ -45,22 +45,22 @@ default:
                 marketo_ma_webform_fields: "FirstName|First Name\r\nLastName|Last Name\r\nEmail|Email Address"
                 marketo_ma_webform_fields_soap: 'Retrieve from Marketo'
 
-                marketo_except_page_vis:
-                  marketo_ma_visibility_pages: '1'
+              marketo_except_page_vis:
+                marketo_ma_visibility_pages: '1'
 
-                marketo_role_vis_auth_exclude:
-                  marketo_ma_visibility_roles: '1'
-                  marketo_ma_roles:
-                    1: 0
-                    2: '2'
-                    3: 0
+              marketo_role_vis_auth_exclude:
+                marketo_ma_visibility_roles: '1'
+                marketo_ma_roles:
+                  1: 0
+                  2: '2'
+                  3: 0
 
-                marketo_role_vis_auth_include:
-                  marketo_ma_visibility_roles: '0'
-                  marketo_ma_roles:
-                    1: 0
-                    2: '2'
-                    3: 0
+              marketo_role_vis_auth_include:
+                marketo_ma_visibility_roles: '0'
+                marketo_ma_roles:
+                  1: 0
+                  2: '2'
+                  3: 0
 
         - Drupal\DrupalExtension\Context\DrupalContext
         - Drupal\DrupalExtension\Context\MinkContext

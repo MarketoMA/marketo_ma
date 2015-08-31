@@ -9,7 +9,7 @@ Feature: Browser tests
     When I am on the homepage
     Then Munchkin tracking should be enabled
     
-    When I am viewing a "Article" node with the title "Foo"
+    When I am viewing a "Article" with the title "Foo"
     Then Munchkin tracking should be enabled
     
     When I visit path "/edit" belonging to a "Article" node with the title "Bar"
@@ -28,14 +28,14 @@ Feature: Browser tests
     Then Munchkin tracking should be disabled
     
   @page_visibility
-  Scenario: Page visibiilty when using "Only the pages listed"
+  Scenario: Page visibilty when using "Only the pages listed"
     Given Marketo MA is configured using settings from "marketo_except_page_vis"
     And I am logged in as a user with the "administrator" role
     
     When I am on the homepage
     Then Munchkin tracking should be disabled
     
-    When I am viewing a "Article" node with the title "Foo"
+    When I am viewing a "Article" with the title "Foo"
     Then Munchkin tracking should be disabled
     
     When I visit path "/edit" belonging to a "Article" node with the title "Bar"
@@ -54,7 +54,7 @@ Feature: Browser tests
     Then Munchkin tracking should be enabled
     
   @role_visibility
-  Scenario: Role visibiilty when using default "All roles except those selected"
+  Scenario: Role visibilty when using default "All roles except those selected"
     Given Marketo MA is configured using settings from "marketo_default_settings"
     
     When I am an anonymous user
