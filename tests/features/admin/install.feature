@@ -10,7 +10,7 @@ Feature: Module setup
     | marketo_ma_user |
     | marketo_ma |
 
-  @drush @install
+  @api @install
   Scenario: Install all Marketo MA modules
     Given these modules are enabled
     | module |
@@ -23,7 +23,7 @@ Feature: Module setup
     Then I should see the heading "Marketo MA"
     And I should see a "#marketo-ma-admin-settings-form" element
 
-  @drush @api @uninstall
+  @api @uninstall
   Scenario: Disable and uninstall all Marketo MA modules
     Given these modules are enabled
     | module |

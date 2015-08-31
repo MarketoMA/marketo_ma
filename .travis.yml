@@ -2,7 +2,6 @@ language: php
 
 php:
   - 5.5
-  - 5.4
 
 env:
   global:
@@ -38,8 +37,8 @@ install:
   - drush si --db-url="mysql://$DB_USERNAME@127.0.0.1/$DATABASE" -r $DOCROOT --yes
   - ln -s $TRAVIS_BUILD_DIR $MODULE_DIR
   - cd $TRAVIS_BUILD_DIR/..
-  - wget http://selenium-release.storage.googleapis.com/2.42/selenium-server-standalone-2.42.2.jar
-  - java -jar selenium-server-standalone-2.42.2.jar > /dev/null &
+  - wget http://selenium-release.storage.googleapis.com/2.47/selenium-server-standalone-2.47.1.jar
+  - java -jar selenium-server-standalone-2.47.1.jar > /dev/null &
   
 before_script:
   - cd $MODULE_DIR/tests

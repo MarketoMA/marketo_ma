@@ -2,7 +2,7 @@
 Feature: Browser tests
 
   @page_visibility
-  Scenario: Page visibiilty when using default "All pages except those listed"
+  Scenario: Page visibilty when using default "All pages except those listed"
     Given Marketo MA is configured using settings from "marketo_default_settings"
     And I am logged in as a user with the "administrator" role
     

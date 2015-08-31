@@ -11,7 +11,7 @@ Feature: Marketo MA Drush features
     | marketo_ma_user |
     | marketo_ma_webform |
     
-  @drush @api
+  @api
   Scenario Outline: Ensure all expected drush commands are available and functioning
     When I run drush "help" "<command>"
     Then drush output should contain "<description>"
@@ -25,7 +25,7 @@ Feature: Marketo MA Drush features
     | mma-get-lead | mmal  | Get Marketo lead   |
     | mma-verify   | mmav  | Verify this site   |
 
-  @drush @api @live
+  @api @live
   Scenario: Execute drush commands
     Given I populate the Marketo MA config using "marketo_settings"
     
