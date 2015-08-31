@@ -12,7 +12,7 @@ Feature: Browser tests
     When I am viewing a "Article" with the title "Foo"
     Then Munchkin tracking should be enabled
     
-    When I visit path "/edit" belonging to a "Article" node with the title "Bar"
+    When I click "Edit"
     Then Munchkin tracking should be disabled
     
     When I visit "/admin"
@@ -38,7 +38,7 @@ Feature: Browser tests
     When I am viewing a "Article" with the title "Foo"
     Then Munchkin tracking should be disabled
     
-    When I visit path "/edit" belonging to a "Article" node with the title "Bar"
+    When I click "Edit"
     Then Munchkin tracking should be enabled
     
     When I visit "/admin"
