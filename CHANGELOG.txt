@@ -1,7 +1,7 @@
 Marketo MA Changelog
 ---------------------
 
-Marketo MA 7.x-1.x, 2014-08-24
+Marketo MA 7.x-1.x, 2015-08-31
 ------------------------------
 - drush mma-fields now requires drush 6 or higher and allows display of
   additional field attributes. See 'drush help mma-fields'.
@@ -9,6 +9,7 @@ Marketo MA 7.x-1.x, 2014-08-24
 - #2190655: Introduced Marketo Forms 2.0 tracking method for Webforms. Webforms
   can now override the default tracking method and when using Forms 2.0 can
   specify the Marketo form which should be targeted.
+- #2507733: User Integration now allow mapping core user object fields.
 
 Marketo MA 7.x-1.5, 2014-08-20
 ------------------------------

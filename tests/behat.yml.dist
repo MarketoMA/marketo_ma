@@ -5,6 +5,7 @@ default:
         - FeatureContext:
             parameters:
               marketo_settings:
+                marketo_ma_instance_host: value
                 marketo_ma_munchkin_account_id: value
                 marketo_ma_munchkin_api_private_key: value
                 marketo_ma_soap_encryption_key: value
