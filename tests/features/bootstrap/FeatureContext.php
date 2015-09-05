@@ -31,11 +31,11 @@ class FeatureContext extends RawDrupalContext implements SnippetAcceptingContext
   public function assertModulesClean($modules) {
     $module_list = preg_split("/,\s*/", $modules);
     module_disable($module_list);
-    cache_clear_all();
+    drupal_flush_all_caches();
     drupal_uninstall_modules($module_list, TRUE);
-    cache_clear_all();
+    drupal_flush_all_caches();
     module_enable($module_list, TRUE);
-    cache_clear_all();
+    drupal_flush_all_caches();
     foreach ($module_list as $module) {
       if (!module_exists($module)) {
         $message = sprintf('Module "%s" is not enabled.', $module);
@@ -52,7 +52,7 @@ class FeatureContext extends RawDrupalContext implements SnippetAcceptingContext
   public function assertModulesEnabled($modules) {
     $module_list = preg_split("/,\s*/", $modules);
     module_enable($module_list, TRUE);
-    cache_clear_all();
+    drupal_flush_all_caches();
     foreach ($module_list as $module) {
       if (!module_exists($module)) {
         $message = sprintf('Module "%s" is not enabled.', $module);
@@ -69,9 +69,9 @@ class FeatureContext extends RawDrupalContext implements SnippetAcceptingContext
   public function assertModulesUninstalled($modules) {
     $module_list = preg_split("/,\s*/", $modules);
     module_disable($module_list);
-    cache_clear_all();
+    drupal_flush_all_caches();
     drupal_uninstall_modules($module_list, TRUE);
-    cache_clear_all();
+    drupal_flush_all_caches();
     foreach ($module_list as $module) {
       if (module_exists($module)) {
         $message = sprintf('Module "%s" could note be uninstalled.', $module);
@@ -94,7 +94,7 @@ class FeatureContext extends RawDrupalContext implements SnippetAcceptingContext
     );
     $saved = $this->nodeCreate($node);
     // Set internal page on the new node.
-    $this->getSession()->visit($this->locatePath('/node/' . $saved->nid . "$path"));
+    $this->getSession()->visit($this->locatePath('/node/' . $saved->nid . $path));
   }
 
   /**
