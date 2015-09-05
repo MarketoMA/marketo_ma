@@ -55,12 +55,14 @@ class FeatureContext extends RawDrupalContext implements SnippetAcceptingContext
     drupal_flush_all_caches();
     foreach ($module_list as $module) {
       if (!module_exists($module)) {
+        $this->drushContext->assertDrushCommandWithArgument("pm-list", '--package="Marketo"');
+        echo $this->drushContext->readDrushOutput();
         $message = sprintf('Module "%s" is not enabled.', $module);
         throw new \Exception($message);
       }
     }
   }
-  
+
   /**
    * Asserts that the given modules are disabled
    *
@@ -72,6 +74,8 @@ class FeatureContext extends RawDrupalContext implements SnippetAcceptingContext
     drupal_flush_all_caches();
     foreach ($module_list as $module) {
       if (module_exists($module)) {
+        $this->drushContext->assertDrushCommandWithArgument("pm-list", '--package="Marketo"');
+        echo $this->drushContext->readDrushOutput();
         $message = sprintf('Module "%s" is not disabled.', $module);
         throw new \Exception($message);
       }
@@ -90,6 +94,8 @@ class FeatureContext extends RawDrupalContext implements SnippetAcceptingContext
     drupal_flush_all_caches();
     foreach ($module_list as $module) {
       if (module_exists($module)) {
+        $this->drushContext->assertDrushCommandWithArgument("pm-list", '--package="Marketo"');
+        echo $this->drushContext->readDrushOutput();
         $message = sprintf('Module "%s" could not be uninstalled.', $module);
         throw new \Exception($message);
       }
