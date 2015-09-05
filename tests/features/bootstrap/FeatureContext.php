@@ -31,7 +31,9 @@ class FeatureContext extends RawDrupalContext implements SnippetAcceptingContext
   public function assertModulesClean($modules) {
     $module_list = preg_split("/,\s*/", $modules);
     module_disable($module_list);
+    cache_clear_all();
     drupal_uninstall_modules($module_list, TRUE);
+    cache_clear_all();
     module_enable($module_list, TRUE);
     cache_clear_all();
     foreach ($module_list as $module) {
@@ -49,15 +51,14 @@ class FeatureContext extends RawDrupalContext implements SnippetAcceptingContext
    */
   public function assertModulesEnabled($modules) {
     $module_list = preg_split("/,\s*/", $modules);
+    module_enable($module_list, TRUE);
+    cache_clear_all();
     foreach ($module_list as $module) {
       if (!module_exists($module)) {
-        if (!module_enable(array($module), TRUE)) {
-          $message = sprintf('Module "%s" is not enabled.', $module);
-          throw new \Exception($message);
-        }
+        $message = sprintf('Module "%s" is not enabled.', $module);
+        throw new \Exception($message);
       }
     }
-    cache_clear_all();
   }
 
   /**
@@ -68,6 +69,7 @@ class FeatureContext extends RawDrupalContext implements SnippetAcceptingContext
   public function assertModulesUninstalled($modules) {
     $module_list = preg_split("/,\s*/", $modules);
     module_disable($module_list);
+    cache_clear_all();
     drupal_uninstall_modules($module_list, TRUE);
     cache_clear_all();
     foreach ($module_list as $module) {
