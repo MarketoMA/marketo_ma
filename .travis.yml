@@ -44,8 +44,8 @@ before_script:
   - cd $MODULE_DIR/tests
   - cp behat.yml.dist behat.yml
   - composer install
-  - bin/behat features/travis-ci.feature
+  - vendor/bin/behat features/travis-ci.feature
 
 script:
   - cd $MODULE_DIR/tests
-  - bin/behat --tags="~travis&&~live&&~permissions"
+  - vendor/bin/behat --tags="~travis&&~live&&~permissions"
