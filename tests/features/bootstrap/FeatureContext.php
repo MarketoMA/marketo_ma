@@ -2,8 +2,10 @@
 
 use Behat\Behat\Tester\Exception\PendingException;
 use Drupal\DrupalExtension\Context\RawDrupalContext;
+use Drupal\DrupalExtension\Context\DrushContext;
 use Behat\Behat\Context\SnippetAcceptingContext;
 use Behat\Gherkin\Node\PyStringNode;
+use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 
 /**
  * Defines application features from the specific context.
@@ -11,6 +13,15 @@ use Behat\Gherkin\Node\PyStringNode;
 class FeatureContext extends RawDrupalContext implements SnippetAcceptingContext {
 
   private $params = array();
+
+  /** @var DrushContext */
+  private $drushContext;
+
+  /** @BeforeScenario */
+  public function gatherContexts(BeforeScenarioScope $scope) {
+    $environment = $scope->getEnvironment();
+    $this->drushContext = $environment->getContext('Drupal\DrupalExtension\Context\DrushContext');
+  }
 
   /**
    * Initializes context.
@@ -29,19 +40,8 @@ class FeatureContext extends RawDrupalContext implements SnippetAcceptingContext
    * @Given the :modules module(s) is/are clean
    */
   public function assertModulesClean($modules) {
-    $module_list = preg_split("/,\s*/", $modules);
-    module_disable($module_list);
-    drupal_flush_all_caches();
-    drupal_uninstall_modules($module_list, TRUE);
-    drupal_flush_all_caches();
-    module_enable($module_list, TRUE);
-    drupal_flush_all_caches();
-    foreach ($module_list as $module) {
-      if (!module_exists($module)) {
-        $message = sprintf('Module "%s" is not enabled.', $module);
-        throw new \Exception($message);
-      }
-    }
+    $this->assertModulesUninstalled($modules);
+    $this->assertModulesEnabled($modules);
   }
 
   /**
@@ -60,6 +60,23 @@ class FeatureContext extends RawDrupalContext implements SnippetAcceptingContext
       }
     }
   }
+  
+  /**
+   * Asserts that the given modules are disabled
+   *
+   * @Given the :modules module(s) is/are disabled
+   */
+  public function assertModulesDisabled($modules) {
+    $module_list = preg_split("/,\s*/", $modules);
+    module_disable($module_list, TRUE);
+    drupal_flush_all_caches();
+    foreach ($module_list as $module) {
+      if (module_exists($module)) {
+        $message = sprintf('Module "%s" is not disabled.', $module);
+        throw new \Exception($message);
+      }
+    }
+  }
 
   /**
    * Asserts that the given modules are uninstalled
@@ -68,13 +85,12 @@ class FeatureContext extends RawDrupalContext implements SnippetAcceptingContext
    */
   public function assertModulesUninstalled($modules) {
     $module_list = preg_split("/,\s*/", $modules);
-    module_disable($module_list);
-    drupal_flush_all_caches();
+    $this->assertModulesDisabled($modules);
     drupal_uninstall_modules($module_list, TRUE);
     drupal_flush_all_caches();
     foreach ($module_list as $module) {
       if (module_exists($module)) {
-        $message = sprintf('Module "%s" could note be uninstalled.', $module);
+        $message = sprintf('Module "%s" could not be uninstalled.', $module);
         throw new \Exception($message);
       }
     }
