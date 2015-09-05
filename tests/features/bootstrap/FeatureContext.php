@@ -33,6 +33,7 @@ class FeatureContext extends RawDrupalContext implements SnippetAcceptingContext
     module_disable($module_list);
     drupal_uninstall_modules($module_list, TRUE);
     module_enable($module_list, TRUE);
+    cache_clear_all();
     foreach ($module_list as $module) {
       if (!module_exists($module)) {
         $message = sprintf('Module "%s" is not enabled.', $module);
@@ -56,6 +57,7 @@ class FeatureContext extends RawDrupalContext implements SnippetAcceptingContext
         }
       }
     }
+    cache_clear_all();
   }
 
   /**
@@ -73,6 +75,7 @@ class FeatureContext extends RawDrupalContext implements SnippetAcceptingContext
         throw new \Exception($message);
       }
     }
+    cache_clear_all();
   }
 
   /**
