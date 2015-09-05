@@ -48,4 +48,4 @@ before_script:
 
 script:
   - cd $MODULE_DIR/tests
-  - vendor/bin/behat --tags="~travis&&~live&&~permissions"
+  - vendor/bin/behat --tags="~travis&&~live"

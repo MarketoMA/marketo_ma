@@ -69,13 +69,13 @@ class FeatureContext extends RawDrupalContext implements SnippetAcceptingContext
     $module_list = preg_split("/,\s*/", $modules);
     module_disable($module_list);
     drupal_uninstall_modules($module_list, TRUE);
+    cache_clear_all();
     foreach ($module_list as $module) {
       if (module_exists($module)) {
         $message = sprintf('Module "%s" could note be uninstalled.', $module);
         throw new \Exception($message);
       }
     }
-    cache_clear_all();
   }
 
   /**
@@ -99,9 +99,7 @@ class FeatureContext extends RawDrupalContext implements SnippetAcceptingContext
    * @Given Marketo MA is configured using settings from :config
    */
   public function marketoMaIsConfiguredUsingSettingsFrom($config) {
-    $output = array();
-    $modules = array('marketo_ma_user', 'marketo_ma_webform', 'marketo_ma');
-    $this->assertModulesClean($modules);
+    $this->assertModulesClean("marketo_ma, marketo_ma_user, marketo_ma_webform");
 
     $settings = array_merge($this->params['marketo_default_settings'], $this->params[$config]);
     foreach ($settings as $key => $value) {
