@@ -1,23 +1,12 @@
-@permissions
+@api @permissions
 Feature: Module permissions
   In order to prove that module permissions are working properly
   As a variety of user types
   I need to attempt to accesss portions of the system ensuring expected results are returned
 
   Background: Reset to a clean state
-    Given these modules are uninstalled
-    | module |
-    | marketo_ma_user |
-    | marketo_ma_webform |
-    | marketo_ma |
-
-    And these modules are enabled
-    | module |
-    | marketo_ma |
-    | marketo_ma_user |
-    | marketo_ma_webform |  
+    Given the "marketo_ma, marketo_ma_user, marketo_ma_webform" modules are clean
     
-  @api
   Scenario: Ensure core module permissions work as expected
     Given I am an anonymous user
     When I go to "/admin/config/search/marketo_ma"
@@ -41,7 +30,7 @@ Feature: Module permissions
     And I should see the heading "Marketo MA"
     And I should see a "#marketo-ma-admin-settings-form" element
 
-  @api @marketo_ma_user
+  @marketo_ma_user
   Scenario: Ensure Marketo MA User specific permissions work as expected
     Given I am an anonymous user
     When I go to "/user"
@@ -82,18 +71,18 @@ Feature: Module permissions
     Then I should see the link "Lead" in the "secondary tabs" region
     And I should see the link "Activity" in the "secondary tabs" region
 
-  @api @marketo_ma_webform
+  @marketo_ma_webform
   Scenario: Ensure Marketo MA Webform specific permissions work as expected
     Given I am an anonymous user
-    And I visit path "/webform/marketo" belonging to a "Webform" node with the title "Testorama"
+    And I am accessing "/webform/marketo" belonging to a "Webform" with the title "Testorama"
     Then the response status code should be 403
     
     Given I am logged in as a user with the "authenticated user" role
-    And I visit path "/webform/marketo" belonging to a "Webform" node with the title "Testorama"
+    And I am accessing "/webform/marketo" belonging to a "Webform" with the title "Testorama"
     Then the response status code should be 403
     
     Given I am logged in as a user with the "administrator" role
-    And I visit path "/webform/marketo" belonging to a "Webform" node with the title "Testorama"
+    And I am accessing "/webform/marketo" belonging to a "Webform" with the title "Testorama"
     Then the response status code should be 200
     And I should see the link "Marketo" in the "secondary tabs" region
     And I should see a "#marketo-ma-webform-settings-form" element

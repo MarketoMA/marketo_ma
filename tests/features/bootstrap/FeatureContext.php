@@ -4,10 +4,6 @@ use Behat\Behat\Tester\Exception\PendingException;
 use Drupal\DrupalExtension\Context\RawDrupalContext;
 use Behat\Behat\Context\SnippetAcceptingContext;
 use Behat\Gherkin\Node\PyStringNode;
-use Behat\Gherkin\Node\TableNode;
-use Behat\Behat\Hook\Scope\BeforeScenarioScope;
-use Drupal\DrupalExtension\Context\DrushContext;
-use Drupal\DrupalExtension\Context\MinkContext;
 
 /**
  * Defines application features from the specific context.
@@ -16,19 +12,6 @@ class FeatureContext extends RawDrupalContext implements SnippetAcceptingContext
 
   private $params = array();
 
-  /** @var MinkContext */
-  private $minkContext;
-
-  /** @var DrushContext */
-  private $drushContext;
-
-  /** @BeforeScenario */
-  public function gatherContexts(BeforeScenarioScope $scope) {
-    $environment = $scope->getEnvironment();
-//    $this->minkContext = $environment->getContext('Drupal\DrupalExtension\Context\MinkContext');
-    $this->drushContext = $environment->getContext('Drupal\DrupalExtension\Context\DrushContext');
-  }
-  
   /**
    * Initializes context.
    *
@@ -41,24 +24,85 @@ class FeatureContext extends RawDrupalContext implements SnippetAcceptingContext
   }
 
   /**
+   * Reinstalls the given modules and asserts that they are enabled.
+   *
+   * @Given the :modules module(s) is/are clean
+   */
+  public function assertModulesClean($modules) {
+    $module_list = preg_split("/,\s*/", $modules);
+    module_disable($module_list);
+    drupal_uninstall_modules($module_list, TRUE);
+    module_enable($module_list, TRUE);
+    foreach ($module_list as $module) {
+      if (!module_exists($module)) {
+        $message = sprintf('Module "%s" is not enabled.', $module);
+        throw new \Exception($message);
+      }
+    }
+  }
+
+  /**
+   * Asserts that the given modules are enabled
+   *
+   * @Given the :modules module(s) is/are enabled
+   */
+  public function assertModulesEnabled($modules) {
+    $module_list = preg_split("/,\s*/", $modules);
+    foreach ($module_list as $module) {
+      if (!module_exists($module)) {
+        if (!module_enable(array($module), TRUE)) {
+          $message = sprintf('Module "%s" is not enabled.', $module);
+          throw new \Exception($message);
+        }
+      }
+    }
+  }
+
+  /**
+   * Asserts that the given modules are uninstalled
+   *
+   * @Given the :modules module(s) is/are uninstalled
+   */
+  public function assertModulesUninstalled($modules) {
+    $module_list = preg_split("/,\s*/", $modules);
+    module_disable($module_list);
+    drupal_uninstall_modules($module_list, TRUE);
+    foreach ($module_list as $module) {
+      if (module_exists($module)) {
+        $message = sprintf('Module "%s" could note be uninstalled.', $module);
+        throw new \Exception($message);
+      }
+    }
+  }
+
+  /**
+   * Creates content of the given type and navigates to a path belonging to it.
+   *
+   * @Given I am accessing :path belonging to a/an :type (content )with the title :title
+   */
+  public function accessNodePath($path, $type, $title) {
+    // @todo make this easily extensible.
+    $node = (object) array(
+          'title' => $title,
+          'type' => $type,
+          'body' => $this->getRandom()->string(255),
+    );
+    $saved = $this->nodeCreate($node);
+    // Set internal page on the new node.
+    $this->getSession()->visit($this->locatePath('/node/' . $saved->nid . "$path"));
+  }
+
+  /**
    * @Given Marketo MA is configured using settings from :config
    */
   public function marketoMaIsConfiguredUsingSettingsFrom($config) {
     $output = array();
     $modules = array('marketo_ma_user', 'marketo_ma_webform', 'marketo_ma');
-    foreach ($modules as $module) {
-      $output[] = $this->getDriver('drush')->drush("pm-disable", array($module), array("yes" => NULL));
-    }
-    foreach ($modules as $module) {
-      $output[] = $this->getDriver('drush')->drush("pm-uninstall", array($module), array("yes" => NULL));
-    }
-    foreach (array_reverse($modules) as $module) {
-      $output[] = $this->getDriver('drush')->drush("pm-enable", array($module), array("yes" => NULL));
-    }
+    $this->assertModulesClean($modules);
 
     $settings = array_merge($this->params['marketo_default_settings'], $this->params[$config]);
     foreach ($settings as $key => $value) {
-      $output[] = $this->getDriver('drush')->drush("vset", array($key, "'" . json_encode($value) . "'"), array('format' => 'json'));
+      variable_set($key, $value);
     }
   }
 
@@ -68,55 +112,8 @@ class FeatureContext extends RawDrupalContext implements SnippetAcceptingContext
   public function iPopulateConfigFromBehatYml($config) {
     $settings = array_merge($this->params['marketo_default_settings'], $this->params[$config]);
     foreach ($settings as $key => $value) {
-      $output[] = $this->getDriver('drush')->drush("vset", array($key, "'" . json_encode($value) . "'"), array('format' => 'json'));
+      variable_set($key, $value);
     }
-  }
-
-  /**
-   * @Given these modules are enabled
-   */
-  public function theseModulesAreInstalled(TableNode $table) {
-    $steps = array();
-    foreach ($table->getHash() as $row) {
-      $module = $row['module'];
-//      $this->drushContext->assertDrushCommandWithArgument("pm-enable", "$module --y");
-      $this->getDriver('drush')->drush("pm-enable", array($module), array("yes" => NULL));
-      $this->drushContext->assertDrushCommandWithArgument("pm-info", "$module --fields=status --format=list");
-      $this->drushContext->assertDrushOutput("enabled");
-    }
-    return $steps;
-  }
-
-  /**
-   * @Given these modules are disabled
-   */
-  public function theseModulesAreDisabled(TableNode $table) {
-    $steps = array();
-    foreach ($table->getHash() as $row) {
-      $module = $row['module'];
-//      $this->drushContext->assertDrushCommandWithArgument("pm-disable", "$module --y");
-      $this->getDriver('drush')->drush("pm-disable", array($module), array("yes" => NULL));
-      $this->drushContext->assertDrushCommandWithArgument("pm-info", "$module --fields=status --format=list");
-      $this->drushContext->assertDrushOutput("disabled");
-    }
-    return $steps;
-  }
-
-  /**
-   * @Given these modules are uninstalled
-   */
-  public function theseModulesAreUninstalled(TableNode $table) {
-    $steps = array();
-    foreach ($table->getHash() as $row) {
-      $module = $row['module'];
-//      $this->drushContext->assertDrushCommandWithArgument("pm-disable", "$module --y");
-//      $this->drushContext->assertDrushCommandWithArgument("pm-uninstall", "$module --y");
-      $this->getDriver('drush')->drush("pm-disable", array($module), array("yes" => NULL));
-      $this->getDriver('drush')->drush("pm-uninstall", array($module), array("yes" => NULL));
-      $this->drushContext->assertDrushCommandWithArgument("pm-info", "$module --fields=status --format=list");
-      $this->drushContext->assertDrushOutput("not installed");
-    }
-    return $steps;
   }
 
   /**

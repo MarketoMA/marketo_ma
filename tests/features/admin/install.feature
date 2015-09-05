@@ -1,35 +1,23 @@
+@api
 Feature: Module setup
   In order to prove that this module can be installed and uninstalled cleanly
   As an administrator
   I need to do the following
 
   Background: Reset to a clean state
-    Given these modules are uninstalled
-    | module |
-    | marketo_ma_webform |    
-    | marketo_ma_user |
-    | marketo_ma |
+    Given the "marketo_ma, marketo_ma_user, marketo_ma_webform" modules are uninstalled
 
-  @api @install
+  @install
   Scenario: Install all Marketo MA modules
-    Given these modules are enabled
-    | module |
-    | marketo_ma |
-    | marketo_ma_user |
-    | marketo_ma_webform |
-
-    When I am logged in as a user with the "administrator" role
-    And I go to "/admin/config/search/marketo_ma"
+    Given the "marketo_ma, marketo_ma_user, marketo_ma_webform" modules are enabled
+    And I am logged in as a user with the "administrator" role
+    When I go to "/admin/config/search/marketo_ma"
     Then I should see the heading "Marketo MA"
     And I should see a "#marketo-ma-admin-settings-form" element
 
-  @api @uninstall
+  @uninstall
   Scenario: Disable and uninstall all Marketo MA modules
-    Given these modules are enabled
-    | module |
-    | marketo_ma |
-    | marketo_ma_user |
-    | marketo_ma_webform |
+    Given the "marketo_ma, marketo_ma_user, marketo_ma_webform" modules are enabled
     And I run drush "vset" "marketo_ma_bogus 'bogus'"
 
     When I am logged in as a user with the "administrator" role
@@ -39,10 +27,6 @@ Feature: Module setup
     When I press "Save configuration"
     Then I should see "The configuration options have been saved."
 
-    When these modules are uninstalled
-    | module |
-    | marketo_ma_user |
-    | marketo_ma_webform |
-    | marketo_ma |
+    When the "marketo_ma, marketo_ma_user, marketo_ma_webform" modules are uninstalled
     And I run drush "vget" "marketo_ma --format=json"
     Then drush output should contain '{"marketo_ma_bogus":"bogus"}'

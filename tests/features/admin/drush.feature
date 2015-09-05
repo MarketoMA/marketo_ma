@@ -1,17 +1,12 @@
-@marketo_ma_drush
+@api @marketo_ma_drush
 Feature: Marketo MA Drush features
   In order to prove that drush funcitons are working properly
   As a developer
   I need all of these tests to run successfully
 
   Background: Modules are enabled
-    Given these modules are enabled
-    | module |
-    | marketo_ma |
-    | marketo_ma_user |
-    | marketo_ma_webform |
+    Given the "marketo_ma, marketo_ma_user, marketo_ma_webform" modules are clean
     
-  @api
   Scenario Outline: Ensure all expected drush commands are available and functioning
     When I run drush "help" "<command>"
     Then drush output should contain "<description>"
@@ -25,7 +20,7 @@ Feature: Marketo MA Drush features
     | mma-get-lead | mmal  | Get Marketo lead   |
     | mma-verify   | mmav  | Verify this site   |
 
-  @api @live
+  @live
   Scenario: Execute drush commands
     Given I populate the Marketo MA config using "marketo_settings"
     

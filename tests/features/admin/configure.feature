@@ -1,22 +1,13 @@
+@api
 Feature: Module configuration
   In order to use the Marketo MA modules
   As an administrator
   I must configure the module settings
 
   Background: Fresh module install
-    Given these modules are uninstalled
-    | module |
-    | marketo_ma_user |
-    | marketo_ma_webform |
-    | marketo_ma |
-
-    And these modules are enabled
-    | module |
-    | marketo_ma |
-    | marketo_ma_user |
-    | marketo_ma_webform |    
+   Given the "marketo_ma, marketo_ma_user, marketo_ma_webform" modules are clean
     
-  @api @config
+  @config
   Scenario: Configure module settings
     When I am on the homepage
     
@@ -41,7 +32,7 @@ Feature: Module configuration
     When I press "Save configuration"
     Then I should see "Unable to validate SOAP API settings."
   
-  @api @config @live
+  @config @live
   Scenario: Configure live module settings
     Given I populate the Marketo MA config using "marketo_settings"
     When I am logged in as a user with the "administrator" role
