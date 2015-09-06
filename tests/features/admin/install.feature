@@ -9,7 +9,7 @@ Feature: Module setup
 
   @install
   Scenario: Install all Marketo MA modules
-    And I am logged in as a user with the "administrator" role
+    Given I am logged in as an administrator
     When I go to "/admin/config/search/marketo_ma"
     Then I should see the heading "Marketo MA"
     And I should see a "#marketo-ma-admin-settings-form" element
@@ -18,7 +18,7 @@ Feature: Module setup
   Scenario: Disable and uninstall all Marketo MA modules
     Given I run drush "vset" "marketo_ma_bogus 'bogus'"
 
-    When I am logged in as a user with the "administrator" role
+    Given I am logged in as an administrator
     And I go to "/admin/config/search/marketo_ma"
     And I fill in "marketo_ma_munchkin_account_id" with "bogus"
     And I fill in "marketo_ma_munchkin_api_private_key" with "bogus"

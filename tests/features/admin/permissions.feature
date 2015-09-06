@@ -18,7 +18,7 @@ Feature: Module permissions
     Then the response status code should be 403
     And I should see "Access denied"
 
-    Given I am logged in as a user with the "administrator" role
+    Given I am logged in as an administrator
     When I go to "/admin/config/search/marketo_ma"
     Then the response status code should be 200
     And I should see the heading "Marketo MA"
@@ -44,7 +44,7 @@ Feature: Module permissions
     When I go to "/user/1/marketo"
     Then the response status code should be 403
     
-    Given I am logged in as a user with the "administrator" role
+    Given I am logged in as an administrator
     When I go to "/user"
     Then I should see the link "Marketo" in the "primary tabs" region
     When I click "Marketo" in the "primary tabs" region

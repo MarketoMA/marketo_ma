@@ -17,7 +17,7 @@ Feature: Travis CI
   
   @api
   Scenario: DrupalExtension features are working as expected
-    Given I am logged in as a user with the "administrator" role
+    Given I am logged in as an administrator
     And I visit "/admin"
     Then I should see the heading "Administration"
     
