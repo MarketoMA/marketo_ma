@@ -49,19 +49,15 @@ class FeatureContext extends RawDrupalContext implements SnippetAcceptingContext
 
     $this->uninstallMarketoMaModules();
     module_enable($module_list);
-    
+
     $this->drupalContext->assertCacheClear();
     $this->drupalContext->assertCacheClear();
 
     foreach ($module_list as $module) {
       if (!module_exists($module)) {
-        print_r($GLOBALS);
         $message = sprintf('Module "%s" is not enabled.', $module);
         throw new \Exception($message);
       }
-//      $this->getDriver('drush')->drush("pm-enable", array($module), array("yes" => NULL));
-//      $this->drushContext->assertDrushCommandWithArgument("pm-info", "$module --fields=status --format=list");
-//      $this->drushContext->assertDrushOutput("enabled");
     }
   }
 
@@ -74,18 +70,13 @@ class FeatureContext extends RawDrupalContext implements SnippetAcceptingContext
     $module_list = array('marketo_ma', 'marketo_ma_user', 'marketo_ma_webform');
 
     module_disable($module_list);
-//    $this->drushContext->assertDrushCommandWithArgument("pm-list", '--package="Marketo"');
-//    echo $this->drushContext->readDrushOutput();
-
     drupal_uninstall_modules($module_list);
-//    $this->drupalContext->assertCacheClear();
-//    $this->drushContext->assertDrushCommandWithArgument("pm-list", '--package="Marketo"');
-//    echo $this->drushContext->readDrushOutput();
+
+    $this->drupalContext->assertCacheClear();
+    $this->drupalContext->assertCacheClear();
 
     foreach ($module_list as $module) {
       if (module_exists($module)) {
-//        $this->drushContext->assertDrushCommandWithArgument("pm-list", '--package="Marketo"');
-//        echo $this->drushContext->readDrushOutput();
         $message = sprintf('Module "%s" is not enabled.', $module);
         throw new \Exception($message);
       }
