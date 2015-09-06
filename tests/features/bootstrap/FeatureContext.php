@@ -49,6 +49,9 @@ class FeatureContext extends RawDrupalContext implements SnippetAcceptingContext
 
     $this->uninstallMarketoMaModules();
     module_enable($module_list);
+    
+    $this->drupalContext->assertCacheClear();
+    $this->drupalContext->assertCacheClear();
 
     foreach ($module_list as $module) {
       if (!module_exists($module)) {
