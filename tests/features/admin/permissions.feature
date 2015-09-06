@@ -5,9 +5,7 @@ Feature: Module permissions
   I need to attempt to accesss portions of the system ensuring expected results are returned
 
   Background: Fresh module install
-    Given the "marketo_ma, marketo_ma_user, marketo_ma_webform" modules are uninstalled
-    And the "marketo_ma, marketo_ma_user, marketo_ma_webform" modules are enabled
-    And the cache has been cleared
+    Given I reinstall all Marketo MA modules
     
   Scenario: Ensure core module permissions work as expected
     Given I am an anonymous user

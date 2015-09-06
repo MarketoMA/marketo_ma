@@ -5,9 +5,7 @@ Feature: Marketo MA Drush features
   I need all of these tests to run successfully
 
   Background: Fresh module install
-    Given the "marketo_ma, marketo_ma_user, marketo_ma_webform" modules are uninstalled
-    And the "marketo_ma, marketo_ma_user, marketo_ma_webform" modules are enabled
-    And the cache has been cleared
+    Given I reinstall all Marketo MA modules
     
   Scenario Outline: Ensure all expected drush commands are available and functioning
     When I run drush "help" "<command>"

@@ -4,5 +4,5 @@ Feature: Marketo MA Webform features
   As a developer
   I need all of these tests to run successfully
 
-  Background: Reset to a clean state
-    Given the "marketo_ma, marketo_ma_user, marketo_ma_webform" modules are clean 
+  Background: Fresh module install
+    Given I reinstall all Marketo MA modules

@@ -33,6 +33,47 @@ class FeatureContext extends RawDrupalContext implements SnippetAcceptingContext
   public function __construct(array $parameters) {
     $this->params = $parameters;
   }
+  
+  /**
+   * Reinstalls Marketo MA modules.
+   *
+   * @Given I reinstall all Marketo MA modules
+   */
+  public function reinstallMarketoMaModules() {
+    $module_list = array('marketo_ma', 'marketo_ma_user', 'marketo_ma_webform');
+    module_disable($module_list);
+    drupal_uninstall_modules($module_list);
+    module_enable($module_list);
+    $this->clearStaticCaches();
+    foreach ($module_list as $module) {
+      if (!module_exists($module)) {
+        $this->drushContext->assertDrushCommandWithArgument("pm-list", '--package="Marketo"');
+        echo $this->drushContext->readDrushOutput();
+        $message = sprintf('Module "%s" is not enabled.', $module);
+        throw new \Exception($message);
+      }
+    }
+  }
+  
+  /**
+   * Uninstalls all Marketo MA modules.
+   *
+   * @Given I uninstall all Marketo MA modules
+   */
+  public function uninstallMarketoMaModules() {
+    $module_list = array('marketo_ma', 'marketo_ma_user', 'marketo_ma_webform');
+    module_disable($module_list);
+    drupal_uninstall_modules($module_list);
+    $this->clearStaticCaches();
+    foreach ($module_list as $module) {
+      if (module_exists($module)) {
+        $this->drushContext->assertDrushCommandWithArgument("pm-list", '--package="Marketo"');
+        echo $this->drushContext->readDrushOutput();
+        $message = sprintf('Module "%s" is not enabled.', $module);
+        throw new \Exception($message);
+      }
+    }
+  }
 
   /**
    * Reinstalls the given modules and asserts that they are enabled.
