@@ -49,13 +49,11 @@ class FeatureContext extends RawDrupalContext implements SnippetAcceptingContext
 
     $this->uninstallMarketoMaModules();
     module_enable($module_list);
-
     drupal_flush_all_caches();
-    $this->drupalContext->assertCacheClear();
 
     foreach ($module_list as $module) {
       if (!module_exists($module)) {
-        $message = sprintf('Module "%s" is not enabled.', $module);
+        $message = sprintf('Module "%s" could not be enabled.', $module);
         throw new \Exception($message);
       }
     }
@@ -71,13 +69,11 @@ class FeatureContext extends RawDrupalContext implements SnippetAcceptingContext
 
     module_disable($module_list);
     drupal_uninstall_modules($module_list);
-
     drupal_flush_all_caches();
-    $this->drupalContext->assertCacheClear();
 
     foreach ($module_list as $module) {
       if (module_exists($module)) {
-        $message = sprintf('Module "%s" is not enabled.', $module);
+        $message = sprintf('Module "%s" could not be uninstalled.', $module);
         throw new \Exception($message);
       }
     }
