@@ -4,8 +4,10 @@ Feature: Module permissions
   As a variety of user types
   I need to attempt to accesss portions of the system ensuring expected results are returned
 
-  Background: Reset to a clean state
-    Given the "marketo_ma, marketo_ma_user, marketo_ma_webform" modules are clean
+  Background: Fresh module install
+    Given the "marketo_ma, marketo_ma_user, marketo_ma_webform" modules are uninstalled
+    And the "marketo_ma, marketo_ma_user, marketo_ma_webform" modules are enabled
+    And the cache has been cleared
     
   Scenario: Ensure core module permissions work as expected
     Given I am an anonymous user

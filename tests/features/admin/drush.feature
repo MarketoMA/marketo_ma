@@ -4,8 +4,10 @@ Feature: Marketo MA Drush features
   As a developer
   I need all of these tests to run successfully
 
-  Background: Modules are enabled
-    Given the "marketo_ma, marketo_ma_user, marketo_ma_webform" modules are clean
+  Background: Fresh module install
+    Given the "marketo_ma, marketo_ma_user, marketo_ma_webform" modules are uninstalled
+    And the "marketo_ma, marketo_ma_user, marketo_ma_webform" modules are enabled
+    And the cache has been cleared
     
   Scenario Outline: Ensure all expected drush commands are available and functioning
     When I run drush "help" "<command>"

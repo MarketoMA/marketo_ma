@@ -1,9 +1,14 @@
 @api @javascript @visitor
 Feature: Browser tests
 
+  Background: Fresh module install
+    Given the "marketo_ma, marketo_ma_user, marketo_ma_webform" modules are uninstalled
+    And the "marketo_ma, marketo_ma_user, marketo_ma_webform" modules are enabled
+    And the cache has been cleared
+
   @page_visibility
   Scenario: Page visibilty when using default "All pages except those listed"
-    Given Marketo MA is configured using settings from "marketo_default_settings"
+    Given I populate the Marketo MA config using "marketo_default_settings"
     And I am logged in as a user with the "administrator" role
     
     When I am on the homepage
@@ -26,7 +31,7 @@ Feature: Browser tests
     
   @page_visibility
   Scenario: Page visibilty when using "Only the pages listed"
-    Given Marketo MA is configured using settings from "marketo_page_vis_only"
+    Given I populate the Marketo MA config using "marketo_page_vis_only"
     And I am logged in as a user with the "administrator" role
     
     When I am on the homepage

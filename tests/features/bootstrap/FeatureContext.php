@@ -52,7 +52,6 @@ class FeatureContext extends RawDrupalContext implements SnippetAcceptingContext
   public function assertModulesEnabled($modules) {
     $module_list = preg_split("/,\s*/", $modules);
     module_enable($module_list, TRUE);
-    drupal_flush_all_caches();
     foreach ($module_list as $module) {
       if (!module_exists($module)) {
         $this->drushContext->assertDrushCommandWithArgument("pm-list", '--package="Marketo"');
@@ -71,7 +70,6 @@ class FeatureContext extends RawDrupalContext implements SnippetAcceptingContext
   public function assertModulesDisabled($modules) {
     $module_list = preg_split("/,\s*/", $modules);
     module_disable($module_list, TRUE);
-    drupal_flush_all_caches();
     foreach ($module_list as $module) {
       if (module_exists($module)) {
         $this->drushContext->assertDrushCommandWithArgument("pm-list", '--package="Marketo"');
@@ -91,7 +89,6 @@ class FeatureContext extends RawDrupalContext implements SnippetAcceptingContext
     $module_list = preg_split("/,\s*/", $modules);
     $this->assertModulesDisabled($modules);
     drupal_uninstall_modules($module_list, TRUE);
-    drupal_flush_all_caches();
     foreach ($module_list as $module) {
       if (module_exists($module)) {
         $this->drushContext->assertDrushCommandWithArgument("pm-list", '--package="Marketo"');

@@ -5,7 +5,9 @@ Feature: Module configuration
   I must configure the module settings
 
   Background: Fresh module install
-   Given the "marketo_ma, marketo_ma_user, marketo_ma_webform" modules are clean
+    Given the "marketo_ma, marketo_ma_user, marketo_ma_webform" modules are uninstalled
+    And the "marketo_ma, marketo_ma_user, marketo_ma_webform" modules are enabled
+    And the cache has been cleared
     
   @config
   Scenario: Configure module settings
