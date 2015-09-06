@@ -50,7 +50,7 @@ class FeatureContext extends RawDrupalContext implements SnippetAcceptingContext
     $this->uninstallMarketoMaModules();
     module_enable($module_list);
 
-    $this->drupalContext->assertCacheClear();
+    drupal_flush_all_caches();
     $this->drupalContext->assertCacheClear();
 
     foreach ($module_list as $module) {
@@ -72,7 +72,7 @@ class FeatureContext extends RawDrupalContext implements SnippetAcceptingContext
     module_disable($module_list);
     drupal_uninstall_modules($module_list);
 
-    $this->drupalContext->assertCacheClear();
+    drupal_flush_all_caches();
     $this->drupalContext->assertCacheClear();
 
     foreach ($module_list as $module) {
