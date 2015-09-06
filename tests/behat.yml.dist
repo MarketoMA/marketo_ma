@@ -72,14 +72,14 @@ default:
       goutte: ~
       selenium2: ~
       base_url: "$DRUPAL_TI_WEBSERVER_URL:$DRUPAL_TI_WEBSERVER_PORT/"
+      files_path: "$DRUPAL_TI_BEHAT_DIR"
     Drupal\DrupalExtension:
       blackbox: ~
       api_driver: 'drupal'
-      drupal:
-        drupal_root: "$DRUPAL_TI_DRUPAL_DIR"
-      drush_driver: 'drush'
       drush:
         root: "$DRUPAL_TI_DRUPAL_DIR"
+      drupal:
+        drupal_root: "$DRUPAL_TI_DRUPAL_DIR"
       region_map:
         primary tabs: "ul.tabs.primary"
         secondary tabs: "ul.tabs.secondary"

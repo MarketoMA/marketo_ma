@@ -46,13 +46,18 @@ class FeatureContext extends RawDrupalContext implements SnippetAcceptingContext
    */
   public function reinstallMarketoMaModules() {
     $module_list = array('marketo_ma', 'marketo_ma_user', 'marketo_ma_webform');
-    
+
     $this->uninstallMarketoMaModules();
+    module_enable($module_list);
 
     foreach ($module_list as $module) {
-      $this->getDriver('drush')->drush("pm-enable", array($module), array("yes" => NULL));
-      $this->drushContext->assertDrushCommandWithArgument("pm-info", "$module --fields=status --format=list");
-      $this->drushContext->assertDrushOutput("enabled");
+      if (!module_exists($module)) {
+        $message = sprintf('Module "%s" is not enabled.', $module);
+        throw new \Exception($message);
+      }
+//      $this->getDriver('drush')->drush("pm-enable", array($module), array("yes" => NULL));
+//      $this->drushContext->assertDrushCommandWithArgument("pm-info", "$module --fields=status --format=list");
+//      $this->drushContext->assertDrushOutput("enabled");
     }
   }
 
@@ -63,20 +68,20 @@ class FeatureContext extends RawDrupalContext implements SnippetAcceptingContext
    */
   public function uninstallMarketoMaModules() {
     $module_list = array('marketo_ma', 'marketo_ma_user', 'marketo_ma_webform');
-    
+
     module_disable($module_list);
-    $this->drushContext->assertDrushCommandWithArgument("pm-list", '--package="Marketo"');
-    echo $this->drushContext->readDrushOutput();
-    
+//    $this->drushContext->assertDrushCommandWithArgument("pm-list", '--package="Marketo"');
+//    echo $this->drushContext->readDrushOutput();
+
     drupal_uninstall_modules($module_list);
-    $this->drupalContext->assertCacheClear();
-    $this->drushContext->assertDrushCommandWithArgument("pm-list", '--package="Marketo"');
-    echo $this->drushContext->readDrushOutput();
-    
+//    $this->drupalContext->assertCacheClear();
+//    $this->drushContext->assertDrushCommandWithArgument("pm-list", '--package="Marketo"');
+//    echo $this->drushContext->readDrushOutput();
+
     foreach ($module_list as $module) {
       if (module_exists($module)) {
-        $this->drushContext->assertDrushCommandWithArgument("pm-list", '--package="Marketo"');
-        echo $this->drushContext->readDrushOutput();
+//        $this->drushContext->assertDrushCommandWithArgument("pm-list", '--package="Marketo"');
+//        echo $this->drushContext->readDrushOutput();
         $message = sprintf('Module "%s" is not enabled.', $module);
         throw new \Exception($message);
       }
