@@ -55,6 +55,7 @@ class FeatureContext extends RawDrupalContext implements SnippetAcceptingContext
 
     foreach ($module_list as $module) {
       if (!module_exists($module)) {
+        print_r($GLOBALS);
         $message = sprintf('Module "%s" is not enabled.', $module);
         throw new \Exception($message);
       }
