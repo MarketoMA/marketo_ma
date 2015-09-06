@@ -2,6 +2,7 @@
 
 use Behat\Behat\Tester\Exception\PendingException;
 use Drupal\DrupalExtension\Context\RawDrupalContext;
+use Drupal\DrupalExtension\Context\DrupalContext;
 use Drupal\DrupalExtension\Context\DrushContext;
 use Behat\Behat\Context\SnippetAcceptingContext;
 use Behat\Gherkin\Node\PyStringNode;
@@ -14,12 +15,16 @@ class FeatureContext extends RawDrupalContext implements SnippetAcceptingContext
 
   private $params = array();
 
+  /** @var DrupalContext */
+  private $drupalContext;
+  
   /** @var DrushContext */
   private $drushContext;
 
   /** @BeforeScenario */
   public function gatherContexts(BeforeScenarioScope $scope) {
     $environment = $scope->getEnvironment();
+    $this->drupalContext = $environment->getContext('Drupal\DrupalExtension\Context\DrupalContext');
     $this->drushContext = $environment->getContext('Drupal\DrupalExtension\Context\DrushContext');
   }
 
@@ -44,7 +49,7 @@ class FeatureContext extends RawDrupalContext implements SnippetAcceptingContext
     module_disable($module_list);
     drupal_uninstall_modules($module_list);
     module_enable($module_list);
-    $this->clearStaticCaches();
+    $this->drupalContext->assertCacheClear();
     foreach ($module_list as $module) {
       if (!module_exists($module)) {
         $this->drushContext->assertDrushCommandWithArgument("pm-list", '--package="Marketo"');
@@ -64,7 +69,7 @@ class FeatureContext extends RawDrupalContext implements SnippetAcceptingContext
     $module_list = array('marketo_ma', 'marketo_ma_user', 'marketo_ma_webform');
     module_disable($module_list);
     drupal_uninstall_modules($module_list);
-    $this->clearStaticCaches();
+    $this->drupalContext->assertCacheClear();
     foreach ($module_list as $module) {
       if (module_exists($module)) {
         $this->drushContext->assertDrushCommandWithArgument("pm-list", '--package="Marketo"');
