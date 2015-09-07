@@ -5,19 +5,42 @@ default:
         - FeatureContext:
             parameters:
               marketo_settings:
-                marketo_ma_instance_host: value
-                marketo_ma_munchkin_account_id: value
-                marketo_ma_munchkin_api_private_key: value
-                marketo_ma_soap_encryption_key: value
-                marketo_ma_soap_endpoint: value
-                marketo_ma_soap_user_id: value
+                marketo_ma_instance_host: change_me_to_a_live_value
+                marketo_ma_munchkin_account_id: change_me_to_a_live_value
+                marketo_ma_munchkin_api_private_key: change_me_to_a_live_value
+                marketo_ma_soap_encryption_key: change_me_to_a_live_value
+                marketo_ma_soap_endpoint: change_me_to_a_live_value
+                marketo_ma_soap_user_id: change_me_to_a_live_value
                 marketo_ma_tracking_method: soap
+              
+              marketo_test_settings:
+                marketo_ma_instance_host: app-sjqe.marketo.com
+                marketo_ma_munchkin_account_id: 000-AAA-000
+                marketo_ma_munchkin_api_private_key: abcdefghijklmnopqrstuvwxyz
+                marketo_ma_tracking_method: munchkin
+                marketo_ma_user_fieldmap:
+                  uid: none
+                  name: none
+                  pass: none
+                  mail: none
+                  theme: none
+                  signature: none
+                  signature_format: none
+                  created: none
+                  access: none
+                  login: none
+                  status: none
+                  timezone: none
+                  language: none
+                  picture: none
+                  init: none
+                  data: none
                 
               marketo_default_settings:
-                marketo_ma_instance_host: app-sjqe.marketo.com
+                marketo_ma_instance_host: ''
                 marketo_ma_logging: 0
-                marketo_ma_munchkin_account_id: foo
-                marketo_ma_munchkin_api_private_key: bar
+                marketo_ma_munchkin_account_id: ''
+                marketo_ma_munchkin_api_private_key: ''
                 marketo_ma_munchkin_javascript_library: //munchkin.marketo.net/munchkin.js
                 marketo_ma_munchkin_lead_source: ''
                 marketo_ma_munchkin_partition: ''
@@ -34,9 +57,7 @@ default:
                 marketo_ma_soap_proxy_port: ''
                 marketo_ma_soap_user_id: ''
                 marketo_ma_tracking_method: munchkin
-                marketo_ma_user_fieldmap:
-                  field_first_name: none
-                  field_last_name: none
+                marketo_ma_user_fieldmap: []
                 marketo_ma_user_triggers:
                   login: login
                   insert: insert
@@ -47,9 +68,15 @@ default:
                 marketo_ma_webform_fields_soap: 'Retrieve from Marketo'
 
               marketo_page_vis_only:
+                marketo_ma_munchkin_account_id: 000-AAA-000
+                marketo_ma_munchkin_api_private_key: abcdefghijklmnopqrstuvwxyz
+                marketo_ma_tracking_method: munchkin
                 marketo_ma_visibility_pages: '1'
 
               marketo_role_vis_auth_exclude:
+                marketo_ma_munchkin_account_id: 000-AAA-000
+                marketo_ma_munchkin_api_private_key: abcdefghijklmnopqrstuvwxyz
+                marketo_ma_tracking_method: munchkin
                 marketo_ma_visibility_roles: '1'
                 marketo_ma_roles:
                   1: 0
@@ -57,6 +84,9 @@ default:
                   3: 0
 
               marketo_role_vis_auth_include:
+                marketo_ma_munchkin_account_id: 000-AAA-000
+                marketo_ma_munchkin_api_private_key: abcdefghijklmnopqrstuvwxyz
+                marketo_ma_tracking_method: munchkin
                 marketo_ma_visibility_roles: '0'
                 marketo_ma_roles:
                   1: 0

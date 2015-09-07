@@ -68,7 +68,7 @@ class FeatureContext extends RawDrupalContext implements SnippetAcceptingContext
    */
   public function allMarketoMaModulesClean($config = 'marketo_default_settings') {
     $module_list = array('marketo_ma', 'marketo_ma_user', 'marketo_ma_webform');
-    
+
     foreach ($module_list as $module) {
       if (!module_exists($module)) {
         module_enable(array($module));
@@ -85,7 +85,7 @@ class FeatureContext extends RawDrupalContext implements SnippetAcceptingContext
       }
     }
   }
-  
+
   /**
    * Reinstalls Marketo MA modules.
    *
