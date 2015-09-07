@@ -5,7 +5,7 @@ Feature: Marketo MA Drush features
   I need all of these tests to run successfully
 
   Background: Fresh module install
-    Given I reinstall all Marketo MA modules
+    Given all Marketo MA modules are clean and using "marketo_test_settings"
     
   Scenario Outline: Ensure all expected drush commands are available and functioning
     When I run drush "help" "<command>"

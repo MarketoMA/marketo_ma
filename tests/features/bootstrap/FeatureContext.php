@@ -6,6 +6,7 @@ use Drupal\DrupalExtension\Context\DrupalContext;
 use Drupal\DrupalExtension\Context\DrushContext;
 use Behat\Behat\Context\SnippetAcceptingContext;
 use Behat\Gherkin\Node\PyStringNode;
+use Behat\Gherkin\Node\TableNode;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 
 /**
@@ -21,11 +22,31 @@ class FeatureContext extends RawDrupalContext implements SnippetAcceptingContext
   /** @var DrushContext */
   private $drushContext;
 
+  /**
+   * Keep track of fields so they can be cleaned up.
+   *
+   * @var array
+   */
+  protected $fields = array();
+
   /** @BeforeScenario */
   public function gatherContexts(BeforeScenarioScope $scope) {
     $environment = $scope->getEnvironment();
     $this->drupalContext = $environment->getContext('Drupal\DrupalExtension\Context\DrupalContext');
     $this->drushContext = $environment->getContext('Drupal\DrupalExtension\Context\DrushContext');
+  }
+
+  /**
+   * Remove any created fields.
+   *
+   * @AfterScenario
+   */
+  public function cleanFields() {
+    // Remove any fields that were created.
+    foreach ($this->fields as $field) {
+      $this->drushContext->assertDrushCommandWithArgument("field-delete", "$field --y");
+    }
+    $this->fields = array();
   }
 
   /**
@@ -39,6 +60,32 @@ class FeatureContext extends RawDrupalContext implements SnippetAcceptingContext
     $this->params = $parameters;
   }
 
+  /**
+   * Resets all Marketo MA modules to their default enabled state.
+   *
+   * @Given all Marketo MA modules are clean
+   * @Given all Marketo MA modules are clean and using :config
+   */
+  public function allMarketoMaModulesClean($config = 'marketo_default_settings') {
+    $module_list = array('marketo_ma', 'marketo_ma_user', 'marketo_ma_webform');
+    
+    foreach ($module_list as $module) {
+      if (!module_exists($module)) {
+        module_enable(array($module));
+      }
+    }
+
+    $this->iPopulateConfigFromBehatYml($config);
+    drupal_flush_all_caches();
+
+    foreach ($module_list as $module) {
+      if (!module_exists($module)) {
+        $message = sprintf('Module "%s" could not be enabled.', $module);
+        throw new \Exception($message);
+      }
+    }
+  }
+  
   /**
    * Reinstalls Marketo MA modules.
    *
@@ -184,6 +231,22 @@ class FeatureContext extends RawDrupalContext implements SnippetAcceptingContext
   }
 
   /**
+   * Creates fields for the given entity type.
+   * | bundle | entity | field_name    | field_type | widget_type |
+   * | user   | user   | field_company | text       | text_field  |
+   * | ...    | ...    | ...           | ...        | ...         |
+   * 
+   * @Given fields:
+   */
+  public function createCustomUserFields(TableNode $fieldTable) {
+    foreach ($fieldTable->getHash() as $fieldHash) {
+      $field = (object) $fieldHash;
+      array_push($this->fields, $field->field_name);
+      $this->drushContext->assertDrushCommandWithArgument("field-create", "$field->bundle $field->field_name,$field->field_type,$field->widget_type --entity_type=$field->entity");
+    }
+  }
+
+  /**
    * @Then Munchkin tracking should be enabled
    */
   public function assertMunchkinTrackingEnabled() {
@@ -201,6 +264,22 @@ class FeatureContext extends RawDrupalContext implements SnippetAcceptingContext
     $enabled = $this->getSession()->evaluateScript("return (Drupal.settings.marketo_ma === undefined) ? false : Drupal.settings.marketo_ma.track;");
     if ($enabled !== FALSE) {
       throw new Exception("Munchkin tracking is expected to be OFF but is currently ON");
+    }
+  }
+
+  /**
+   * @Then Munchkin associateLead action should send data
+   */
+  public function assertMunchkinAssociateLeadSendData(TableNode $fields) {
+    $actions = $this->getSession()->evaluateScript("return Drupal.settings.marketo_ma.actions");
+    if ((isset($actions[0]['action']) && $actions[0]['action'] == 'associateLead') == FALSE) {
+      throw new \Exception("Munchkin associateLead did not fire as expected");
+    }
+    foreach ($fields->getHash() as $row) {
+      if ($actions[0]['data'][$row['field']] != $row['value']) {
+        $message = sprintf('Field "%s" was expected to be "%s" but was "%s".', $row['field'], $row['value'], $actions[0]['data'][$row['field']]);
+        throw new \Exception($message);
+      }
     }
   }
 

@@ -2,11 +2,10 @@
 Feature: Browser tests
 
   Background: Fresh module install
-    Given I reinstall all Marketo MA modules
+    Given all Marketo MA modules are clean and using "marketo_test_settings"
 
   @page_visibility
   Scenario: Page visibilty when using default "All pages except those listed"
-    Given I populate the Marketo MA config using "marketo_default_settings"
     And I am logged in as a user with the "administrator" role
     
     When I am on the homepage
@@ -52,7 +51,6 @@ Feature: Browser tests
     
   @role_visibility
   Scenario: Role visibilty when using default "All roles except those selected"
-    Given Marketo MA is configured using settings from "marketo_default_settings"
     
     When I am an anonymous user
     And I am on the homepage

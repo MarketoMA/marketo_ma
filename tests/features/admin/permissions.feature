@@ -5,7 +5,7 @@ Feature: Module permissions
   I need to attempt to accesss portions of the system ensuring expected results are returned
 
   Background: Fresh module install
-    Given I reinstall all Marketo MA modules
+    Given all Marketo MA modules are clean and using "marketo_test_settings"
     
   Scenario: Ensure core module permissions work as expected
     Given I am an anonymous user

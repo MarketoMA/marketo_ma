@@ -5,7 +5,7 @@ Feature: Module configuration
   I must configure the module settings
 
   Background: Fresh module install
-    Given I reinstall all Marketo MA modules
+    Given all Marketo MA modules are clean
     
   @config
   Scenario: Configure module settings
