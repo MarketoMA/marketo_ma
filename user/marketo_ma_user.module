@@ -203,7 +203,7 @@ function _marketo_ma_user_get_mapped_fields($account) {
   $fieldmap = variable_get('marketo_ma_user_fieldmap', array());
   foreach ($fieldmap as $key => $value) {
     if ($value != 'none') {
-      if (!is_object($account->{$key}) && !is_array($account->{$key})) {
+      if (isset($account->{$key}) && !is_object($account->{$key}) && !is_array($account->{$key})) {
         // These are the core user fields: uid, name, pass, mail, etc..
         $data[$value] = $account->{$key};
       }

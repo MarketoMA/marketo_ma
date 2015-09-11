@@ -10,6 +10,7 @@ Marketo MA 7.x-1.x, 2015-08-31
   can now override the default tracking method and when using Forms 2.0 can
   specify the Marketo form which should be targeted.
 - #2507733: User Integration now allow mapping core user object fields.
+- #2567255: Resolved undefined property error when saving user object.
 
 Marketo MA 7.x-1.5, 2014-08-20
 ------------------------------
