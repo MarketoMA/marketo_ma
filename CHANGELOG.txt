@@ -1,7 +1,7 @@
 Marketo MA Changelog
 ---------------------
 
-Marketo MA 7.x-1.x, 2015-08-31
+Marketo MA 7.x-1.x, 2015-09-11
 ------------------------------
 - drush mma-fields now requires drush 6 or higher and allows display of
   additional field attributes. See 'drush help mma-fields'.
