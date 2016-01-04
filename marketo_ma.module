@@ -112,6 +112,11 @@ function marketo_ma_add_lead($email, $data = array(), $merge = FALSE, $options =
   foreach ($marketo_ma_data[$email]['data'] as $key => $value) {
     // hook_marketo_ma_lead_firstname_alter(&$data)
     drupal_alter('marketo_ma_lead_' . $key, $marketo_ma_data[$email]['data'][$key]);
+		
+		//After Others modules alter
+		if(is_array($value)){
+    	$marketo_ma_data[$email]['data'][$key] = implode(' | ' , $value);
+    }
   }
 
   $_SESSION['marketo_ma_data'] = $marketo_ma_data;

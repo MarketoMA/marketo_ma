@@ -106,16 +106,17 @@ function marketo_ma_webform_webform_submission_insert($node, $submission) {
     foreach ($fieldmap as $cid => $key) {
       if ($key != MARKETO_MA_WEBFORM_COMPONENT_NONE) {
         // https://drupal.org/node/1609324#submission-structure
-        if (isset($submission->data[$cid]['value'][0])) {
-          $data[$key] = $submission->data[$cid]['value'][0];
-        }
-        elseif (isset($submission->data[$cid][0])) {
-          $data[$key] = $submission->data[$cid][0];
-        }
-        else {
-          // Handle mapped selectbox components with no option selected.
-          $data[$key] = '';
-        }
+        
+				if (isset($submission->data[$cid]['value'])) {
+					$data[$key] = (count($submission->data[$cid]['value']) > 1) ? $submission->data[$cid]['value'] : $submission->data[$cid]['value'][0];
+				}
+				elseif (isset($submission->data[$cid])) {
+					$data[$key] = (count($submission->data[$cid]) > 1) ? $submission->data[$cid] : $submission->data[$cid][0];
+				}
+				else {
+					// Handle mapped selectbox components with no option selected.
+					$data[$key] = '';
+				}			
       }
     }
 
