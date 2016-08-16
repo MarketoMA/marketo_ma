@@ -5,9 +5,9 @@ use Drupal\Core\Site\Settings;
 use Drupal\marketo_ma\MarketoMaMunchkinInterface;
 
 /**
- * @group marketo_ma3
+ * @group marketo_ma
  */
-class MarketoMaServiceTest extends KernelTestBase {
+class MarketoMaMunchkinServiceTest extends KernelTestBase {
 
   /**
    * @var \Drupal\marketo_ma\MarketoMaMunchkinInterface The marketo_ma munchkin service.
@@ -43,10 +43,9 @@ class MarketoMaServiceTest extends KernelTestBase {
     $config = \Drupal::configFactory()->getEditable('marketo_ma.settings');
 
     // Set up required settings.
-    $config->set('tracking_method', 'rest');
+    $config->set('tracking_method', 'munchkin');
     $config->set('munchkin.account_id', $encryption_service->encrypt(getenv('marketo_ma_munchkin_account_id')));
-    $config->set('rest.client_id', $encryption_service->encrypt(getenv('marketo_ma_rest_client_id')));
-    $config->set('rest.client_secret', $encryption_service->encrypt(getenv('marketo_ma_rest_client_secret')));
+    $config->set('munchkin.api_private_key', $encryption_service->encrypt(getenv('marketo_ma_munchkin_api_private_key')));
     $config->save();
 
     // Get the API client service.
