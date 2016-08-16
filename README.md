@@ -14,7 +14,7 @@ This module adds Marketo tracking capability to your Drupal site.
    can optionally user drush to download with `drush dl marketo_ma`.
 
 2. Add the SOAP API library to drupal using `composer require
-   chapter-three/marketo-soap-php:dev-master`.
+   dchesterton/marketo-rest-api:dev-master`.
 
 3. Login as an administrator. Enable the Marketo MA module in
    "Administer" -> "Modules"

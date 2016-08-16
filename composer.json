@@ -14,15 +14,10 @@
     {
       "type": "vcs",
       "url": "https://github.com/Jaesin/marketo-rest-api"
-    },
-    {
-      "type": "vcs",
-      "url": "https://github.com/chapter-three/marketo-soap-php"
     }
   ],
   "require": {
     "php": ">=5.5.9",
-    "chapter-three/marketo-soap-php" : "dev-master",
     "dchesterton/marketo-rest-api" : "dev-master"
   }
 }
