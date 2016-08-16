@@ -2,6 +2,8 @@
 /**
  * @file
  * Hooks provided by Marketo MA.
+ *
+ * @todo: Implement these alter hooks.
  */
 
 /**

@@ -1,8 +1,0 @@
-name = Marketo MA
-description = Integration with Marketo marketing automation software.
-core = 7.x
-package = Marketo
-configure = admin/config/search/marketo_ma
-
-files[] = includes/marketo_ma.soap.inc
-scripts[] = js/marketo_ma.js

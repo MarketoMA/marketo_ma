@@ -1,0 +1,28 @@
+{
+  "name": "drupal/marketo_ma",
+  "type": "drupal-module",
+  "description": "Integration with Marketo marketing automation software.",
+  "keywords": ["Drupal"],
+  "license": "GPL-2.0+",
+  "homepage": "https://www.drupal.org/project/marketo_ma",
+  "minimum-stability": "dev",
+  "support": {
+    "issues": "https://www.drupal.org/project/issues/marketo_ma",
+    "source": "http://cgit.drupalcode.org/marketo_ma"
+  },
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "https://github.com/Jaesin/marketo-rest-api"
+    },
+    {
+      "type": "vcs",
+      "url": "https://github.com/chapter-three/marketo-soap-php"
+    }
+  ],
+  "require": {
+    "php": ">=5.5.9",
+    "chapter-three/marketo-soap-php" : "dev-master",
+    "dchesterton/marketo-rest-api" : "dev-master"
+  }
+}

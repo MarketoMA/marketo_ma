@@ -1,0 +1,13 @@
+services:
+  # The Marketo MA default service (Worker/Core).
+  marketo_ma:
+    class: Drupal\marketo_ma\MarketoMaService
+    arguments: ['@config.factory', '@marketo_ma.client', '@current_user', '@current_route_match', '@path.matcher', '@marketo_ma.munchkin']
+  # The Marketo MA API Client service.
+  marketo_ma.client:
+    class: Drupal\marketo_ma\MarketoMaApiClient
+    arguments: ['@config.factory']
+  # The Marketo MA munchkin service
+  marketo_ma.munchkin:
+    class: Drupal\marketo_ma\MarketoMaMunchkin
+    arguments: ['@config.factory', '@current_user', '@current_route_match']

@@ -1,0 +1,5 @@
+marketo-ma:
+  version: 1.x
+  js:
+    js/marketo_ma.js: {}
+  dependencies: {}
