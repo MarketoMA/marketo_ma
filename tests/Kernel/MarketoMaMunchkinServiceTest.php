@@ -59,6 +59,7 @@ class MarketoMaMunchkinServiceTest extends KernelTestBase {
     self::assertTrue($this->munchkin instanceof MarketoMaMunchkinInterface);
 
     self::assertTrue($this->munchkin->isConfigured());
+    self::assertEquals(getenv('marketo_ma_munchkin_account_id'), $this->munchkin->getAccountID());
   }
 
 }

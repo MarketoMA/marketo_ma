@@ -17,9 +17,23 @@ interface MarketoMaMunchkinInterface {
   public function config();
 
   /**
+   * Determines if all of the configuration is complete for munchkin integration.
+   *
    * @return bool
-   *   Returns true if all dependent munchkin configuration is set.
    */
   public function isConfigured();
 
+  /**
+   * Gets the Munchkin account ID.
+   *
+   * @return string
+   */
+  public function getAccountID();
+
+  /**
+   * Gets the Munchkin account ID.
+   *
+   * @return string
+   */
+  public function getLibrary();
 }

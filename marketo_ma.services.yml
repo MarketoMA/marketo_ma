@@ -4,6 +4,8 @@ services:
     class: Drupal\marketo_ma\MarketoMaService
     arguments: ['@config.factory', '@marketo_ma.client', '@current_user', '@current_route_match', '@path.matcher', '@marketo_ma.munchkin']
   # The Marketo MA API Client service.
+  # @todo It would be nice to have some from of cached client, which caches for
+  #   example the field mapping along the way.
   marketo_ma.client:
     class: Drupal\marketo_ma\MarketoMaApiClient
     arguments: ['@config.factory']

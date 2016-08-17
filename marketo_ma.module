@@ -25,10 +25,11 @@ function marketo_ma_help($route_name, RouteMatchInterface $route_match) {
 /**
  * Implements hook_page_attachments().
  *
- * Adds teh marketo ma javascript to all pages.
+ * Adds the marketo ma javascript to all pages.
  */
 function marketo_ma_page_attachments(array &$page) {
-  $page['#attached']['library'][] = 'marketo_ma/marketo-ma';
+  // Hand off to the marketo_ma service.
+  \Drupal::service('marketo_ma')->pageAttachments($page);
 }
 
 /**

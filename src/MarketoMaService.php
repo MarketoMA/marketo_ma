@@ -81,18 +81,38 @@ class MarketoMaService implements MarketoMaServiceInterface {
   /**
    * {@inheritdoc}
    */
-  public function preProcessPage(&$variables) {
+  public function trackingMethod() {
+    return $this->config()->get('tracking_method');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function pageAttachments(&$page) {
+    // Check whether we should track via the Munchkin.
     if ($this->trackCurrentRequest()) {
-      $tracking_method = $this->config()->get('tracking_method');
-      // Check for the api option and that the client can connect.
-      if ($tracking_method == 'rest' && $this->client->canConnect()) {
-
-      }
       // Check for the munchkin option and that the munchkin api is configured.
-      elseif ($tracking_method == 'munchkin' && $this->munchkin->isConfigured()) {
-
+      if ($this->trackingMethod() == 'munchkin' && $this->munchkin->isConfigured()) {
+        // Add the library and settings for tracking the page.
+        $page['#attached']['library'][] = 'marketo_ma/marketo-ma';
+        $page['#attached']['drupalSettings']['marketo_ma'] = [
+          'track' => TRUE,
+          'key' => $this->munchkin->getAccountID(),
+          'library' => $this->munchkin->getLibrary(),
+        ];
+      }
+      // Check for the api option and that the client can connect.
+      elseif ($this->trackingMethod() == 'api_client' && $this->client->canConnect()) {
+        $this->apiTrackPage();
       }
     }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function preProcessPage(&$variables) {
+    // @todo: Remove if not needed.
   }
 
   /**
@@ -132,6 +152,13 @@ class MarketoMaService implements MarketoMaServiceInterface {
     $path_has_match = $this->path_matcher->matchPath($this->route_match->getRouteObject()->getPath(), $pages);
 
     return (($path_has_match && !$negate_page_match) || (!$path_has_match && $negate_page_match));
+  }
+
+  /**
+   * Tracks the page via the API client.
+   */
+  protected function apiTrackPage() {
+
   }
 
 }

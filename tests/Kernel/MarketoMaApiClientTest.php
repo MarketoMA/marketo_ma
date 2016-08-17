@@ -44,7 +44,7 @@ class MarketoMaApiClientTest extends KernelTestBase {
     $config = \Drupal::configFactory()->getEditable('marketo_ma.settings');
 
     // Set up required settings.
-    $config->set('tracking_method', 'rest');
+    $config->set('tracking_method', 'api_client');
     $config->set('munchkin.account_id', $encryption_service->encrypt(getenv('marketo_ma_munchkin_account_id')));
     $config->set('rest.client_id', $encryption_service->encrypt(getenv('marketo_ma_rest_client_id')));
     $config->set('rest.client_secret', $encryption_service->encrypt(getenv('marketo_ma_rest_client_secret')));

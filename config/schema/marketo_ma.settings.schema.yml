@@ -39,8 +39,11 @@ marketo_ma.settings:
       label: 'Field Definition config'
       mapping:
         defined_fields:
-          type: string
+          type: sequence
           label: 'Marketo defined fields'
+          sequence:
+            type: string
+            label: 'Field Value'
     tracking:
       type: config_object
       label: 'Field Definition config'

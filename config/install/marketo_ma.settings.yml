@@ -1,6 +1,6 @@
 instance_host: null
 logging: 0
-tracking_method: rest
+tracking_method: api_client
 munchkin:
   javascript_library: '//munchkin.marketo.net/munchkin.js'
   api_private_key: null
@@ -12,10 +12,14 @@ rest:
   client_id: ''
   client_secret: ''
 field:
-  defined_fields: "FirstName|First Name\nLastName|Last Name\nEmail|Email Address\n"
+  defined_fields:
+    FirstName: 'First Name'
+    LastName: 'Last Name'
+    Email: 'Email Address'
 tracking:
   request_path:
     negate: 1
     pages: 'admin\nadmin/*\nbatch\nnode/add*\nnode/*/*\nuser/*/*'
   roles:
     authenticated: authenticated
+    anonymous: anonymous

@@ -5,11 +5,14 @@ namespace Drupal\marketo_ma;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Session\AccountInterface;
+use Drupal\encryption\EncryptionTrait;
 
 /**
  * The marketo MA munchkin service (marketo_ma.munchkin).
  */
 class MarketoMaMunchkin implements MarketoMaMunchkinInterface {
+
+  use EncryptionTrait;
 
   /**
    * The config factory service.
@@ -64,10 +67,24 @@ class MarketoMaMunchkin implements MarketoMaMunchkinInterface {
   /**
    * {@inheritdoc}
    */
+  public function getAccountID() {
+    return $this->decrypt($this->config()->get('munchkin.account_id'));
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getLibrary() {
+    return $this->config()->get('munchkin.javascript_library');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function isConfigured() {
-    return (!empty($this->config()->get('munchkin.api_private_key'))
-      && !empty($this->config()->get('munchkin.javascript_library'))
-      && !empty($this->config()->get('munchkin.account_id'))
+    return (!empty($this->decrypt($this->config()->get('munchkin.api_private_key')))
+      && !empty($this->getAccountID())
+      && !empty($this->getLibrary())
     );
   }
 }

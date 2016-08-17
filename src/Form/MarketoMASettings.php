@@ -163,7 +163,7 @@ class MarketoMASettings extends ConfigFormBase {
       ]),
       '#options' => [
         'munchkin' => $this->t('Munchkin Javascript API'),
-        'rest' => $this->t('REST API'),
+        'api_client' => $this->t('REST API'),
       ],
       '#default_value' => $config->get('tracking_method'),
       '#required' => TRUE,
@@ -204,7 +204,7 @@ class MarketoMASettings extends ConfigFormBase {
       ]),
       '#type' => 'fieldset',
       '#states' => [
-        'visible' => [':input[name=tracking_method]' => ['value' => 'rest']],
+        'visible' => [':input[name=tracking_method]' => ['value' => 'api_client']],
       ],
     ];
     $form['api_tab']['group_rest']['rest_client_id'] = [
@@ -213,7 +213,7 @@ class MarketoMASettings extends ConfigFormBase {
       '#description' => $this->t('The client id for your rest api user.'),
       '#default_value' => $this->decrypt($config->get('rest.client_id')),
       '#states' => [
-        'required' => [':input[name=tracking_method]' => ['value' => 'rest']],
+        'required' => [':input[name=tracking_method]' => ['value' => 'api_client']],
       ],
     ];
     $form['api_tab']['group_rest']['rest_client_secret'] = [
@@ -222,7 +222,7 @@ class MarketoMASettings extends ConfigFormBase {
       '#description' => $this->t('The client secret for your rest api user.'),
       '#default_value' => $this->decrypt($config->get('rest.client_secret')),
       '#states' => [
-        'required' => [':input[name=tracking_method]' => ['value' => 'rest']],
+        'required' => [':input[name=tracking_method]' => ['value' => 'api_client']],
       ],
     ];
     $form['api_tab']['group_rest']['rest_batch_requests'] = [
@@ -242,7 +242,7 @@ class MarketoMASettings extends ConfigFormBase {
       '#rows' => 10,
       '#prefix' => '<div id="marketo-defined-fields-wrapper">',
       '#suffix' => '</div>',
-      '#default_value' => $config->get('field.defined_fields'),
+      '#default_value' => $this->implodeFields($config->get('field.defined_fields')),
     ];
 
     // Add the ajax button that get's fields from the marketo API.
@@ -287,7 +287,7 @@ class MarketoMASettings extends ConfigFormBase {
 
     //<editor-fold desc="Role tracking config">
     // Get the user roles to use as options.
-    $options = \user_roles(TRUE);
+    $options = \user_roles();
     // We don't need the Role entity, just the label.
     array_walk($options, function (&$item) {
       $item = $item->label();
@@ -298,6 +298,9 @@ class MarketoMASettings extends ConfigFormBase {
       '#title' => t('Add tracking to specific roles'),
       '#default_value' => $config->get('tracking.roles'),
       '#options' => $options,
+      '#description' => $this->t("Specify roles to be tracked, Warning: %warning", [
+        '%warning' => 'If Anonymous user is unchecked, tracking history will not be available once the user logs in.',
+      ]),
     ];
     //</editor-fold>
 
@@ -329,7 +332,7 @@ class MarketoMASettings extends ConfigFormBase {
       ->set('rest.batch_requests', $form_state->getValue('rest_batch_requests'))
       ->set('rest.client_id', $this->encrypt($form_state->getValue('rest_client_id')))
       ->set('rest.client_secret', $this->encrypt($form_state->getValue('rest_client_secret')))
-      ->set('field.defined_fields', $form_state->getValue('field_defined_fields'))
+      ->set('field.defined_fields', $this->explodeFields($form_state->getValue('field_defined_fields')))
       ->set('tracking.request_path.pages', $form_state->getValue('tracking_request_path_pages'))
       ->set('tracking.request_path.negate', $form_state->getValue('tracking_request_path_negate'))
       ->set('tracking.roles', array_filter($form_state->getValue('tracking_roles')))
@@ -357,4 +360,41 @@ class MarketoMASettings extends ConfigFormBase {
     // Return the form element that will bre replaced in the wrapper element.
     return $form['field_tab']['field_defined_fields'];
   }
+
+  /**
+   * Takes a pipe delimited input value converts it to a key/value config sequence.
+   *
+   * @param string $submitted_value
+   * @return array
+   */
+  protected function explodeFields($submitted_value) {
+    // Return an empty array for empty values.
+    if (empty($submitted_value)) {
+      return [];
+    }
+
+    // Buffer fields.
+    $fields = [];
+
+    // Split lines and delimited values into a fields array.
+    array_map(function ($line) use (&$fields) {
+      $key_value = explode('|', $line);
+      $fields[reset($key_value)] = array_pop($key_value);
+    }, array_filter(preg_split('/[\r\n]+/', $submitted_value)));
+
+    return $fields;
+  }
+
+  /**
+   * Converts a config array into a pipe delimited multi-line value.
+   *
+   * @param $config_array
+   * @return string
+   */
+  protected function implodeFields($config_array) {
+    return implode("\r\n", array_map(function($k, $v){
+      return "{$k}|{$v}";
+    }, array_keys($config_array), $config_array)) . "\r\n";
+  }
+
 }
