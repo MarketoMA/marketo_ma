@@ -1,0 +1,9 @@
+name: Marketo MA Contact
+type: module
+description: Integrates Marketo MA with Contact module forms.
+core: 8.x
+package: Marketo
+dependencies:
+  - marketo_ma
+  - contact
+  - contact_storage

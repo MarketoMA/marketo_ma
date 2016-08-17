@@ -1,0 +1,170 @@
+<?php
+
+namespace Drupal\mma_contact\Form;
+
+use Drupal\contact\ContactFormInterface;
+use Drupal\Core\Entity\EntityFieldManagerInterface;
+use Drupal\Core\Field\FieldDefinitionInterface;
+use Drupal\Core\Form\FormBase;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\marketo_ma\MarketoMaApiClientInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+
+/**
+ * Provides a configuration form per contact_form instance.
+ *
+ * This form adds:
+ *
+ * - A toggle to enable marketo support for this specific form
+ * - Provide a way to provide field mapping between contact fields and marketo
+ *   ones.
+ */
+class MmaContactConfiguration extends FormBase {
+
+  /**
+   * The contact form entity.
+   *
+   * @todo Could we also implement an entity form instead?
+   *
+   * @var \Drupal\contact\ContactFormInterface
+   */
+  protected $contactForm;
+
+  /** @var \Drupal\marketo_ma\MarketoMaApiClientInterface */
+  protected $marketoClient;
+
+  /** @var \Drupal\Core\Entity\EntityFieldManagerInterface */
+  protected $entityFieldManager;
+
+  /**
+   * Creates a new MmaContactConfiguration instance.
+   *
+   * @param \Drupal\marketo_ma\MarketoMaApiClientInterface $marketoClient
+   *   The marketo client.
+   * @param \Drupal\Core\Entity\EntityFieldManagerInterface $entityFieldManager
+   *   The entity field manager.
+   */
+  public function __construct(MarketoMaApiClientInterface $marketoClient, EntityFieldManagerInterface $entityFieldManager) {
+    $this->marketoClient = $marketoClient;
+    $this->entityFieldManager = $entityFieldManager;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('marketo_ma.client'),
+      $container->get('entity_field.manager')
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getFormId() {
+    return 'mma_contact_configuration';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function buildForm(array $form, FormStateInterface $form_state, ContactFormInterface $contact_form = NULL) {
+    $this->contactForm = $contact_form;
+
+    $enabled_fields = $this->contactForm->getThirdPartySetting('mma_contact', 'enabled_fields');
+    $mapping = $this->contactForm->getThirdPartySetting('mma_contact', 'mapping');
+
+    $form['enabled'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Enable tracking'),
+      '#default_value' => !empty($enabled_fields) || !empty($mapping),
+    ];
+
+    $form['mapping'] = [
+      '#type' => 'table',
+      '#header' => [
+        'title' => $this->t('Title'),
+        'tracking' => $this->t('Tracking enabled'),
+        'mapping' => $this->t('Components mapping'),
+      ],
+    ];
+
+    $marketo_field_options = ['' => $this->t('None')] + $this->getMarketoFields();
+    foreach ($this->getContactFields() as $field_name => $label) {
+      $form['mapping'][$field_name] = [
+        'title' => ['#markup' => $label],
+        'tracking' => ['#markup' => ''],
+        'mapping' => [
+          '#type' => 'select',
+          '#title' => $this->t('Select mapped component'),
+          '#title_display' => 'hidden',
+          '#options' => $marketo_field_options,
+          '#default_value' => isset($mapping[$field_name]) ? $mapping[$field_name] : FALSE,
+        ],
+      ];
+    }
+
+    $form['actions'] = [
+      '#type' => 'actions',
+    ];
+    $form['actions']['submit'] = [
+      '#type' => 'submit',
+      '#value' => $this->t('Save'),
+      '#button_type' => 'primary',
+    ];
+
+    return $form;
+  }
+
+  /**
+   * Returns all available contact form field labels, keyed by machine name.
+   *
+   * @return string[]
+   */
+  protected function getContactFields() {
+    $fields = $this->entityFieldManager->getFieldDefinitions('contact_message', $this->contactForm->id());
+    return array_map(function (FieldDefinitionInterface $field_definition) {
+      return $field_definition->getLabel();
+    }, $fields);
+  }
+
+  /**
+   * Returns the available marketo field labels, keyed by machine name.
+   *
+   * @return string[]
+   */
+  protected function getMarketoFields() {
+    $fields = $this->marketoClient->getFields();
+    $keys = array_map(function ($field) {
+      return $field['default_name'];
+    }, $fields);
+    $labels = array_map(function ($field) {
+      return $field['displayName'];
+    }, $fields);
+    return array_combine($keys, $labels);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function submitForm(array &$form, FormStateInterface $form_state) {
+    if (empty($form_state->getValue('enabled'))) {
+      $this->contactForm->setThirdPartySetting('mma_contact', 'enabled_fields', []);
+      $this->contactForm->setThirdPartySetting('mma_contact', 'mapping', []);
+    }
+    else {
+      $this->contactForm->setThirdPartySetting('mma_contact', 'enabled_fields', []);
+
+      $mapping = $form_state->getValue('mapping');
+      $mapping = array_map(function ($form_value) {
+        return $form_value['mapping'];
+      }, $mapping);
+      $mapping = array_filter($mapping);
+
+      $this->contactForm->setThirdPartySetting('mma_contact', 'mapping', $mapping);
+    }
+    $this->contactForm->save();
+  }
+
+}

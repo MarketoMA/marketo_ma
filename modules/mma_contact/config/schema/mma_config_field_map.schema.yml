@@ -1,0 +1,14 @@
+contact.form.*.third_party.mma_contact:
+  type: mapping
+  label: 'MMA contact settings'
+  mapping:
+    mapping:
+      label: 'Contact fields to marketo fields mapping'
+      type: sequence
+      sequence:
+        type: string
+    enabled_fields:
+      label: 'Enabled tracking fields'
+      type: sequence
+      sequence:
+        type: string
