@@ -87,4 +87,25 @@ class MarketoMaMunchkin implements MarketoMaMunchkinInterface {
       && !empty($this->getLibrary())
     );
   }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getAction($action_type, LeadInterface $lead, $args = []) {
+    if ($action_type === MarketoMaMunchkinInterface::ACTION_ASSOCIATE_LEAD && !empty($lead->getEmail())) {
+      // The `associateLead` action requires the email and signing.
+      return [
+        'action' => $action_type,
+        'data' => $lead->data(),
+        'hash' => hash('sha1', $this->decrypt($this->config()->get('munchkin.api_private_key')) . $lead->getEmail()),
+      ];
+    } else {
+      // The cookie is used for identification. Only args are required.
+      return [
+        'action' => $action_type,
+        'data' => $args,
+      ];
+    }
+  }
+
 }

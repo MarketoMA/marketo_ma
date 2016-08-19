@@ -12,22 +12,7 @@ use Drupal\Tests\BrowserTestBase;
  *
  * @see \Drupal\mma_contact_test\TestMarketoMaApiClient
  */
-class MmaContactSettingsTest extends BrowserTestBase {
-
-  /**
-   * {@inheritdoc}
-   */
-  public static $modules = ['contact', 'contact_storage', 'mma_contact', 'mma_contact_test', 'user'];
-
-  /**
-   * {@inheritdoc}
-   */
-  protected function setUp() {
-    parent::setUp();
-
-    $account = $this->drupalCreateUser(['administer contact forms', 'administer marketo']);
-    $this->drupalLogin($account);
-  }
+class MmaContactSettingsTest extends MmaContactTestBase {
 
   public function testMarketoContactAdminSettingsUI() {
     $edit = [
@@ -37,7 +22,6 @@ class MmaContactSettingsTest extends BrowserTestBase {
       'contact_storage_preview' => FALSE,
     ];
     $this->drupalPostForm('admin/structure/contact/add', $edit, 'Save');
-    file_put_contents('/tmp/debug.html', $this->getSession()->getPage()->getHtml());
     $this->assertSession()->pageTextContains('has been added');
 
     $edit = [

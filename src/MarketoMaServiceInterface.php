@@ -22,14 +22,6 @@ interface MarketoMaServiceInterface {
   public function config();
 
   /**
-   * Handles pre-processing page variables for the marketo_ma module.
-   *
-   * @param $variables
-   * @return null
-   */
-  public function preProcessPage(&$variables);
-
-  /**
    * Handles `hook_page_attachments` for the marketo_ma module.
    *
    * @param $page
@@ -43,7 +35,7 @@ interface MarketoMaServiceInterface {
    * @return bool
    *   Whether the current request should be tracked.
    */
-  public function trackCurrentRequest();
+  public function shouldTrackCurrentRequest();
 
   /**
    * Gets the tracking method from settings.
@@ -52,5 +44,47 @@ interface MarketoMaServiceInterface {
    *   The tracking method.
    */
   public function trackingMethod();
+
+  /**
+   * Sets temporary user data for this session.
+   *
+   * @param $data
+   *   The marketo user data.
+   * @return $this
+   */
+  public function setUserData($data);
+
+  /**
+   * Gets temporary user data for the current session.
+   *
+   * @return array
+   *   The temporary user data.
+   */
+  public function getUserData();
+
+  /**
+   * Resets (deletes) the temporary user data for the current session.
+   *
+   * @return $this
+   */
+  public function resetUserData();
+
+  /**
+   * Determines whether the current session contains any temporary user data.
+   *
+   * @return bool
+   */
+  public function hasUserData();
+
+
+  /**
+   * Updates lead information respecting batch settings.
+   *
+   * @param \Drupal\marketo_ma\LeadInterface $lead
+   *   The Lead object.
+   *
+   * @return $this
+   */
+  public function updateLead($lead);
 
 }

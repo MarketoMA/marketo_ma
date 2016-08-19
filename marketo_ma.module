@@ -31,11 +31,3 @@ function marketo_ma_page_attachments(array &$page) {
   // Hand off to the marketo_ma service.
   \Drupal::service('marketo_ma')->pageAttachments($page);
 }
-
-/**
- * Implements hook_preprocess_page().
- */
-function marketo_ma_preprocess_page(&$variables) {
-  // Hand off to the marketo_ma service.
-  \Drupal::service('marketo_ma')->preProcessPage($variables);
-}

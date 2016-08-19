@@ -10,6 +10,13 @@ namespace Drupal\marketo_ma;
 interface MarketoMaMunchkinInterface {
 
   /**
+   * Constants for munchkin javascript actions.
+   */
+  const ACTION_VISIT_PAGE = 'visitWebPage';
+  const ACTION_CLICK_LINK = 'clickLink';
+  const ACTION_ASSOCIATE_LEAD = 'associateLead';
+
+  /**
    * Gets the marketo_ma config.
    *
    * @return \Drupal\Core\Config\ImmutableConfig|null
@@ -36,4 +43,22 @@ interface MarketoMaMunchkinInterface {
    * @return string
    */
   public function getLibrary();
+
+  /**
+   * Get a munchkin action given the action type and lead information.
+   * @see: http://developers.marketo.com/documentation/websites/munchkin-api/
+   *
+   * @param $action_type
+   *   The type of action to be preformed. ('visitWebPage', 'clickLink', 'associateLead')
+   * @param LeadInterface $lead
+   *   The lead to be associated. Note: A Lead email is required the
+   *   `associateLead` action.
+   * @param array $args
+   *   Required args for 'visitWebPage' or 'clickLink' actions.
+   *
+   * @return array
+   *   The Drupal settings array required for the action.
+   */
+  public function getAction($action_type, LeadInterface $lead, $args = []);
+
 }

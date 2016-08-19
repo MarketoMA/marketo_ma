@@ -2,4 +2,7 @@ marketo-ma:
   version: 1.x
   js:
     js/marketo_ma.js: {}
-  dependencies: {}
+  dependencies:
+    - core/jquery
+    - core/drupal
+    - core/drupalSettings

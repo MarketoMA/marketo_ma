@@ -12,3 +12,13 @@ contact.form.*.third_party.mma_contact:
       type: sequence
       sequence:
         type: string
+
+block.settings.mma_contact_block__additional_field_values:
+  type: block_settings
+  mapping:
+    contact_form:
+      type: string
+    fields:
+      type: sequence
+      sequence:
+        type: ignore

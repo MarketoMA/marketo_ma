@@ -4,8 +4,10 @@ namespace Drupal\marketo_ma;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Path\PathMatcherInterface;
+use Drupal\Core\Queue\QueueFactory;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Session\AccountInterface;
+use Drupal\user\PrivateTempStoreFactory;
 
 /**
  * The marketo MA worker service is responsible for most of the work the module
@@ -56,6 +58,20 @@ class MarketoMaService implements MarketoMaServiceInterface {
   protected $munchkin;
 
   /**
+   * The queue service.
+   *
+   * @var \Drupal\Core\Queue\QueueFactory
+   */
+  protected $queue_factory;
+
+  /**
+   * Stores the tempstore factory.
+   *
+   * @var \Drupal\user\PrivateTempStoreFactory
+   */
+  protected $temp_store_factory;
+
+  /**
    * Creates the Marketo API client wrapper service.
    *
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
@@ -68,14 +84,20 @@ class MarketoMaService implements MarketoMaServiceInterface {
    *   The path matcher service.
    * @param \Drupal\marketo_ma\MarketoMaMunchkinInterface $munchkin
    *   The munchkin service.
+   * @param \Drupal\Core\Queue\QueueFactory $queue_factory
+   *   The queue service.
+   * @param \Drupal\user\PrivateTempStoreFactory $temp_store_factory
+   *   The factory for the temp store object.
    */
-  public function __construct(ConfigFactoryInterface $config_factory, MarketoMaApiClientInterface $client, AccountInterface $current_user, RouteMatchInterface $route_match, PathMatcherInterface $path_matcher, MarketoMaMunchkinInterface $munchkin) {
+  public function __construct(ConfigFactoryInterface $config_factory, MarketoMaApiClientInterface $client, AccountInterface $current_user, RouteMatchInterface $route_match, PathMatcherInterface $path_matcher, MarketoMaMunchkinInterface $munchkin, QueueFactory $queue_factory, PrivateTempStoreFactory $temp_store_factory) {
     $this->config_factory = $config_factory;
     $this->client = $client;
     $this->current_user = $current_user;
     $this->route_match = $route_match;
     $this->path_matcher = $path_matcher;
     $this->munchkin = $munchkin;
+    $this->queue_factory = $queue_factory;
+    $this->temp_store_factory = $temp_store_factory;
   }
 
   /**
@@ -90,9 +112,9 @@ class MarketoMaService implements MarketoMaServiceInterface {
    */
   public function pageAttachments(&$page) {
     // Check whether we should track via the Munchkin.
-    if ($this->trackCurrentRequest()) {
-      // Check for the munchkin option and that the munchkin api is configured.
-      if ($this->trackingMethod() == 'munchkin' && $this->munchkin->isConfigured()) {
+    if ($this->shouldTrackCurrentRequest()) {
+      // Add marketo ma to the page..
+      if (!empty($this->munchkin->getAccountID())) {
         // Add the library and settings for tracking the page.
         $page['#attached']['library'][] = 'marketo_ma/marketo-ma';
         $page['#attached']['drupalSettings']['marketo_ma'] = [
@@ -101,18 +123,18 @@ class MarketoMaService implements MarketoMaServiceInterface {
           'library' => $this->munchkin->getLibrary(),
         ];
       }
+
+      // Get the Lead data from temporary user storage.
+      $lead = new Lead($this->getUserData());
+      // Check for the munchkin option and that the munchkin api is configured.
+      if ($this->trackingMethod() == 'munchkin' && $this->munchkin->isConfigured() && !empty($lead->getEmail())) {
+        $page['#attached']['drupalSettings']['marketo_ma']['actions'][] = $this->munchkin->getAction(MarketoMaMunchkinInterface::ACTION_ASSOCIATE_LEAD, $lead);
+      }
       // Check for the api option and that the client can connect.
       elseif ($this->trackingMethod() == 'api_client' && $this->client->canConnect()) {
-        $this->apiTrackPage();
+        $this->updateLead($lead);
       }
     }
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function preProcessPage(&$variables) {
-    // @todo: Remove if not needed.
   }
 
   /**
@@ -129,11 +151,10 @@ class MarketoMaService implements MarketoMaServiceInterface {
     return $config;
   }
 
-
   /**
    * {@inheritdoc}
    */
-  public function trackCurrentRequest() {
+  public function shouldTrackCurrentRequest() {
     // Get track-able roles.
     $trackable_roles = array_filter($this->config()->get('tracking.roles'));
     // Get the current user's roles.
@@ -155,10 +176,66 @@ class MarketoMaService implements MarketoMaServiceInterface {
   }
 
   /**
-   * Tracks the page via the API client.
+   * {@inheritdoc}
    */
-  protected function apiTrackPage() {
+  public function updateLead($lead) {
+    // Add the tracking cookie to the data if the tracking cookie exists.
+    $data['marketoCookie'] = !empty($_COOKIE['_mkto_trk']) ? $_COOKIE['_mkto_trk'] : NULL;
 
+    // Get the tracking method.
+    if ($this->trackingMethod() === 'api_client') {
+      // Do we need to batch the lead update?
+      if (!$this->config()->get('rest.batch_requests')) {
+        // Just sync the lead now.
+        $this->client->syncLead($lead->data());
+      } else {
+        // Queue up the lead sync.
+        $this->queue_factory->get('marketo_ma_lead')->createItem($data);
+      }
+    } else {
+      // Save the data for the munchkin API.
+      $this->setUserData($lead->data());
+    }
+
+    return $this;
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function setUserData($data) {
+    $this->temporaryStorage()->set('user_data', $data);
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getUserData() {
+    return $this->temporaryStorage()->get('user_data');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function resetUserData() {
+    $this->temporaryStorage()->delete('user_data');
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function hasUserData() {
+    return !empty($this->getUserData());
+  }
+
+  /**
+   * Gets the private temporary storage for the marketo_ma module.
+   *
+   * @return \Drupal\user\PrivateTempStore
+   */
+  protected function temporaryStorage() {
+    return $this->temp_store_factory->get('marketo_ma');
+  }
 }

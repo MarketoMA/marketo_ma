@@ -19,6 +19,7 @@ class MarketoMaApiClientTest extends KernelTestBase {
    * {@inheritdoc}
    */
   public static $modules = [
+    'user',
     'encryption',
     'marketo_ma',
   ];

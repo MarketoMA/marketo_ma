@@ -17,8 +17,8 @@
         });
       }
     },
-    marketoMunchkinFunction: function(leadType, data, hash) {
-      mktoMunchkinFunction(leadType, data, hash);
+    marketoMunchkinFunction: function(actionType, data, hash) {
+      Munchkin.munchkinFunction(actionType, data, hash);
     }
   };
 
