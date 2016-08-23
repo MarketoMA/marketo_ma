@@ -99,7 +99,8 @@ class MarketoMaApiClient implements MarketoMaApiClientInterface {
    * {@inheritdoc}
    */
   public function getLead($key, $type) {
-    return $this->getClient()->getLeadByFilterType($key, $type)->getResult();
+    $leads_result = $this->getClient()->getLeadByFilterType($key, $type)->getResult();
+    return !empty($leads_result[0]) ? new Lead(reset($leads_result)) : NULL;
   }
 
   /**
@@ -127,10 +128,10 @@ class MarketoMaApiClient implements MarketoMaApiClientInterface {
   /**
    * {@inheritdoc}
    */
-  public function syncLead($lead, $key = 'email', $cookie = null, $options = []) {
-    // Add the cookie to the lead's info if it has been set.
-    if (!empty($cookie)) $lead['marketoCookie'] = $cookie;
-    return $this->getClient()->createOrUpdateLeads([$lead], $key, $options)->getResult();
+  public function syncLead($lead, $key = 'email', $options = []) {
+    // Add the create/update leads call to do the association.
+    $result = $this->getClient()->createOrUpdateLeads([$lead], $key, $options)->getResult();
+    return $result;
   }
 
   /**

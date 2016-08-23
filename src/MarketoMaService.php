@@ -126,13 +126,23 @@ class MarketoMaService implements MarketoMaServiceInterface {
 
       // Get the Lead data from temporary user storage.
       $lead = new Lead($this->getUserData());
+      // Check for logged in user.
+      if (empty($lead->getEmail()) && !empty($this->current_user->getEmail())) {
+        $lead->set('email', $this->current_user->getEmail());
+      }
       // Check for the munchkin option and that the munchkin api is configured.
-      if ($this->trackingMethod() == 'munchkin' && $this->munchkin->isConfigured() && !empty($lead->getEmail())) {
+      if ($this->trackingMethod() == 'munchkin' && $this->munchkin->isConfigured() && !empty($lead->getEmail()) && $lead->get('associated') !== TRUE) {
+        // Set drupalSettings so JS will do the lead association.
         $page['#attached']['drupalSettings']['marketo_ma']['actions'][] = $this->munchkin->getAction(MarketoMaMunchkinInterface::ACTION_ASSOCIATE_LEAD, $lead);
+        // Set the associated flag so we are not associating on every request.
+        $this->setUserData($lead->data() + ['associated' => TRUE]);
       }
       // Check for the api option and that the client can connect.
-      elseif ($this->trackingMethod() == 'api_client' && $this->client->canConnect()) {
+      elseif ($this->trackingMethod() == 'api_client' && $this->client->canConnect() && !empty($lead->getEmail()) && $lead->get('associated') !== TRUE) {
+        // Use the API to associate the lead.
         $this->updateLead($lead);
+        // Set the associated flag so we are not associating on every request.
+        $this->setUserData($lead->data() + ['associated' => TRUE]);
       }
     }
   }
@@ -179,9 +189,6 @@ class MarketoMaService implements MarketoMaServiceInterface {
    * {@inheritdoc}
    */
   public function updateLead($lead) {
-    // Add the tracking cookie to the data if the tracking cookie exists.
-    $data['marketoCookie'] = !empty($_COOKIE['_mkto_trk']) ? $_COOKIE['_mkto_trk'] : NULL;
-
     // Get the tracking method.
     if ($this->trackingMethod() === 'api_client') {
       // Do we need to batch the lead update?
@@ -190,7 +197,7 @@ class MarketoMaService implements MarketoMaServiceInterface {
         $this->client->syncLead($lead->data());
       } else {
         // Queue up the lead sync.
-        $this->queue_factory->get('marketo_ma_lead')->createItem($data);
+        $this->queue_factory->get('marketo_ma_lead')->createItem($lead);
       }
     } else {
       // Save the data for the munchkin API.

@@ -35,7 +35,7 @@ interface MarketoMaApiClientInterface {
    *   Lead Key, typically email address
    * @param string $type
    *   Lead key type, auto-detection attempted if not supplied
-   * @return array
+   * @return \Drupal\marketo_ma\LeadInterface
    *   The lead.
    */
   public function getLead($key, $type);
@@ -57,15 +57,13 @@ interface MarketoMaApiClientInterface {
    *   Key value pairs to be associated with a lead
    * @param string $key
    *   Lead Key, typically email address
-   * @param object|null $cookie
-   *   Marketo cookie information
    * @param array $options
    *   Array of additional options to configure lead syncing
    *
    * @return array
    *   An array of lead ids and status messages.
    */
-  public function syncLead($lead, $key = 'email', $cookie = null, $options = []);
+  public function syncLead($lead, $key = 'email', $options = []);
 
   /**
    * Delete one or more leads.

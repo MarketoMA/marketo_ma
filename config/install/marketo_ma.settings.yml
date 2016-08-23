@@ -19,7 +19,7 @@ field:
 tracking:
   request_path:
     negate: 1
-    pages: 'admin\nadmin/*\nbatch\nnode/add*\nnode/*/*\nuser/*/*'
+    pages: "admin\nadmin/*\nbatch\nnode/add*\nnode/*/*\nuser/*/*"
   roles:
     authenticated: authenticated
     anonymous: anonymous

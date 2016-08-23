@@ -1,5 +1,7 @@
 <?php
 
+namespace Drupal\Tests\marketo_ma\Kernel;
+
 use Drupal\KernelTests\KernelTestBase;
 use \Drupal\marketo_ma\MarketoMaApiClientInterface;
 use Drupal\Core\Site\Settings;
@@ -14,7 +16,8 @@ class MarketoMaApiClientTest extends KernelTestBase {
    */
   protected $client;
 
-  protected $test_lead_id;
+  protected $test_lead_email;
+
   /**
    * {@inheritdoc}
    */
@@ -55,7 +58,7 @@ class MarketoMaApiClientTest extends KernelTestBase {
     $this->client = \Drupal::service('marketo_ma.client');
 
     // Set the test lead ID.
-    $this->test_lead_id = 'test_lead-'.$this->randomMachineName().'@marketo.com';
+    $this->test_lead_email = 'test_lead-'.$this->randomMachineName().'@marketo.com';
   }
 
 
@@ -105,14 +108,14 @@ class MarketoMaApiClientTest extends KernelTestBase {
     $create_result = $this->_sync_lead();
 
     // Retrieve the new lead via the api call.
-    $lead = $this->client->getLead('email', $this->test_lead_id);
+    $lead = $this->client->getLead('email', $this->test_lead_email);
 
     // We should have a numeric lead id,
-    self::assertTrue(is_numeric($lead[0]['id']));
+    self::assertTrue(is_numeric($lead->id()));
     // Check the retrieved leads email against the test value.
-    self::assertEquals($this->test_lead_id, $lead[0]['email']);
+    self::assertEquals($this->test_lead_email, $lead->getEmail());
     // check that the lead ids match up.
-    self::assertEquals($create_result[0]['id'], $lead[0]['id']);
+    self::assertEquals($create_result[0]['id'], $lead->id());
     // Clean up and delete the lead.
     $this->client->deleteLead($create_result[0]['id']);
   }
@@ -126,7 +129,7 @@ class MarketoMaApiClientTest extends KernelTestBase {
     $create_result = $this->_sync_lead();
 
     // Get lead activity.
-    $activity = $this->client->getLeadActivity($this->test_lead_id, 'email');
+    $activity = $this->client->getLeadActivity($this->test_lead_email, 'email');
 
     // @todo: Add test for valy activity information.
 
@@ -139,7 +142,7 @@ class MarketoMaApiClientTest extends KernelTestBase {
    */
   private function _sync_lead() {
     return $this->client->syncLead([
-      'email' => $this->test_lead_id,
+      'email' => $this->test_lead_email,
       'firstName' => 'Lead 1',
       'postalCode' => '94105',
     ]);

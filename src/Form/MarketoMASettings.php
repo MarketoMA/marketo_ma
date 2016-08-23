@@ -392,9 +392,9 @@ class MarketoMASettings extends ConfigFormBase {
    * @return string
    */
   protected function implodeFields($config_array) {
-    return implode("\r\n", array_map(function($k, $v){
+    return implode(PHP_EOL, array_map(function($k, $v){
       return "{$k}|{$v}";
-    }, array_keys($config_array), $config_array)) . "\r\n";
+    }, array_keys($config_array), $config_array)) . PHP_EOL;
   }
 
 }

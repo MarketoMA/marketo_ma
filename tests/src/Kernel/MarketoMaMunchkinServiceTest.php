@@ -1,5 +1,7 @@
 <?php
 
+namespace Drupal\Tests\marketo_ma\Kernel;
+
 use Drupal\KernelTests\KernelTestBase;
 use Drupal\Core\Site\Settings;
 use Drupal\marketo_ma\MarketoMaMunchkinInterface;

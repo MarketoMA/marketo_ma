@@ -27,7 +27,7 @@ class Lead implements LeadInterface, \Serializable {
     $this->data = $lead_data;
     // Set the marketo tracking cookie if it is available.
     if (!empty($_COOKIE['_mkto_trk'])) {
-      $this->data['cookie'] = $_COOKIE['_mkto_trk'];
+      $this->setCookie($_COOKIE['_mkto_trk']);
     }
   }
 
@@ -42,7 +42,15 @@ class Lead implements LeadInterface, \Serializable {
    * {@inheritdoc}
    */
   public function getCookie() {
-    return $this->get('cookie');
+    return $this->get('cookies');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setCookie($value) {
+    $this->set('cookies', $value);
+    return $this;
   }
 
   /**
@@ -79,7 +87,7 @@ class Lead implements LeadInterface, \Serializable {
    * {@inheritdoc}
    */
   public function serialize() {
-    return serialize($this->getAll());
+    return serialize($this->data());
   }
 
   /**

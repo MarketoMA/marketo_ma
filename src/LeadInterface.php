@@ -34,6 +34,16 @@ interface LeadInterface {
   public function getCookie();
 
   /**
+   * Sets the leads tracking cookie value.
+   *
+   * @param string $value
+   *   The value from the "_mkto_trk" cookie.
+   *
+   * @return $this
+   */
+  public function setCookie($value);
+
+  /**
    * Get all the data stored in this lead.
    *
    * @return array

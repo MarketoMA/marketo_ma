@@ -13,6 +13,8 @@
                 Drupal.behaviors.marketo_ma.marketoMunchkinFunction(this.action, this.data, this.hash);
               });
             }
+            // Set the marketo status to completed.
+            settings.marketo_ma.action_status = 'completed';
           }
         });
       }
