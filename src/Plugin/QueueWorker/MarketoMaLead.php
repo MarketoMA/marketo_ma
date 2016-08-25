@@ -38,9 +38,8 @@ class MarketoMaLead extends QueueWorkerBase implements ContainerFactoryPluginInt
    *   The marketo API client.
    */
   public function __construct(array $configuration, $plugin_id, $plugin_definition, MarketoMaApiClientInterface $api_client = NULL) {
-    $this->configuration = $configuration;
-    $this->pluginId = $plugin_id;
-    $this->pluginDefinition = $plugin_definition;
+    parent::__construct($configuration, $plugin_id, $plugin_definition);
+
     $this->api_client = $api_client;
   }
 
@@ -60,6 +59,7 @@ class MarketoMaLead extends QueueWorkerBase implements ContainerFactoryPluginInt
    * {@inheritdoc}
    */
   public function processItem($lead) {
+    // Use the API service to sync the lead.
     $this->api_client->syncLead($lead);
   }
 

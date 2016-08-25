@@ -2,6 +2,7 @@
 
 namespace Drupal\marketo_ma;
 
+use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Path\PathMatcherInterface;
 use Drupal\Core\Queue\QueueFactory;
@@ -198,6 +199,10 @@ class MarketoMaService implements MarketoMaServiceInterface {
       } else {
         // Queue up the lead sync.
         $this->queue_factory->get('marketo_ma_lead')->createItem($lead);
+      }
+      // Save the lead data in the user data for future use.
+      if (!empty($this->current_user->getLastAccessedTime())) {
+        $this->setUserData(NestedArray::mergeDeep($lead->data(), !empty($this->getUserData()) ? $this->getUserData() : []));
       }
     } else {
       // Save the data for the munchkin API.
