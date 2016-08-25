@@ -27,7 +27,7 @@ class MarketoMaService implements MarketoMaServiceInterface {
    *
    * @var \Drupal\marketo_ma\MarketoMaApiClientInterface
    */
-  private $client;
+  private $api_client;
 
   /**
    * The current user.
@@ -91,7 +91,7 @@ class MarketoMaService implements MarketoMaServiceInterface {
    */
   public function __construct(ConfigFactoryInterface $config_factory, MarketoMaApiClientInterface $client, AccountInterface $current_user, RouteMatchInterface $route_match, PathMatcherInterface $path_matcher, MarketoMaMunchkinInterface $munchkin, QueueFactory $queue_factory, PrivateTempStoreFactory $temp_store_factory) {
     $this->config_factory = $config_factory;
-    $this->client = $client;
+    $this->api_client = $client;
     $this->current_user = $current_user;
     $this->route_match = $route_match;
     $this->path_matcher = $path_matcher;
@@ -138,7 +138,7 @@ class MarketoMaService implements MarketoMaServiceInterface {
         $this->setUserData($lead->data() + ['associated' => TRUE]);
       }
       // Check for the api option and that the client can connect.
-      elseif ($this->trackingMethod() == 'api_client' && $this->client->canConnect() && !empty($lead->getEmail()) && $lead->get('associated') !== TRUE) {
+      elseif ($this->trackingMethod() == 'api_client' && $this->api_client->canConnect() && !empty($lead->getEmail()) && $lead->get('associated') !== TRUE) {
         // Use the API to associate the lead.
         $this->updateLead($lead);
         // Set the associated flag so we are not associating on every request.
@@ -194,7 +194,7 @@ class MarketoMaService implements MarketoMaServiceInterface {
       // Do we need to batch the lead update?
       if (!$this->config()->get('rest.batch_requests')) {
         // Just sync the lead now.
-        $this->client->syncLead($lead->data());
+        $this->api_client->syncLead($lead);
       } else {
         // Queue up the lead sync.
         $this->queue_factory->get('marketo_ma_lead')->createItem($lead);

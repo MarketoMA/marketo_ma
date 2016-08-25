@@ -30,6 +30,8 @@ abstract class MmaContactTestBase extends BrowserTestBase {
       'name' => 'firstName',
       'mail' => 'email',
     ]);
+    // Enable marketo integration for the form.
+    $contact_form->setThirdPartySetting('mma_contact', 'enabled', 1);
 
     $contact_form->save();
 

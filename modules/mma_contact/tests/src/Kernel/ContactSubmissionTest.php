@@ -2,9 +2,8 @@
 
 namespace Drupal\Tests\mma_contact\Kernel;
 
-use Drupal\contact\Entity\ContactForm;
 use Drupal\contact\Entity\Message;
-use Drupal\KernelTests\KernelTestBase;
+use Drupal\marketo_ma\Lead;
 
 /**
  * @coversDefaultClass \Drupal\mma_contact\Hooks\ContactMessageInsert
@@ -22,10 +21,10 @@ class ContactSubmissionTest extends MmaContactTestBase {
 
     // @todo Potentially one could use a mock instead.
     $synced_leads = \Drupal::service('marketo_ma.client')->getSyncedLeads();
-    $this->assertEquals([[
+    $this->assertEquals([new Lead([
       'firstName' => 'My name',
       'email' => 'example@example.com',
-    ]], $synced_leads);
+    ])], $synced_leads);
   }
 
 }

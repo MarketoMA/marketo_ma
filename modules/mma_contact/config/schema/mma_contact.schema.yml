@@ -7,11 +7,9 @@ contact.form.*.third_party.mma_contact:
       type: sequence
       sequence:
         type: string
-    enabled_fields:
-      label: 'Enabled tracking fields'
-      type: sequence
-      sequence:
-        type: string
+    enabled:
+      label: 'Whether Marketo tracking is enabled for the contact form.'
+      type: integer
 
 block.settings.mma_contact_block__additional_field_values:
   type: block_settings

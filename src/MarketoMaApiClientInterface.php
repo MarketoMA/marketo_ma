@@ -53,8 +53,8 @@ interface MarketoMaApiClientInterface {
   /**
    * Inserts or updates a lead.
    *
-   * @param array $lead
-   *   Key value pairs to be associated with a lead
+   * @param \Drupal\marketo_ma\LeadInterface $lead
+   *   The lead to be updated.
    * @param string $key
    *   Lead Key, typically email address
    * @param array $options

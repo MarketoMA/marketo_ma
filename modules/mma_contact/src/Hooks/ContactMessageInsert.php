@@ -5,6 +5,7 @@ namespace Drupal\mma_contact\Hooks;
 use Drupal\contact\MessageInterface;
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\marketo_ma\Lead;
 use Drupal\marketo_ma\MarketoMaApiClientInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -54,7 +55,7 @@ class ContactMessageInsert implements ContainerInjectionInterface {
   public function contactMessageInsert(MessageInterface $message) {
     if ($tracking_enabled = $this->isTrackingEnabled($message->bundle())) {
       $data = $this->determineMappedData($message);
-      $this->marketoClient->syncLead($data);
+      $this->marketoClient->syncLead(new Lead($data));
     }
   }
 
@@ -85,7 +86,9 @@ class ContactMessageInsert implements ContainerInjectionInterface {
    *   TRUE if marketo tracking is enable.d
    */
   protected function isTrackingEnabled($contact_form_id) {
-    return !empty($this->loadMappingConfiguration($contact_form_id));
+    $contact_form = $this->entityTypeManager->getStorage('contact_form')->load($contact_form_id);
+    return ($contact_form->getThirdPartySetting('mma_contact', 'enabled', 0) === 1
+      && !empty($this->loadMappingConfiguration($contact_form_id)));
   }
 
   /**

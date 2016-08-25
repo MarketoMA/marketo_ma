@@ -3,7 +3,6 @@
 namespace Drupal\Tests\mma_contact\Functional;
 
 use Drupal\contact\Entity\ContactForm;
-use Drupal\Tests\BrowserTestBase;
 
 /**
  * Tests the mma_contact admin settings.
@@ -15,9 +14,10 @@ use Drupal\Tests\BrowserTestBase;
 class MmaContactSettingsTest extends MmaContactTestBase {
 
   public function testMarketoContactAdminSettingsUI() {
+    $contact_form_id = 'test_contact' . strtolower($this->randomMachineName());
     $edit = [
       'label' => 'test contact',
-      'id' => 'test_contact',
+      'id' => $contact_form_id,
       'recipients' => 'foo@example.com',
       'contact_storage_preview' => FALSE,
     ];
@@ -25,13 +25,13 @@ class MmaContactSettingsTest extends MmaContactTestBase {
     $this->assertSession()->pageTextContains('has been added');
 
     $edit = [
-      'enabled' => TRUE,
+      'enabled' => 1,
       'mapping[name][mapping]' => 'firstName',
       'mapping[mail][mapping]' => 'email',
     ];
-    $this->drupalPostForm('admin/structure/contact/manage/test_contact/marketo', $edit, 'Save');
+    $this->drupalPostForm("admin/structure/contact/manage/{$contact_form_id}/marketo", $edit, 'Save');
 
-    $contact_form = ContactForm::load('test_contact');
+    $contact_form = ContactForm::load($contact_form_id);
     $this->assertEquals([
       'name' => 'firstName',
       'mail' => 'email',

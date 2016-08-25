@@ -27,6 +27,7 @@ abstract class MmaContactTestBase extends KernelTestBase {
       'name' => 'firstName',
       'mail' => 'email',
     ]);
+    $contact_form->setThirdPartySetting('mma_contact', 'enabled', 1);
 
     $contact_form->save();
 

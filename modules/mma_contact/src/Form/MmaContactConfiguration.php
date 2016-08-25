@@ -72,13 +72,13 @@ class MmaContactConfiguration extends FormBase {
   public function buildForm(array $form, FormStateInterface $form_state, ContactFormInterface $contact_form = NULL) {
     $this->contactForm = $contact_form;
 
-    $enabled_fields = $this->contactForm->getThirdPartySetting('mma_contact', 'enabled_fields');
     $mapping = $this->contactForm->getThirdPartySetting('mma_contact', 'mapping');
 
     $form['enabled'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Enable tracking'),
-      '#default_value' => !empty($enabled_fields) || !empty($mapping),
+      '#description' => $this->t('Set to "Enable tracking" to turn on tracking for this contact form.'),
+      '#default_value' => $this->contactForm->getThirdPartySetting('mma_contact', 'enabled'),
     ];
 
     $form['mapping'] = [
@@ -149,21 +149,18 @@ class MmaContactConfiguration extends FormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    if (empty($form_state->getValue('enabled'))) {
-      $this->contactForm->setThirdPartySetting('mma_contact', 'enabled_fields', []);
-      $this->contactForm->setThirdPartySetting('mma_contact', 'mapping', []);
-    }
-    else {
-      $this->contactForm->setThirdPartySetting('mma_contact', 'enabled_fields', []);
+    // Set the enabled value.
+    $this->contactForm->setThirdPartySetting('mma_contact', 'enabled', $form_state->getValue('enabled'));
 
-      $mapping = $form_state->getValue('mapping');
-      $mapping = array_map(function ($form_value) {
-        return $form_value['mapping'];
-      }, $mapping);
-      $mapping = array_filter($mapping);
+    // Get the mapping values.
+    $mapping = array_map(function ($form_value) {
+      return $form_value['mapping'];
+    }, $form_state->getValue('mapping'));
+    // Remove any unassociated fields.
+    $mapping = array_filter($mapping);
 
-      $this->contactForm->setThirdPartySetting('mma_contact', 'mapping', $mapping);
-    }
+    // Set the third party settings for field mappings and save.
+    $this->contactForm->setThirdPartySetting('mma_contact', 'mapping', $mapping);
     $this->contactForm->save();
   }
 

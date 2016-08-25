@@ -130,7 +130,7 @@ class MarketoMaApiClient implements MarketoMaApiClientInterface {
    */
   public function syncLead($lead, $key = 'email', $options = []) {
     // Add the create/update leads call to do the association.
-    $result = $this->getClient()->createOrUpdateLeads([$lead], $key, $options)->getResult();
+    $result = $this->getClient()->createOrUpdateLeads([$lead->data()], $key, $options)->getResult();
     return $result;
   }
 

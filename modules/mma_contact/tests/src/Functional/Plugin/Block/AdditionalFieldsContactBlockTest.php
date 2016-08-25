@@ -8,6 +8,7 @@ use Drupal\Core\Entity\Entity\EntityFormDisplay;
 use Drupal\Core\Entity\Entity\EntityFormMode;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
+use Drupal\marketo_ma\Lead;
 use Drupal\mma_contact_test\TestMarketoMaApiClient;
 use Drupal\simpletest\BlockCreationTrait;
 use Drupal\Tests\mma_contact\Functional\MmaContactTestBase;
@@ -112,12 +113,13 @@ class AdditionalFieldsContactBlockTest extends MmaContactTestBase {
 
     $lead_data = \Drupal::state()->get(TestMarketoMaApiClient::class);
     $lead_data = array_filter($lead_data);
-    $expected_lead_data = [
+    $expected_lead_data = new Lead([
       'firstName' => $this->loggedInUser->getAccountName(),
       'email' => $this->loggedInUser->getEmail(),
       'fieldTest' => 'test_value',
-    ];
-    $this->assertEquals($expected_lead_data, reset($lead_data));
+    ]);
+
+    $this->assertEquals($expected_lead_data, end($lead_data));
   }
 
 }
