@@ -123,15 +123,15 @@ function marketo_ma_webform_webform_submission_insert($node, $submission) {
      * Check to see if an Email field has been provided. If not, we will try
      * to use the current logged in user info
      */
-    if (!isset($data['Email']) || $data['Email'] == '') {
+    if (!isset($data['email']) || $data['email'] == '') {
       global $user;
       if (isset($user->mail)) {
-        $data['Email'] = $user->mail;
+        $data['email'] = $user->mail;
       }
     }
 
-    if (array_key_exists('Email', $data)) {
-      marketo_ma_add_lead($data['Email'], $data, FALSE, $webform->options);
+    if (array_key_exists('email', $data)) {
+      marketo_ma_add_lead($data['email'], $data, FALSE, $webform->options);
     }
   }
 }

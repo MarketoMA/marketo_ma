@@ -153,10 +153,7 @@ function _marketo_ma_client($endpoint = NULL, $identity = NULL, $client_id = NUL
   return $client;
 }
 
-/**
- * Implements hook_page_alter().
- */
-function marketo_ma_page_alter(&$page) {
+function marketo_ma_page_alterXX(&$page) {
 //  $client = _marketo_ma_client();
 //  var_dump($client);
 //  $fields = $client->getFields();
@@ -164,7 +161,10 @@ function marketo_ma_page_alter(&$page) {
 //  $lead = $client->getLead('65', NULL, 'COmPaNy,AddReSS,EmAiL,cookies');
 //  var_dump($client);
 }
-function marketo_ma_page_alterXX(&$page) {
+/**
+ * Implements hook_page_alter().
+ */
+function marketo_ma_page_alter(&$page) {
   global $user;
   $marketo_ma_data = marketo_ma_get_queue();
 
@@ -243,7 +243,7 @@ function _marketo_ma_associate_lead($lead) {
 
     case 'soap':
     default:
-      _marketo_ma_associate_lead_soap($lead);
+      _marketo_ma_associate_lead_rest($lead);
       break;
   }
 }
@@ -317,6 +317,52 @@ function _marketo_ma_associate_lead_forms2($lead, $formid, $scheme = 'https', $p
           '@request' => $response->request,
           '@response' => $response->code . ' ' . $response->status_message,
           ), WATCHDOG_ERROR);
+    }
+  }
+}
+
+/**
+ * Sends lead data using REST API.
+ * 
+ * @param array $lead
+ *   Lead data
+ * 
+ * @throws Exception
+ */
+function _marketo_ma_associate_lead_rest($lead) {
+  if (_marketo_ma_rest_is_configured()) {
+
+    if (array_key_exists('marketoCookie', $lead)) {
+      $mkto_trk = $lead['marketoCookie'];
+    }
+    else {
+      $mkto_trk = NULL;
+    }
+
+    try {
+      $client = _marketo_ma_client();
+      $sync = $client->syncLead(array($lead['data']));
+//      $sync = $client->syncLead($lead['data'], $lead['email'], $mkto_trk, array('extendedResponse' => TRUE));
+      if ($sync->success) {
+        if (variable_get('marketo_ma_logging', FALSE)) {
+          watchdog('marketo', 'Associating lead !email [rest] <pre>@data @result</pre>', array(
+            '!email' => $lead['email'],
+            '@data' => print_r($lead['data'], TRUE),
+            '@result' => print_r($sync->result, TRUE),
+            ), WATCHDOG_INFO);
+        }
+      }
+      else {
+        watchdog('marketo', 'Unable to sync lead !email [rest] <pre>@error</pre> Request XML: <pre>@request</pre> Response XML: <pre>@response</pre>', array(
+          '!email' => $lead['email'],
+          '@error' => $sync->result,
+          '@request' => '$client->__getLastRequest()',
+          '@response' => $client->getResponseInfo(),
+          ), WATCHDOG_ERROR);
+      }
+    }
+    catch (Exception $e) {
+      watchdog('marketo', 'Unable to sync lead !email [rest] <pre>@error</pre>', array('!email' => $lead['email'], '@error' => $e->getMessage()), WATCHDOG_ERROR);
     }
   }
 }

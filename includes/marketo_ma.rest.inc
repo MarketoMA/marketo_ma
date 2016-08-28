@@ -53,7 +53,7 @@ interface MarketoInterface {
 /**
  * Marketo Client
  */
-class MarketoClient implements MarketoInterface {
+class MarketoClient {
 
   // Authentication http://developers.marketo.com/documentation/rest/authentication/
   protected $client_id;
@@ -101,7 +101,10 @@ class MarketoClient implements MarketoInterface {
     $this->isFreshToken = FALSE;
 
     $this->http_options = array();
-    $this->http_options[CURLOPT_HTTPHEADER] = array();
+    $this->http_options[CURLOPT_HTTPHEADER] = array(
+      'accept: application/json',
+      'Content-Type: application/json',
+    );
     $this->http_options[CURLOPT_RETURNTRANSFER] = TRUE;
     $this->http_options[CURLOPT_FOLLOWLOCATION] = FALSE;
 
@@ -282,6 +285,9 @@ class MarketoClient implements MarketoInterface {
     return json_decode($response);
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function getFields() {
     $url = $this->endpoint . MarketoClient::LEADS_DESCRIBE_API;
     $params = array();
@@ -295,7 +301,11 @@ class MarketoClient implements MarketoInterface {
     return $fields;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function getLead($key, $type = NULL, $fields = NULL) {
+    // http://developers.marketo.com/documentation/rest/get-multiple-leads-by-filter-type/
     $url = $this->endpoint . MarketoClient::LEADS_API;
     $params = array(
       'filterType' => is_null($type) ? $this->keyType($key) : strtoupper($type),
@@ -309,12 +319,42 @@ class MarketoClient implements MarketoInterface {
     return json_decode($response);
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function getLeadActivity($key, $type) {
     return;
   }
 
-  public function syncLead($lead, $key, $cookie, $options) {
-    return;
+  /**
+   * {@inheritdoc}
+   */
+  public function syncLead(array $input, $action = NULL, $lookupField = NULL, $asyncProcessing = NULL, $partitionName = NULL) {
+    // http://developers.marketo.com/documentation/rest/createupdate-leads/
+    $url = $this->endpoint . MarketoClient::LEADS_API;
+    $params = array(
+      'input' => $input,
+    );
+    // Options passed in as NULL are excluded to pickup Marketo default behavior
+    if (!is_null($action)) { $params['action'] = $action; }
+    if (!is_null($lookupField)) { $params['lookupField'] = $lookupField; }
+    if (!is_null($asyncProcessing)) { $params['asyncProcessing'] = $asyncProcessing; }
+    if (!is_null($partitionName)) { $params['partitionName'] = $partitionName; }
+    
+    $response = array(
+      'success' => FALSE,
+      'result' => NULL,
+    );
+    
+    try {
+      $response = json_decode($this->curlPost($url, json_encode($params)));
+      if (!$response->success) {
+        throw new Exception($response->errors[0]->message, $response->errors[0]->code);
+      }
+    } catch (Exception $e) {
+      $response->result = $e->getMessage();
+    }
+    return $response;
   }
 
   /**
