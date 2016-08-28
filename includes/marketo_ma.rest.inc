@@ -62,6 +62,10 @@ class MarketoClient {
   protected $identity;
   protected $token;
   protected $isFreshToken;
+  
+  // Marketo
+  protected $activity_types;
+  protected $activity_nextPageToken;
 
   // Endpoints
   const API_VERSION = 'v1';
@@ -259,14 +263,12 @@ class MarketoClient {
   }
 
   protected function isTokenValid($token = array()) {
-    // Token is considered invalid if it is missing a field or expires in the next 60 seconds.
-    if (
-      empty($token) ||
-      !(array_key_exists('authorization', $token) &&
-        array_key_exists('expires_at', $token)
-       ) ||
-      $token->expires_at < time() + 60
-      ) {
+    if (empty($token) || !(array_key_exists('authorization', $token) && array_key_exists('expires_at', $token))) {
+      // Token is considered invalid if it is missing important fields
+      return FALSE;
+    }
+    elseif ($token->expires_at < time() + 60) {
+      // Token is considered invalid if it expires in the next 60 seconds
       return FALSE;
     }
     else {
@@ -322,8 +324,86 @@ class MarketoClient {
   /**
    * {@inheritdoc}
    */
-  public function getLeadActivity($key, $type) {
-    return;
+  public function getLeadActivity($leadIds, $activityTypeIds = NULL) {
+    $activity = array();
+    $nextPageToken = $this->getActivityPagingToken();
+    do {
+      $batch = $this->getLeadActivityBatch($leadIds, $activityTypeIds, $nextPageToken);
+      if (isset($batch->result)) {
+        foreach ($batch->result as $a) {
+          $a->activityName = $this->getActivityTypes()[$a->activityTypeId]['name'];
+          $activity[] = $a;
+        }
+      }
+      $nextPageToken = $batch->nextPageToken;
+    } while (isset($batch->moreResult) && $batch->moreResult);
+    return $activity;
+  }
+  
+  private function getLeadActivityBatch($leadIds, $activityTypeIds, $nextPageToken, $batchSize = 300) {
+    $url = $this->endpoint . MarketoClient::ACTIVITIES_API;
+    $params = array(
+      'leadIds' => $leadIds,
+      'activityTypeIds' => $activityTypeIds,
+      'nextPageToken' => $nextPageToken,
+      'batchSize' => $batchSize,
+    );
+//    try {
+      $json = $this->curlGet($url, $params);
+      $response = json_decode($json);
+      if (!$response->success) {
+        throw new Exception($response->errors[0]->message, $response->errors[0]->code);
+      }
+//    } catch (Exception $e) {
+//
+//    }
+    return $response;
+  }
+  
+  private function getActivityPagingToken($sinceDatetime = NULL) {
+    $url = $this->endpoint . MarketoClient::ACTIVITIES_PAGING_TOKEN_API;
+    $params = array(
+      'sinceDatetime' => is_null($sinceDatetime) ? date('Y-m-d') : $sinceDatetime,
+    );
+    try {
+      $response = json_decode($this->curlGet($url, $params));
+      if ($response->success) {
+        $this->activity_nextPageToken = $response->nextPageToken;
+      }
+      else {
+        throw new Exception($response->errors[0]->message, $response->errors[0]->code);
+      }
+    } catch (Exception $e) {
+
+    }
+    return $this->activity_nextPageToken;
+  }
+
+  public function getActivityTypes() {
+    // http://developers.marketo.com/documentation/rest/get-activity-types/
+    if (empty($this->activity_types)) {
+      $url = $this->endpoint . MarketoClient::ACTIVITIES_TYPES_API;
+      try {
+          $response = json_decode($this->curlGet($url));
+          if ($response->success) {
+            // Don't need all the detail returned, trim it down.
+            foreach ($response->result as $activity) {
+              $a = array(
+                'id' => $activity->id,
+                'name' => $activity->name,
+                'description' => $activity->description,
+              );
+              $this->activity_types[$activity->id] = $a;
+            }
+          }
+          else {
+            throw new Exception($response->errors[0]->message, $response->errors[0]->code);
+          }
+      } catch (Exception $e) {
+        $response->result = $e->getMessage();
+      }
+    }
+    return $this->activity_types;
   }
 
   /**

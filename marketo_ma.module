@@ -165,6 +165,11 @@ function marketo_ma_page_alterXX(&$page) {
  * Implements hook_page_alter().
  */
 function marketo_ma_page_alter(&$page) {
+  $client = _marketo_ma_client();
+//  $result = $client->getActivityTypes();
+//  var_dump($result);
+  $result = $client->getLeadActivity(65,'1,2,3,12,13');
+  var_dump($result);
   global $user;
   $marketo_ma_data = marketo_ma_get_queue();
 
@@ -356,8 +361,8 @@ function _marketo_ma_associate_lead_rest($lead) {
         watchdog('marketo', 'Unable to sync lead !email [rest] <pre>@error</pre> Request XML: <pre>@request</pre> Response XML: <pre>@response</pre>', array(
           '!email' => $lead['email'],
           '@error' => $sync->result,
-          '@request' => '$client->__getLastRequest()',
-          '@response' => $client->getResponseInfo(),
+          '@request' => $client->getResponseInfo(),
+          '@response' => $client->getResponseObject(),
           ), WATCHDOG_ERROR);
       }
     }
