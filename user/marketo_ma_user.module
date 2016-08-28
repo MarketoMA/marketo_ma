@@ -353,7 +353,7 @@ function theme_marketo_ma_user_lead($vars) {
     'empty' => t("No lead found for @mail.", array('@mail' => $email)),
   );
 
-  foreach ($leads as $lead) {
+  foreach ($leads->result as $lead) {
     $table['rows'][] = array(
       array(
         'data' => 'ID ' . $lead->Id,

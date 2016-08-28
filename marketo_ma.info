@@ -4,5 +4,5 @@ core = 7.x
 package = Marketo
 configure = admin/config/search/marketo_ma
 
-files[] = includes/marketo_ma.soap.inc
+files[] = includes/marketo_ma.rest.inc
 scripts[] = js/marketo_ma.js

@@ -135,10 +135,36 @@ function _marketo_ma_cleanup() {
   }
 }
 
+function _marketo_ma_client($endpoint = NULL, $identity = NULL, $client_id = NULL, $client_secret = NULL, $proxy = NULL) {
+  $endpoint = is_null($endpoint) ? variable_get('marketo_ma_rest_endpoint') : $endpoint;
+  $identity = is_null($identity) ? variable_get('marketo_ma_rest_identity') : $identity;
+  $client_id = is_null($client_id) ? variable_get('marketo_ma_rest_client_id') : $client_id;
+  $client_secret = is_null($client_secret) ? variable_get('marketo_ma_rest_client_secret') : $client_secret;
+  
+  module_load_include('inc', 'marketo_ma', 'includes/marketo_ma.rest');
+  // Get the token from cache if one exists
+  $cachedToken = variable_get('marketo_ma_rest_token', array());
+  $client = new MarketoClient($client_id, $client_secret, $endpoint, $identity, $cachedToken);
+  // Compare cached and current tokens and update cache if needed
+  $currentToken = $client->getAccessToken();
+  if ($cachedToken->authorization != $currentToken->authorization) {
+    variable_set('marketo_ma_rest_token', $client->getAccessToken());
+  }
+  return $client;
+}
+
 /**
  * Implements hook_page_alter().
  */
 function marketo_ma_page_alter(&$page) {
+//  $client = _marketo_ma_client();
+//  var_dump($client);
+//  $fields = $client->getFields();
+//  var_dump($fields);
+//  $lead = $client->getLead('65', NULL, 'COmPaNy,AddReSS,EmAiL,cookies');
+//  var_dump($client);
+}
+function marketo_ma_page_alterXX(&$page) {
   global $user;
   $marketo_ma_data = marketo_ma_get_queue();
 
@@ -305,7 +331,7 @@ function _marketo_ma_associate_lead_forms2($lead, $formid, $scheme = 'https', $p
  */
 function _marketo_ma_associate_lead_soap($lead) {
   if (_marketo_ma_soap_is_configured()) {
-    module_load_include('inc', 'marketo_ma', 'includes/marketo_ma.soap');
+    module_load_include('inc', 'marketo_ma', 'includes/marketo_ma.rest');
 
     $secret_key = variable_get('marketo_ma_soap_encryption_key');
     $access_key = variable_get('marketo_ma_soap_user_id');
@@ -407,18 +433,12 @@ function _marketo_ma_get_field_options($labels = TRUE, $sort = TRUE) {
  */
 function _marketo_ma_get_fields() {
   $result = array();
-  if (_marketo_ma_soap_is_configured()) {
-    module_load_include('inc', 'marketo_ma', 'includes/marketo_ma.soap');
-
-    $secret_key = variable_get('marketo_ma_soap_encryption_key');
-    $access_key = variable_get('marketo_ma_soap_user_id');
-    $soap_endpoint = variable_get('marketo_ma_soap_endpoint');
-
+  if (_marketo_ma_rest_is_configured()) {
     try {
-      $client = new MarketoClient($access_key, $secret_key, $soap_endpoint, _marketo_ma_soap_proxy_settings());
+      $client = _marketo_ma_client();
       $result = $client->getFields();
       if (!$result) {
-        watchdog('marketo', 'Unable to retrieve field information. Please check SOAP API configuration', WATCHDOG_ERROR);
+        watchdog('marketo', 'Unable to retrieve field information. Please check API configuration', WATCHDOG_ERROR);
       }
     }
     catch (Exception $e) {
@@ -437,15 +457,9 @@ function _marketo_ma_get_fields() {
  */
 function marketo_ma_get_lead($key) {
   $result = array();
-  if (_marketo_ma_soap_is_configured()) {
-    module_load_include('inc', 'marketo_ma', 'includes/marketo_ma.soap');
-
-    $secret_key = variable_get('marketo_ma_soap_encryption_key');
-    $access_key = variable_get('marketo_ma_soap_user_id');
-    $soap_endpoint = variable_get('marketo_ma_soap_endpoint');
-
+  if (_marketo_ma_rest_is_configured()) {
     try {
-      $client = new MarketoClient($access_key, $secret_key, $soap_endpoint, _marketo_ma_soap_proxy_settings());
+      $client = _marketo_ma_client();
       $result = $client->getLead($key);
       if (!$result && variable_get('marketo_ma_logging', FALSE)) {
         watchdog('marketo', 'Lead data not found for !key', array('!key' => $key), WATCHDOG_INFO);
@@ -468,7 +482,7 @@ function marketo_ma_get_lead($key) {
 function marketo_ma_get_lead_activity($key) {
   $result = array();
   if (_marketo_ma_soap_is_configured()) {
-    module_load_include('inc', 'marketo_ma', 'includes/marketo_ma.soap');
+    module_load_include('inc', 'marketo_ma', 'includes/marketo_ma.rest');
 
     $secret_key = variable_get('marketo_ma_soap_encryption_key');
     $access_key = variable_get('marketo_ma_soap_user_id');
@@ -555,6 +569,32 @@ function _marketo_ma_forms2_is_configured() {
     if (
       variable_get('marketo_ma_munchkin_account_id', FALSE) &&
       variable_get('marketo_ma_instance_host', FALSE)
+    ) {
+      $configured = TRUE;
+    }
+    else {
+      $configured = FALSE;
+    }
+  }
+  return $configured;
+}
+
+/**
+ * Tests to see if rest is configured.
+ * 
+ * @staticvar bool $configured
+ * @return bool
+ *   Returns TRUE is REST API settings are configured
+ */
+function _marketo_ma_rest_is_configured() {
+  static $configured;
+
+  if (!isset($configured)) {
+    if (
+      variable_get('marketo_ma_rest_endpoint', FALSE) &&
+      variable_get('marketo_ma_rest_identity', FALSE) &&
+      variable_get('marketo_ma_rest_client_id', FALSE) &&
+      variable_get('marketo_ma_rest_client_secret', FALSE)
     ) {
       $configured = TRUE;
     }

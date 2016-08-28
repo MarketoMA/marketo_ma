@@ -140,6 +140,67 @@ function marketo_ma_admin_settings_form($form, &$form_state) {
     '#default_value' => variable_get('marketo_ma_soap_proxy_password', ''),
     '#required' => FALSE,
   );
+  
+  $form['marketo_ma_tabs']['marketo_ma_api']['marketo_ma_rest'] = array(
+    '#title' => t('REST API'),
+    '#type' => 'fieldset',
+    '#description' => t('Values can be found on the REST API Admin page at Admin > Integration > REST API'),
+  );
+  $form['marketo_ma_tabs']['marketo_ma_api']['marketo_ma_rest']['marketo_ma_rest_endpoint'] = array(
+    '#type' => 'textfield',
+    '#title' => t('REST endpoint'),
+    '#default_value' => variable_get('marketo_ma_rest_endpoint', ''),
+    '#required' => FALSE,
+  );
+  $form['marketo_ma_tabs']['marketo_ma_api']['marketo_ma_rest']['marketo_ma_rest_identity'] = array(
+    '#type' => 'textfield',
+    '#title' => t('REST identity'),
+    '#default_value' => variable_get('marketo_ma_rest_identity', ''),
+    '#required' => FALSE,
+  );
+  $form['marketo_ma_tabs']['marketo_ma_api']['marketo_ma_rest']['marketo_ma_rest_client_id'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Client ID'),
+    '#default_value' => variable_get('marketo_ma_rest_client_id', ''),
+    '#required' => FALSE,
+  );
+  $form['marketo_ma_tabs']['marketo_ma_api']['marketo_ma_rest']['marketo_ma_rest_client_secret'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Client Secret'),
+    '#default_value' => variable_get('marketo_ma_rest_client_secret', ''),
+    '#required' => FALSE,
+  );
+  $form['marketo_ma_tabs']['marketo_ma_api']['marketo_ma_rest']['marketo_ma_rest_proxy'] = array(
+    '#title' => t('REST Client Proxy Settings'),
+    '#type' => 'fieldset',
+    '#description' => t('For making an HTTP connection through a proxy server, the options proxy_host, proxy_port, proxy_login and proxy_password are also available.'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+  );
+  $form['marketo_ma_tabs']['marketo_ma_api']['marketo_ma_rest']['marketo_ma_rest_proxy']['marketo_ma_rest_proxy_host'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Proxy Host'),
+    '#default_value' => variable_get('marketo_ma_rest_proxy_host', ''),
+    '#required' => FALSE,
+  );
+  $form['marketo_ma_tabs']['marketo_ma_api']['marketo_ma_rest']['marketo_ma_rest_proxy']['marketo_ma_rest_proxy_port'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Proxy Port'),
+    '#default_value' => variable_get('marketo_ma_rest_proxy_port', ''),
+    '#required' => FALSE,
+  );
+  $form['marketo_ma_tabs']['marketo_ma_api']['marketo_ma_rest']['marketo_ma_rest_proxy']['marketo_ma_rest_proxy_login'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Proxy Login'),
+    '#default_value' => variable_get('marketo_ma_rest_proxy_login', ''),
+    '#required' => FALSE,
+  );
+  $form['marketo_ma_tabs']['marketo_ma_api']['marketo_ma_rest']['marketo_ma_rest_proxy']['marketo_ma_rest_proxy_password'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Proxy Password'),
+    '#default_value' => variable_get('marketo_ma_rest_proxy_password', ''),
+    '#required' => FALSE,
+  );
 
   $form['marketo_ma_tabs']['marketo_ma_fields'] = array(
     '#title' => t('Field Definition'),
@@ -241,15 +302,16 @@ function marketo_ma_admin_settings_form_validate($form, &$form_state) {
     $form_state['values']['marketo_ma_tracking_method'] == 'soap' ||
     $form_state['values']['marketo_ma_tracking_method'] == 'soap_async'
   ) {
-    $form_state['values']['marketo_ma_soap_endpoint'] = trim($form_state['values']['marketo_ma_soap_endpoint']);
-    $form_state['values']['marketo_ma_soap_user_id'] = trim($form_state['values']['marketo_ma_soap_user_id']);
-    $form_state['values']['marketo_ma_soap_encryption_key'] = trim($form_state['values']['marketo_ma_soap_encryption_key']);
+    $form_state['values']['marketo_ma_rest_endpoint'] = trim($form_state['values']['marketo_ma_rest_endpoint']);
+    $form_state['values']['marketo_ma_rest_identity'] = trim($form_state['values']['marketo_ma_rest_identity']);
+    $form_state['values']['marketo_ma_rest_client_id'] = trim($form_state['values']['marketo_ma_rest_client_id']);
+    $form_state['values']['marketo_ma_rest_client_secret'] = trim($form_state['values']['marketo_ma_rest_client_secret']);
 
     $proxy = array();
-    $proxy['proxy_host'] = trim($form_state['values']['marketo_ma_soap_proxy_host']);
-    $proxy['proxy_port'] = trim($form_state['values']['marketo_ma_soap_proxy_port']);
-    $proxy['proxy_login'] = trim($form_state['values']['marketo_ma_soap_proxy_login']);
-    $proxy['proxy_password'] = trim($form_state['values']['marketo_ma_soap_proxy_password']);
+    $proxy['proxy_host'] = trim($form_state['values']['marketo_ma_rest_proxy_host']);
+    $proxy['proxy_port'] = trim($form_state['values']['marketo_ma_rest_proxy_port']);
+    $proxy['proxy_login'] = trim($form_state['values']['marketo_ma_rest_proxy_login']);
+    $proxy['proxy_password'] = trim($form_state['values']['marketo_ma_rest_proxy_password']);
 
     if (empty($proxy['proxy_host'])) {
       unset($proxy['proxy_host']);
@@ -264,15 +326,46 @@ function marketo_ma_admin_settings_form_validate($form, &$form_state) {
       unset($proxy['proxy_password']);
     }
 
-    $soap_is_valid = _marketo_ma_validate_soap_configuration(
-      $form_state['values']['marketo_ma_soap_user_id'], $form_state['values']['marketo_ma_soap_encryption_key'], $form_state['values']['marketo_ma_soap_endpoint'], $proxy
+    $config_is_valid = _marketo_ma_validate_rest_configuration(
+      $form_state['values']['marketo_ma_rest_endpoint'],
+      $form_state['values']['marketo_ma_rest_identity'],
+      $form_state['values']['marketo_ma_rest_client_id'],
+      $form_state['values']['marketo_ma_rest_client_secret'],
+      $proxy
     );
-    if (!$soap_is_valid) {
-      form_set_error('marketo_ma_soap_endpoint', 'Unable to validate SOAP API settings.');
-      form_set_error('marketo_ma_soap_user_id');
-      form_set_error('marketo_ma_soap_encryption_key');
+    if (!$config_is_valid) {
+      form_set_error('marketo_ma_rest_endpoint', 'Unable to validate REST API settings.');
+      form_set_error('marketo_ma_rest_identity');
+      form_set_error('marketo_ma_rest_client_id');
+      form_set_error('marketo_ma_rest_client_secret');
     }
   }
+}
+
+/**
+ * Performs validation for Marketo REST API settings.
+ * 
+ * @param string $access_key
+ *   Access Key
+ * @param string $secret_key
+ *   Secret Key
+ * @param string $soap_endpoint
+ *   Endpoint
+ * 
+ * @return bool
+ *   Returns TRUE if SOAP settings are validated successfully
+ */
+function _marketo_ma_validate_rest_configuration($endpoint, $identity, $client_id, $client_secret, $proxy) {
+  $result = FALSE;
+  try {
+    $client = _marketo_ma_client($endpoint, $identity, $client_id, $client_secret);
+    variable_set('marketo_ma_rest_token', $client->getAccessToken());
+    $result = TRUE;
+  }
+  catch (Exception $e) {
+    $result = FALSE;
+  }
+  return $result;
 }
 
 /**
@@ -289,7 +382,7 @@ function marketo_ma_admin_settings_form_validate($form, &$form_state) {
  *   Returns TRUE if SOAP settings are validated successfully
  */
 function _marketo_ma_validate_soap_configuration($access_key, $secret_key, $soap_endpoint, $proxy) {
-  module_load_include('inc', 'marketo_ma', 'includes/marketo_ma.soap');
+  module_load_include('inc', 'marketo_ma', 'includes/marketo_ma.rest');
   try {
     $client = new MarketoClient($access_key, $secret_key, $soap_endpoint, $proxy);
     $result = $client->getFields();
