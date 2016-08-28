@@ -135,10 +135,8 @@ function drush_marketo_ma_mma_get_lead($key = NULL) {
         $rows[] = array(dt('Account'), 'name', $find['drupal']->name);
         $rows[] = array(dt('Account'), 'mail', $find['drupal']->mail);
       }
-      $rows[] = array(dt('Marketo'), 'Id', $find['marketo']->Id);
-      $rows[] = array(dt('Marketo'), 'Email', $find['marketo']->Email);
       // Process Marketo attributes.
-      foreach ($find['marketo']->attributes as $attr => $value) {
+      foreach ($find['marketo'] as $attr => $value) {
         $rows[] = array(dt('Marketo'), $attr, $value);
       }
       drush_print_table($rows, TRUE);
@@ -206,14 +204,14 @@ function _marketo_ma_get_uid($search) {
 function _marketo_ma_search_marketo_lead($key, $activity = FALSE) {
   $result = array();
   $marketo = marketo_ma_get_lead($key); // Can return multiple.
-  foreach ($marketo as $lead) {
-    $account = user_load_by_mail($lead->Email); // Not sure about multiple.
-    $result[$lead->Id] = array(
+  foreach ($marketo->result as $lead) {
+    $account = user_load_by_mail($lead->email); // Not sure about multiple.
+    $result[$lead->id] = array(
       'marketo' => $lead,
       'drupal' => $account,
     );
     if ($activity) {
-      $result[$lead->Id]['activity'] = marketo_ma_get_lead_activity($lead->Id);
+      $result[$lead->id]['activity'] = marketo_ma_get_lead_activity($lead->id);
     }
   }
 

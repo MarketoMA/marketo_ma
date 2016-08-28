@@ -356,12 +356,12 @@ function theme_marketo_ma_user_lead($vars) {
   foreach ($leads->result as $lead) {
     $table['rows'][] = array(
       array(
-        'data' => 'ID ' . $lead->Id,
+        'data' => 'ID ' . $lead->id,
         'colspan' => 2,
         'header' => TRUE,
       ),
     );
-    foreach ($lead->attributes as $key => $value) {
+    foreach ($lead as $key => $value) {
       $label = (array_key_exists($key, $fields)) ? $fields[$key] : $key;
       $table['rows'][] = array($label, $value);
     }
