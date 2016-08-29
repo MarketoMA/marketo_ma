@@ -62,7 +62,6 @@ class MarketoClient {
   protected $identity;
   protected $token;
   protected $isFreshToken;
-  
   // Marketo
   protected $activity_types;
   protected $activity_nextPageToken;
@@ -107,7 +106,6 @@ class MarketoClient {
     $this->http_options = array();
     $this->http_options[CURLOPT_HTTPHEADER] = array(
       'accept: application/json',
-      'Content-Type: application/json',
     );
     $this->http_options[CURLOPT_RETURNTRANSFER] = TRUE;
     $this->http_options[CURLOPT_FOLLOWLOCATION] = FALSE;
@@ -128,6 +126,7 @@ class MarketoClient {
    */
   protected function curlGet($url, $params = array(), $http_options = array()) {
     $http_options += $this->http_options;
+    $this->http_options[CURLOPT_HTTPHEADER][] = 'Content-Type: application/json';
     if (!empty($params)) {
       $url .= '?' . http_build_query($params);
     }
@@ -246,7 +245,7 @@ class MarketoClient {
   public function getResponseInfo() {
     return $this->response_info;
   }
-  
+
   public function getAccessToken() {
     return $this->token;
   }
@@ -317,29 +316,50 @@ class MarketoClient {
     if (!is_null($fields)) {
       $params['fields'] = $fields;
     }
-    $response = $this->curlPost($url, $params);
-    return json_decode($response);
+    $json = $this->curlPost($url, $params);
+    $response = json_decode($json);
+    if (!$response->success) {
+      throw new Exception($response->errors[0]->message, $response->errors[0]->code);
+    }
+    return $response;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getLeadActivity($leadIds, $activityTypeIds = NULL) {
+  public function getLeadActivity($key) {
     $activity = array();
-    $nextPageToken = $this->getActivityPagingToken();
-    do {
-      $batch = $this->getLeadActivityBatch($leadIds, $activityTypeIds, $nextPageToken);
-      if (isset($batch->result)) {
-        foreach ($batch->result as $a) {
-          $a->activityName = $this->getActivityTypes()[$a->activityTypeId]['name'];
-          $activity[] = $a;
+
+    $keyType = $this->keyType($key);
+    if ($keyType != 'ID') {
+      $key = $this->getLead($key, $keyType)->result[0]->id;
+    }
+    $activityTypes = array_chunk(array_keys($this->getActivityTypes()), 10);
+    foreach ($activityTypes as $activitySet) {
+      $nextPageToken = $this->getActivityPagingToken();
+      do {
+        $batch = $this->getLeadActivityBatch($key, implode(',', $activitySet), $nextPageToken);
+        if (isset($batch->result)) {
+          foreach ($batch->result as $a) {
+            $act = new stdClass();
+            $act->id = $a->id;
+            $act->activityDate = $a->activityDate;
+            $act->activityType = $this->getActivityTypes()[$a->activityTypeId]['name'];
+            $act->primaryAttributeValue = isset($a->primaryAttributeValue) ? $a->primaryAttributeValue : '';
+            $act->attributes = array();
+            foreach ($a->attributes as $attr) {
+              $act->attributes[$attr->name] = $attr->value;
+            }
+            $activity[$act->id] = $act;
+          }
         }
-      }
-      $nextPageToken = $batch->nextPageToken;
-    } while (isset($batch->moreResult) && $batch->moreResult);
+        $nextPageToken = $batch->nextPageToken;
+      } while (isset($batch->moreResult) && $batch->moreResult);
+    }
+    ksort($activity);
     return $activity;
   }
-  
+
   private function getLeadActivityBatch($leadIds, $activityTypeIds, $nextPageToken, $batchSize = 300) {
     $url = $this->endpoint . MarketoClient::ACTIVITIES_API;
     $params = array(
@@ -348,22 +368,23 @@ class MarketoClient {
       'nextPageToken' => $nextPageToken,
       'batchSize' => $batchSize,
     );
-//    try {
+    try {
       $json = $this->curlGet($url, $params);
       $response = json_decode($json);
       if (!$response->success) {
         throw new Exception($response->errors[0]->message, $response->errors[0]->code);
       }
-//    } catch (Exception $e) {
-//
-//    }
+    }
+    catch (Exception $e) {
+      
+    }
     return $response;
   }
-  
+
   private function getActivityPagingToken($sinceDatetime = NULL) {
     $url = $this->endpoint . MarketoClient::ACTIVITIES_PAGING_TOKEN_API;
     $params = array(
-      'sinceDatetime' => is_null($sinceDatetime) ? date('Y-m-d') : $sinceDatetime,
+      'sinceDatetime' => is_null($sinceDatetime) ? date('Y-m-d', mktime(0, 0, 0, 1, 1, 1970)) : $sinceDatetime,
     );
     try {
       $response = json_decode($this->curlGet($url, $params));
@@ -373,8 +394,9 @@ class MarketoClient {
       else {
         throw new Exception($response->errors[0]->message, $response->errors[0]->code);
       }
-    } catch (Exception $e) {
-
+    }
+    catch (Exception $e) {
+      
     }
     return $this->activity_nextPageToken;
   }
@@ -384,22 +406,23 @@ class MarketoClient {
     if (empty($this->activity_types)) {
       $url = $this->endpoint . MarketoClient::ACTIVITIES_TYPES_API;
       try {
-          $response = json_decode($this->curlGet($url));
-          if ($response->success) {
-            // Don't need all the detail returned, trim it down.
-            foreach ($response->result as $activity) {
-              $a = array(
-                'id' => $activity->id,
-                'name' => $activity->name,
-                'description' => $activity->description,
-              );
-              $this->activity_types[$activity->id] = $a;
-            }
+        $response = json_decode($this->curlGet($url));
+        if ($response->success) {
+          // Don't need all the detail returned, trim it down.
+          foreach ($response->result as $activity) {
+            $a = array(
+              'id' => $activity->id,
+              'name' => $activity->name,
+              'description' => $activity->description,
+            );
+            $this->activity_types[$activity->id] = $a;
           }
-          else {
-            throw new Exception($response->errors[0]->message, $response->errors[0]->code);
-          }
-      } catch (Exception $e) {
+        }
+        else {
+          throw new Exception($response->errors[0]->message, $response->errors[0]->code);
+        }
+      }
+      catch (Exception $e) {
         $response->result = $e->getMessage();
       }
     }
@@ -416,22 +439,31 @@ class MarketoClient {
       'input' => $input,
     );
     // Options passed in as NULL are excluded to pickup Marketo default behavior
-    if (!is_null($action)) { $params['action'] = $action; }
-    if (!is_null($lookupField)) { $params['lookupField'] = $lookupField; }
-    if (!is_null($asyncProcessing)) { $params['asyncProcessing'] = $asyncProcessing; }
-    if (!is_null($partitionName)) { $params['partitionName'] = $partitionName; }
-    
+    if (!is_null($action)) {
+      $params['action'] = $action;
+    }
+    if (!is_null($lookupField)) {
+      $params['lookupField'] = $lookupField;
+    }
+    if (!is_null($asyncProcessing)) {
+      $params['asyncProcessing'] = $asyncProcessing;
+    }
+    if (!is_null($partitionName)) {
+      $params['partitionName'] = $partitionName;
+    }
+
     $response = array(
       'success' => FALSE,
       'result' => NULL,
     );
-    
+
     try {
       $response = json_decode($this->curlPost($url, json_encode($params)));
       if (!$response->success) {
         throw new Exception($response->errors[0]->message, $response->errors[0]->code);
       }
-    } catch (Exception $e) {
+    }
+    catch (Exception $e) {
       $response->result = $e->getMessage();
     }
     return $response;
@@ -463,7 +495,7 @@ class MarketoClient {
     ksort($fields);
     return $fields;
   }
-  
+
   /**
    * Determines lead key type for a given key.
    * 
@@ -489,6 +521,7 @@ class MarketoClient {
 
     return $type;
   }
+
 }
 
 class MarketoError {
@@ -544,11 +577,17 @@ class MarketoError {
 }
 
 class HttpServerException extends Exception {
+  
 }
+
 class HttpServerException404 extends Exception {
+
   function __construct($message = 'Not Found') {
     parent::__construct($message, 404);
   }
+
 }
+
 class RestClientException extends Exception {
+  
 }

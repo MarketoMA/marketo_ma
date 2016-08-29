@@ -317,13 +317,13 @@ function theme_marketo_ma_user_activity($vars) {
       t('ID'),
       t('Date/Time'),
       t('Activity Type'),
-      t('Asset Name'),
+      t('Detail'),
     ),
     'rows' => array(),
     'empty' => t("No activity found for @mail.", array('@mail' => $email)),
   );
 
-  $fields = array('id', 'activityDateTime', 'activityType', 'mktgAssetName');
+  $fields = array('id', 'activityDate', 'activityType', 'primaryAttributeValue');
   foreach ($activity as $event) {
     $row = array();
     foreach ($fields as $field) {

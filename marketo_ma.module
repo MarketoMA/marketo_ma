@@ -165,11 +165,11 @@ function marketo_ma_page_alterXX(&$page) {
  * Implements hook_page_alter().
  */
 function marketo_ma_page_alter(&$page) {
-  $client = _marketo_ma_client();
+//  $client = _marketo_ma_client();
 //  $result = $client->getActivityTypes();
 //  var_dump($result);
-  $result = $client->getLeadActivity(65,'1,2,3,12,13');
-  var_dump($result);
+//  $result = $client->getLeadActivity(65,'1,2,3,12,13');
+//  var_dump($result);
   global $user;
   $marketo_ma_data = marketo_ma_get_queue();
 
@@ -532,22 +532,16 @@ function marketo_ma_get_lead($key) {
  */
 function marketo_ma_get_lead_activity($key) {
   $result = array();
-  if (_marketo_ma_soap_is_configured()) {
-    module_load_include('inc', 'marketo_ma', 'includes/marketo_ma.rest');
-
-    $secret_key = variable_get('marketo_ma_soap_encryption_key');
-    $access_key = variable_get('marketo_ma_soap_user_id');
-    $soap_endpoint = variable_get('marketo_ma_soap_endpoint');
-
+  if (_marketo_ma_rest_is_configured()) {
     try {
-      $client = new MarketoClient($access_key, $secret_key, $soap_endpoint, _marketo_ma_soap_proxy_settings());
+      $client = _marketo_ma_client();
       $result = $client->getLeadActivity($key);
       if (!$result && variable_get('marketo_ma_logging', FALSE)) {
         watchdog('marketo', 'Lead data not found for !key', array('!key' => $key), WATCHDOG_INFO);
       }
     }
     catch (Exception $e) {
-      watchdog('marketo', 'Unable to retrieve lead activity. <pre>@error</pre>', array('error' => $e->getMessage()), WATCHDOG_ERROR);
+      watchdog('marketo', 'Unable to retrieve lead information. <pre>@error</pre>', array('error' => $e->getMessage()), WATCHDOG_ERROR);
     }
   }
 

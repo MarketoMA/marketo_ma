@@ -238,9 +238,9 @@ function _marketo_ma_search_drupal_lead($key, $activity = FALSE) {
 }
 
 function _marketo_ma_print_activity_($activity) {
-  $fields = array('id', 'activityDateTime', 'activityType', 'mktgAssetName');
+  $fields = array('id', 'activityDate', 'activityType', 'primaryAttributeValue');
   $rows = array();
-  $rows[] = array(dt('ID'), dt('Date/Time'), dt('Activity Type'), dt('Asset Name'));
+  $rows[] = array(dt('ID'), dt('Date/Time'), dt('Activity Type'), dt('Detail'));
   foreach ($activity as $event) {
     $row = array();
     foreach ($fields as $field) {
