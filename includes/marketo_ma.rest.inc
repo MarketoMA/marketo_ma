@@ -125,7 +125,7 @@ class MarketoClient {
    */
   protected function curlGet($url, $params = array(), $http_options = array()) {
     $http_options += $this->http_options;
-    $this->http_options[CURLOPT_HTTPHEADER][] = 'Content-Type: application/json';
+//    $this->http_options[CURLOPT_HTTPHEADER][] = 'Content-Type: application/json';
     if (!empty($params)) {
       $url .= '?' . http_build_query($params);
     }
@@ -325,7 +325,7 @@ class MarketoClient {
     if (!is_null($fields)) {
       $params['fields'] = $fields;
     }
-    $json = $this->curlPost($url, $params);
+    $json = $this->curlGet($url, $params);
     $response = json_decode($json);
     if (!$response->success) {
       throw new Exception($response->errors[0]->message, $response->errors[0]->code);

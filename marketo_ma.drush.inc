@@ -204,14 +204,16 @@ function _marketo_ma_get_uid($search) {
 function _marketo_ma_search_marketo_lead($key, $activity = FALSE) {
   $result = array();
   $marketo = marketo_ma_get_lead($key); // Can return multiple.
-  foreach ($marketo->result as $lead) {
-    $account = user_load_by_mail($lead->email); // Not sure about multiple.
-    $result[$lead->id] = array(
-      'marketo' => $lead,
-      'drupal' => $account,
-    );
-    if ($activity) {
-      $result[$lead->id]['activity'] = marketo_ma_get_lead_activity($lead->id);
+  if (isset($marketo->result)) {
+    foreach ($marketo->result as $lead) {
+      $account = user_load_by_mail($lead->email); // Not sure about multiple.
+      $result[$lead->id] = array(
+        'marketo' => $lead,
+        'drupal' => $account,
+      );
+      if ($activity) {
+        $result[$lead->id]['activity'] = marketo_ma_get_lead_activity($lead->id);
+      }
     }
   }
 
@@ -223,13 +225,15 @@ function _marketo_ma_search_drupal_lead($key, $activity = FALSE) {
   $uids = _marketo_ma_get_uid($key); // Can return multiple.
   foreach ($uids as $uid => $account) {
     $marketo = marketo_ma_get_lead($account->mail);
-    foreach ($marketo as $lead) {
-      $result[$lead->Id] = array(
-        'marketo' => $lead,
-        'drupal' => $account,
-      );
-      if ($account) {
-        $result[$lead->Id]['activity'] = marketo_ma_get_lead_activity($lead->Id);
+    if (isset($marketo->result)) {
+      foreach ($marketo->result as $lead) {
+        $result[$lead->id] = array(
+          'marketo' => $lead,
+          'drupal' => $account,
+        );
+        if ($activity) {
+          $result[$lead->Id]['activity'] = marketo_ma_get_lead_activity($lead->id);
+        }
       }
     }
   }

@@ -353,17 +353,19 @@ function theme_marketo_ma_user_lead($vars) {
     'empty' => t("No lead found for @mail.", array('@mail' => $email)),
   );
 
-  foreach ($leads->result as $lead) {
-    $table['rows'][] = array(
-      array(
-        'data' => 'ID ' . $lead->id,
-        'colspan' => 2,
-        'header' => TRUE,
-      ),
-    );
-    foreach ($lead as $key => $value) {
-      $label = (array_key_exists($key, $fields)) ? $fields[$key] : $key;
-      $table['rows'][] = array($label, $value);
+  if (isset($leads->result)) {
+    foreach ($leads->result as $lead) {
+      $table['rows'][] = array(
+        array(
+          'data' => 'ID ' . $lead->id,
+          'colspan' => 2,
+          'header' => TRUE,
+        ),
+      );
+      foreach ($lead as $key => $value) {
+        $label = (array_key_exists($key, $fields)) ? $fields[$key] : $key;
+        $table['rows'][] = array($label, $value);
+      }
     }
   }
 
