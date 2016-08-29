@@ -51,7 +51,7 @@ function marketo_ma_permission() {
 function marketo_ma_cron_queue_info() {
   $queues = array();
   $queues['marketo_ma_lead'] = array(
-    'worker callback' => '_marketo_ma_associate_lead_soap',
+    'worker callback' => '_marketo_ma_associate_lead_rest',
     'time' => 30,
   );
   return $queues;
@@ -153,23 +153,10 @@ function _marketo_ma_client($endpoint = NULL, $identity = NULL, $client_id = NUL
   return $client;
 }
 
-function marketo_ma_page_alterXX(&$page) {
-//  $client = _marketo_ma_client();
-//  var_dump($client);
-//  $fields = $client->getFields();
-//  var_dump($fields);
-//  $lead = $client->getLead('65', NULL, 'COmPaNy,AddReSS,EmAiL,cookies');
-//  var_dump($client);
-}
 /**
  * Implements hook_page_alter().
  */
 function marketo_ma_page_alter(&$page) {
-//  $client = _marketo_ma_client();
-//  $result = $client->getActivityTypes();
-//  var_dump($result);
-//  $result = $client->getLeadActivity(65,'1,2,3,12,13');
-//  var_dump($result);
   global $user;
   $marketo_ma_data = marketo_ma_get_queue();
 
@@ -358,7 +345,7 @@ function _marketo_ma_associate_lead_rest($lead) {
         }
       }
       else {
-        watchdog('marketo', 'Unable to sync lead !email [rest] <pre>@error</pre> Request XML: <pre>@request</pre> Response XML: <pre>@response</pre>', array(
+        watchdog('marketo', 'Unable to sync lead !email [rest] <pre>@error</pre> Response Info: <pre>@request</pre> Response Object: <pre>@response</pre>', array(
           '!email' => $lead['email'],
           '@error' => $sync->result,
           '@request' => $client->getResponseInfo(),

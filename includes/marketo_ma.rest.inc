@@ -159,6 +159,9 @@ class MarketoClient {
     if (is_array($fields)) {
       $http_options[CURLOPT_HTTPHEADER][] = 'Content-Type: multipart/form-data';
     }
+    else {
+      $http_options[CURLOPT_HTTPHEADER][] = 'Content-Type: application/json';
+    }
     $this->handle = curl_init($url);
     if (!curl_setopt_array($this->handle, $http_options)) {
       throw new RestClientException("Error setting cURL request options.");
@@ -458,7 +461,8 @@ class MarketoClient {
     );
 
     try {
-      $response = json_decode($this->curlPost($url, json_encode($params)));
+      $json = $this->curlPost($url, json_encode($params));
+      $response = json_decode($json);
       if (!$response->success) {
         throw new Exception($response->errors[0]->message, $response->errors[0]->code);
       }
