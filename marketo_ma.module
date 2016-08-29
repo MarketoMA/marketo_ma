@@ -145,10 +145,10 @@ function _marketo_ma_client($endpoint = NULL, $identity = NULL, $client_id = NUL
   // Get the token from cache if one exists
   $cachedToken = variable_get('marketo_ma_rest_token', array());
   $client = new MarketoClient($client_id, $client_secret, $endpoint, $identity, $cachedToken);
-  // Compare cached and current tokens and update cache if needed
-  $currentToken = $client->getAccessToken();
-  if ($cachedToken->authorization != $currentToken->authorization) {
+  // Update cache if this is a fresh token
+  if ($client->hasFreshToken()) {
     variable_set('marketo_ma_rest_token', $client->getAccessToken());
+    watchdog('marketo', 'Caching REST token <pre>@authorization</pre>', array('@authorization' => $client->getAccessToken()->authorization), WATCHDOG_INFO);
   }
   return $client;
 }

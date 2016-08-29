@@ -101,7 +101,6 @@ class MarketoClient {
     $this->client_secret = $client_secret;
     $this->endpoint = $endpoint . '/' . MarketoClient::API_VERSION . '/';
     $this->identity = $identity;
-    $this->isFreshToken = FALSE;
 
     $this->http_options = array();
     $this->http_options[CURLOPT_HTTPHEADER] = array(
@@ -252,9 +251,16 @@ class MarketoClient {
   public function getAccessToken() {
     return $this->token;
   }
+  
+  public function hasFreshToken() {
+    return $this->isFreshToken;
+  }
 
   protected function setAccessToken($token = array()) {
-    if (!$this->isTokenValid($token)) {
+    if ($this->isTokenValid($token)) {
+      $this->isFreshToken = FALSE;
+    }
+    else {
       $token = $this->getNewAccessToken();
       $token->authorization = "Authorization: " . $token->token_type . " " . $token->access_token;
       $token->expires_at = time() + $token->expires_in;
