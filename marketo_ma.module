@@ -157,6 +157,7 @@ function _marketo_ma_client($endpoint = NULL, $identity = NULL, $client_id = NUL
  * Implements hook_page_alter().
  */
 function marketo_ma_page_alter(&$page) {
+  $lead = marketo_ma_get_lead('id:306-CIR-314&token:_mch-mma.dev-1472523506112-45953');
   global $user;
   $marketo_ma_data = marketo_ma_get_queue();
 
@@ -249,6 +250,17 @@ function _marketo_ma_associate_lead($lead) {
 function _marketo_ma_associate_lead_munchkin($lead) {
   if (_marketo_ma_munchkin_is_configured()) {
     $key = variable_get('marketo_ma_munchkin_api_private_key', NULL);
+    
+    // Marketo MA uses REST field names by default and Munchkin uses SOAP names.
+    // Update field names to their SOAP equivalant and exclude unusable fields.
+    $fields = variable_get('marketo_ma_webform_fields', MARKETO_MA_WEBFORM_FIELD_DEFAULTS);
+    $newLeadData = array();
+    foreach ($lead['data'] as $marketoKey => $marketoValue) {
+      if (array_key_exists($marketoKey, $fields)) {
+        $newLeadData[$fields[$marketoKey]['soapName']] = $marketoValue;
+      }
+    }
+    $lead['data'] = $newLeadData;
 
     if (variable_get('marketo_ma_logging', FALSE)) {
       watchdog('marketo', 'Associating lead !email [@method] <pre>@data</pre>', array(
@@ -443,17 +455,16 @@ function _marketo_ma_get_field_options($labels = TRUE, $sort = TRUE) {
    * marketo_ma_webform_fields is multi-line, pipe "|" delimited data
    * which needs to be parsed. First split it into rows of data.
    */
-  $raw_options = preg_split('/(\r\n?|\n)/', trim(variable_get('marketo_ma_webform_fields', MARKETO_MA_WEBFORM_FIELD_DEFAULTS)));
+  $raw_options = variable_get('marketo_ma_webform_fields', MARKETO_MA_WEBFORM_FIELD_DEFAULTS);
   $options = array();
 
   // Loop over all the rows getting the keys and values for the fields.
-  foreach ($raw_options as $row) {
-    $field = explode('|', trim($row));
+  foreach ($raw_options as $key => $value) {
     if ($labels) {
-      $options[trim($field[0])] = trim($field[1]) . ' (' . trim($field[0]) . ')';
+      $options[$key] = $value['displayName'] . ' (' . $key . ')';
     }
     else {
-      $options[trim($field[0])] = trim($field[1]);
+      $options[$key] = $value['displayName'];
     }
   }
   if ($sort) {
@@ -464,7 +475,7 @@ function _marketo_ma_get_field_options($labels = TRUE, $sort = TRUE) {
 }
 
 /**
- * Retrieves fields from Marketo using SOAP API.
+ * Retrieves fields from Marketo.
  * 
  * @return array
  *   Marketo fields
