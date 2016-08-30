@@ -35,7 +35,7 @@ function mma_contact_entity_operation(EntityInterface $entity) {
   $operations = [];
   if ($entity instanceof ContactFormInterface) {
     $operations['mma_contact_mapping'] = [
-      'title' => t('Marketo mapping'),
+      'title' => t('Marketo configuration'),
       'url' => Url::fromRoute('mma_contact.contact.configuration', ['contact_form' => $entity->id()]),
       'weight' => 50,
     ];
