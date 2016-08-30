@@ -54,7 +54,7 @@ class MmaContactConfiguration extends FormBase {
    */
   public static function create(ContainerInterface $container) {
     return new static(
-      $container->get('marketo_ma.client'),
+      $container->get('marketo_ma.api_client'),
       $container->get('entity_field.manager')
     );
   }

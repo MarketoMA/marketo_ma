@@ -39,7 +39,7 @@ class MarketoMaApiClientTest extends MmaJavascriptTestBase {
     $config->save();
 
     // Get the API client service.
-    $this->client = \Drupal::service('marketo_ma.client');
+    $this->client = \Drupal::service('marketo_ma.api_client');
     // Get the API client service.
     $this->service = \Drupal::service('marketo_ma');
 
@@ -49,7 +49,7 @@ class MarketoMaApiClientTest extends MmaJavascriptTestBase {
    * Tests if a lead is associated when the user logs in.
    */
   public function testMunchkinLeadAssociation() {
-    $marketo_user = $this->drupalCreateUser();
+    $marketo_user = $this->drupalCreateUser(['administer site configuration', 'access administration pages']);
 
     $this->drupalGet('<front>');
     $page = $this->getSession()->getPage();
@@ -69,10 +69,13 @@ class MarketoMaApiClientTest extends MmaJavascriptTestBase {
     $this->drupalLogin($marketo_user);
     // Get drupal settings.
     $drupal_settings = $this->getDrupalSettings();
-
     // Load the lead via the API.
-    $lead = $this->client->getLead('email', $marketo_user->getEmail());
+    $lead = $this->client->getLeadByEmail($marketo_user->getEmail());
 
+    // The marketo track settings should be there.
+    self::assertTrue(!empty($drupal_settings['marketo_ma']));
+    // But no actions.
+    self::assertTrue(empty($drupal_settings['marketo_ma']['actions']));
     // Make sure A lead result was returned.
     self::assertTrue(!empty($lead), 'A lead was associated');
     // Makes sure the lead email is the same as the user.
@@ -83,14 +86,8 @@ class MarketoMaApiClientTest extends MmaJavascriptTestBase {
     // Clean up and delete the lead.
     $this->client->deleteLead([$lead->id()]);
 
-
-    // The marketo track settings should be there.
-    self::assertTrue(!empty($drupal_settings['marketo_ma']));
-    // But no actions.
-    self::assertTrue(empty($drupal_settings['marketo_ma']['actions']));
-
-    // Get a random cache busting page.
-    $this->drupalGet($this->randomMachineName());
+    // Get a tracked page.
+    $this->drupalGet('/user/password');
     // Get drupal settings.
     $drupal_settings = $this->getDrupalSettings();
 
@@ -98,6 +95,15 @@ class MarketoMaApiClientTest extends MmaJavascriptTestBase {
     self::assertTrue(!empty($drupal_settings['marketo_ma']));
     // But no actions.
     self::assertTrue(empty($drupal_settings['marketo_ma']['actions']));
+
+    // Get an un-tracked page.
+    $this->drupalGet('/admin/');
+    $drupal_settings = $this->getDrupalSettings();
+
+    // Make sure there weren't any page errors.
+    self::assertEmpty($page->find('css', 'div[role=alert]'));
+    // The marketo track settings should be there.
+    self::assertFalse(isset($drupal_settings['marketo_ma']['track']), 'The marketo track flag is not present.');
 
   }
 

@@ -3,6 +3,7 @@
 namespace Drupal\mma_contact_test;
 
 use Drupal\Core\State\StateInterface;
+use Drupal\marketo_ma\LeadInterface;
 use Drupal\marketo_ma\MarketoMaApiClientInterface;
 
 /**
@@ -65,21 +66,28 @@ class TestMarketoMaApiClient implements MarketoMaApiClientInterface {
   /**
    * {@inheritdoc}
    */
-  public function getLead($key, $type) {
+  public function getLeadById($id) {
     return [];
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getLeadActivity($key, $type) {
+  public function getLeadByEmail($email) {
     return [];
   }
 
   /**
    * {@inheritdoc}
    */
-  public function syncLead($lead, $key = 'email', $cookie = null, $options = []) {
+  public function getLeadActivity(LeadInterface $lead) {
+    return [];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function syncLead(LeadInterface $lead, $key = 'email', $cookie = null, $options = []) {
     $this->syncedLeads[] = $lead;
     $this->state->set(static::class, $this->syncedLeads);
 

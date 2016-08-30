@@ -98,18 +98,23 @@ class MarketoMaApiClient implements MarketoMaApiClientInterface {
   /**
    * {@inheritdoc}
    */
-  public function getLead($key, $type) {
-    $leads_result = $this->getClient()->getLeadByFilterType($key, $type)->getResult();
+  public function getLeadById($id) {
+    $leads_result = $this->getClient()->getLead($id)->getLead();
+    return !empty($leads_result) ? new Lead($leads_result) : NULL;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getLeadByEmail($email) {
+    $leads_result = $this->getClient()->getLeadByFilterType('email', $email)->getResult();
     return !empty($leads_result[0]) ? new Lead(reset($leads_result)) : NULL;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getLeadActivity($key, $type) {
-    // Get the lead by the filter type.
-    $lead = $this->getLead($key, $type);
-
+  public function getLeadActivity(LeadInterface $lead) {
     /**
      * @todo: Use configuration form to manage the default activity types.
      *
@@ -122,13 +127,13 @@ class MarketoMaApiClient implements MarketoMaApiClientInterface {
     // A paging token is required by the activities.json call.
     $paging_token = $this->getClient()->getPagingToken(date('c'))->getNextPageToken();
     // Calls get lead activities on the API client.
-    return $this->getClient()->getLeadActivity($paging_token, $lead['id'], $activity_type_ids)->getLeadActivity();
+    return $this->getClient()->getLeadActivity($paging_token, $lead->id(), $activity_type_ids)->getLeadActivity();
   }
 
   /**
    * {@inheritdoc}
    */
-  public function syncLead($lead, $key = 'email', $options = []) {
+  public function syncLead(LeadInterface $lead, $key = 'email', $options = []) {
     // Add the create/update leads call to do the association.
     $result = $this->getClient()->createOrUpdateLeads([$lead->data()], $key, $options)->getResult();
     return $result;

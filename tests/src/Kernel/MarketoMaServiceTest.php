@@ -66,7 +66,7 @@ class MarketoMaServiceTest extends KernelTestBase {
     // Get the `marketo_ma` service.
     $this->service = \Drupal::service('marketo_ma');
     // Get the API client service.
-    $this->api_client = \Drupal::service('marketo_ma.client');
+    $this->api_client = \Drupal::service('marketo_ma.api_client');
   }
 
   /**
@@ -93,7 +93,7 @@ class MarketoMaServiceTest extends KernelTestBase {
     $this->service->updateLead(new Lead(['email' => $user_email]));
 
     // Try to load the new lead.
-    $synced_lead = $this->api_client->getLead('email', $user_email);
+    $synced_lead = $this->api_client->getLeadByEmail($user_email);
     // Make sure the lead wasn't created.
     self::assertEmpty($synced_lead, 'The lead has not been created.');
 
@@ -105,7 +105,7 @@ class MarketoMaServiceTest extends KernelTestBase {
     self::assertEquals($lead_queue->numberOfItems(), 0, 'The lead queue was emptied.');
 
     // Try to load the new lead.
-    $synced_lead = $this->api_client->getLead('email', $user_email);
+    $synced_lead = $this->api_client->getLeadByEmail($user_email);
     // Make sure the lead was created.
     self::assertNotEmpty($synced_lead, 'The lead has not been created.');
 
@@ -115,7 +115,7 @@ class MarketoMaServiceTest extends KernelTestBase {
     self::assertEquals('deleted', $delete_result[0]['status'], 'The tem lead was deleted.');
 
     // Try to load the new lead.
-    $deleted_lead = $this->api_client->getLead('email', $user_email);
+    $deleted_lead = $this->api_client->getLeadByEmail($user_email);
     // Make sure the lead wasn't created.
     self::assertEmpty($deleted_lead, 'The lead has not been created.');
   }

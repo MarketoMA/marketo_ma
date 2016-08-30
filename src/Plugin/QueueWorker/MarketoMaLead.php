@@ -51,7 +51,7 @@ class MarketoMaLead extends QueueWorkerBase implements ContainerFactoryPluginInt
       $configuration,
       $plugin_id,
       $plugin_definition,
-      $container->get('marketo_ma.client')
+      $container->get('marketo_ma.api_client')
     );
   }
 

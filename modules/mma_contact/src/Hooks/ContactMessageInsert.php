@@ -44,7 +44,7 @@ class ContactMessageInsert implements ContainerInjectionInterface {
    */
   public static function create(ContainerInterface $container) {
     return new static(
-      $container->get('marketo_ma.client'),
+      $container->get('marketo_ma.api_client'),
       $container->get('entity_type.manager')
     );
   }
@@ -104,9 +104,9 @@ class ContactMessageInsert implements ContainerInjectionInterface {
     $data = [];
 
     foreach ($mapping as $contact_field_name => $marketo_field_name) {
-      $field_item_list = $message->get($contact_field_name);
-      $field_data = $field_item_list->{$field_item_list->get(0)->mainPropertyName()};
-      $data[$marketo_field_name] = $field_data;
+      if ($field_item = $message->get($contact_field_name)->first()) {
+        $data[$marketo_field_name] = $field_item->{$field_item->mainPropertyName()};
+      }
     }
     return $data;
   }

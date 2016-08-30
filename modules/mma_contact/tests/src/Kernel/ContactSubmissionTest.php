@@ -20,7 +20,7 @@ class ContactSubmissionTest extends MmaContactTestBase {
     $contact->save();
 
     // @todo Potentially one could use a mock instead.
-    $synced_leads = \Drupal::service('marketo_ma.client')->getSyncedLeads();
+    $synced_leads = \Drupal::service('marketo_ma.api_client')->getSyncedLeads();
     $this->assertEquals([new Lead([
       'firstName' => 'My name',
       'email' => 'example@example.com',

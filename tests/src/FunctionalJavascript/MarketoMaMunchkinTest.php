@@ -30,27 +30,13 @@ class MarketoMaMunchkinTest extends MmaJavascriptTestBase {
     $config->set('munchkin.api_private_key', $encryption_service->encrypt(getenv('marketo_ma_munchkin_api_private_key')));
     $config->save();
 
-    // Write the encryption keto to settings.php
-//    $this->writeSettings([
-//      'config' => [
-//        'marketo_ma.settings' => (object) [
-//          'value' => [
-//            'tracking_method' => 'munchkin',
-//            'instance_host' => $encryption_service->encrypt(getenv('marketo_ma_instance_host')),
-//            'munchkin.account_id' => $encryption_service->encrypt(getenv('marketo_ma_munchkin_account_id')),
-//            'munchkin.api_private_key' => $encryption_service->encrypt(getenv('marketo_ma_munchkin_api_private_key')),
-//          ],
-//          'required' => TRUE,
-//        ],
-//      ],
-//    ]);
   }
 
   /**
    * Tests if a lead is associated when the user logs in.
    */
   public function testMunchkinLeadAssociation() {
-    $marketo_user = $this->drupalCreateUser();
+    $marketo_user = $this->drupalCreateUser(['administer site configuration', 'access administration pages']);
 
     $this->drupalGet('<front>');
     $page = $this->getSession()->getPage();
@@ -86,10 +72,10 @@ class MarketoMaMunchkinTest extends MmaJavascriptTestBase {
     // Make sure the marketo cookie is there.
     self::assertNotEmpty($marketo_cookie, 'The marketo cookie has been set.');
 
-    // Get a random cache busting page.
-    $this->drupalGet($this->randomMachineName());
-
+    // Get a tracked page.
+    $this->drupalGet('/user/password');
     $drupal_settings = $this->getDrupalSettings();
+
     // Get the marketo cookie.
     $marketo_cookie = $this->getSession()->getCookie('_mkto_trk');
 
@@ -99,6 +85,15 @@ class MarketoMaMunchkinTest extends MmaJavascriptTestBase {
     self::assertTrue(empty($drupal_settings['marketo_ma']['actions']));
     // Make sure the marketo cookie is there.
     self::assertNotEmpty($marketo_cookie, 'The marketo cookie has been set.');
+
+    // Get an un-tracked page.
+    $this->drupalGet('/admin/');
+    $drupal_settings = $this->getDrupalSettings();
+
+    // Make sure there weren't any page errors.
+    self::assertEmpty($page->find('css', 'div[role=alert]'));
+    // The marketo track settings should be there.
+    self::assertFalse(isset($drupal_settings['marketo_ma']['track']), 'The marketo track flag is not present.');
 
   }
 

@@ -177,11 +177,8 @@ class MarketoMaService implements MarketoMaServiceInterface {
 
     // Get whether we are looking for a page match or a lack thereof.
     $negate_page_match = $this->config()->get('tracking.request_path.negate');
-    // Get pages from config.
-    $pages = $this->config()->get('tracking.request_path.pages');
-
     // Use the patch matcher service to test whether the current path matches.
-    $path_has_match = $this->path_matcher->matchPath($this->route_match->getRouteObject()->getPath(), $pages);
+    $path_has_match = $this->path_matcher->matchPath($this->route_match->getRouteObject()->getPath() , $this->config()->get('tracking.request_path.pages'));
 
     return (($path_has_match && !$negate_page_match) || (!$path_has_match && $negate_page_match));
   }

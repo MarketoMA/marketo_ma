@@ -15,7 +15,7 @@ class MmaContactTestServiceProvider implements ServiceModifierInterface {
    * {@inheritdoc}
    */
   public function alter(ContainerBuilder $container) {
-    $container->getDefinition('marketo_ma.client')
+    $container->getDefinition('marketo_ma.api_client')
       ->setClass(TestMarketoMaApiClient::class)
       ->setArguments([new Reference('state')]);
   }

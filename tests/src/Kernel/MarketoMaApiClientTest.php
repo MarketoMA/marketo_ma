@@ -56,7 +56,7 @@ class MarketoMaApiClientTest extends KernelTestBase {
       ->save();
 
     // Get the API client service.
-    $this->api_client = \Drupal::service('marketo_ma.client');
+    $this->api_client = \Drupal::service('marketo_ma.api_client');
 
     // Set the test lead ID.
     $this->test_lead_email = 'test_lead-'.$this->randomMachineName().'@marketo.com';
@@ -109,7 +109,7 @@ class MarketoMaApiClientTest extends KernelTestBase {
     $create_result = $this->_sync_lead();
 
     // Retrieve the new lead via the api call.
-    $lead = $this->api_client->getLead('email', $this->test_lead_email);
+    $lead = $this->api_client->getLeadByEmail($this->test_lead_email);
 
     // We should have a numeric lead id,
     self::assertTrue(is_numeric($lead->id()));
@@ -118,6 +118,12 @@ class MarketoMaApiClientTest extends KernelTestBase {
     // check that the lead ids match up.
     self::assertEquals($create_result[0]['id'], $lead->id());
     // Clean up and delete the lead.
+
+    // Get the lead by Marketo Lead ID.
+    $lead_by_id = $this->api_client->getLeadById($lead->id());
+    // Check the retrieved leads email against the test value.
+    self::assertEquals($lead, $lead_by_id);
+
     $this->api_client->deleteLead($create_result[0]['id']);
   }
 
@@ -129,8 +135,10 @@ class MarketoMaApiClientTest extends KernelTestBase {
     // Create a new lead.
     $create_result = $this->_sync_lead();
 
+    // Get the newly synced lead.
+    $lead = $this->api_client->getLeadByEmail($this->test_lead_email);
     // Get lead activity.
-    $activity = $this->api_client->getLeadActivity($this->test_lead_email, 'email');
+    $activity = $this->api_client->getLeadActivity($lead);
 
     // @todo: Add test for valy activity information.
 

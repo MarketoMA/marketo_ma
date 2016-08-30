@@ -23,7 +23,7 @@ function marketo_ma_requirements($phase) {
     if ($config->get('tracking_method') == 'api_client') {
 
       /** @var \Drupal\marketo_ma\MarketoMaApiClientInterface $marketo_client */
-      $marketo_client = \Drupal::service('marketo_ma.client');
+      $marketo_client = \Drupal::service('marketo_ma.api_client');
 
       if (!class_exists('\CSD\Marketo\Client')) {
         // The composer library is missing.

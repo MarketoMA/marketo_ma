@@ -2,11 +2,11 @@ services:
   # The Marketo MA default service (Worker/Core).
   marketo_ma:
     class: Drupal\marketo_ma\MarketoMaService
-    arguments: ['@config.factory', '@marketo_ma.client', '@current_user', '@current_route_match', '@path.matcher', '@marketo_ma.munchkin', '@queue', '@user.private_tempstore']
+    arguments: ['@config.factory', '@marketo_ma.api_client', '@current_user', '@current_route_match', '@path.matcher', '@marketo_ma.munchkin', '@queue', '@user.private_tempstore']
   # The Marketo MA API Client service.
   # @todo It would be nice to have some from of cached client, which caches for
   #   example the field mapping along the way.
-  marketo_ma.client:
+  marketo_ma.api_client:
     class: Drupal\marketo_ma\MarketoMaApiClient
     arguments: ['@config.factory']
   # The Marketo MA munchkin service

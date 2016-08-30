@@ -46,7 +46,7 @@ class MarketoMASettings extends ConfigFormBase {
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('config.factory'),
-      $container->get('marketo_ma.client')
+      $container->get('marketo_ma.api_client')
     );
   }
 
@@ -63,7 +63,7 @@ class MarketoMASettings extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function getFormId() {
-    return 'settings';
+    return 'marketo_ma_settings';
   }
 
   /**
