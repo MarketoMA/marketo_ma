@@ -7,4 +7,3 @@ dependencies:
   - marketo_ma
   - contact
   - contact_storage
-  - contact_block

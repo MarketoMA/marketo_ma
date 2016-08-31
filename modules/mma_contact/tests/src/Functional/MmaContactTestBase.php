@@ -10,7 +10,7 @@ abstract class MmaContactTestBase extends BrowserTestBase {
   /**
    * {@inheritdoc}
    */
-  public static $modules = ['contact', 'contact_storage', 'mma_contact', 'marketo_ma', 'mma_contact_test', 'user', 'contact_block'];
+  public static $modules = ['contact', 'contact_storage', 'mma_contact', 'marketo_ma', 'mma_contact_test', 'user'];
 
   /**
    * {@inheritdoc}

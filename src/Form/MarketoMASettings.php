@@ -9,6 +9,7 @@ use Drupal\encryption\EncryptionTrait;
 use Drupal\Core\Link;
 use Drupal\Core\Url;
 use Drupal\marketo_ma\MarketoMaApiClientInterface;
+use Drupal\marketo_ma\MarketoMaServiceInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -28,16 +29,26 @@ class MarketoMASettings extends ConfigFormBase {
   protected $client;
 
   /**
+   * The Marketo MA core service.
+   *
+   * @var \Drupal\marketo_ma\MarketoMaServiceInterface
+   */
+  protected $service;
+
+  /**
    * Constructs a \Drupal\marketo_ma\Form\MarketoMASettings object.
    *
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
    *   The factory for configuration objects.
    * @param \Drupal\marketo_ma\MarketoMaApiClientInterface $marketo_ma_api_client
    *   The Marketo MA API client.
+   * @param \Drupal\marketo_ma\MarketoMaServiceInterface
+   *   The marketo ma service.
    */
-  public function __construct(ConfigFactoryInterface $config_factory, MarketoMaApiClientInterface $marketo_ma_api_client) {
+  public function __construct(ConfigFactoryInterface $config_factory, MarketoMaApiClientInterface $marketo_ma_api_client, MarketoMaServiceInterface $service) {
     parent::__construct($config_factory);
     $this->client = $marketo_ma_api_client;
+    $this->service = $service;
   }
 
   /**
@@ -46,7 +57,8 @@ class MarketoMASettings extends ConfigFormBase {
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('config.factory'),
-      $container->get('marketo_ma.api_client')
+      $container->get('marketo_ma.api_client'),
+      $container->get('marketo_ma')
     );
   }
 
@@ -235,14 +247,27 @@ class MarketoMASettings extends ConfigFormBase {
     //</editor-fold>
 
     //<editor-fold desc="Field Definition config">
-    $form['field_tab']['field_defined_fields'] = [
-      '#type' => 'textarea',
+
+    // Build the headers.
+    $header = [
+      $this->t('Marketo ID'),
+      $this->t('Display name'),
+      $this->t('REST key'),
+      $this->t('Munchkin key'),
+    ];
+    // Get fields options from the marketo ma service.
+    $options = $this->service->getAvailableFields();
+
+    $form['field_tab']['field_enabled_fields'] = [
+      '#type' => 'tableselect',
       '#title' => t('Marketo fields'),
       '#description' => $this->t('Pipe "|" delimited strings of [API Name]|[Friendly Label]. Enter one field per line. This information can be found in the Marketo admin page at Admin > Field Management > Export Field Names.<p>Once API client settings have been configured, these fields can be automatically obtained from Marketo using the button below</p>'),
-      '#rows' => 10,
+      '#header' => $header,
+      '#options' => $options,
+      '#empty' => $this->t('No fields, Try retrieving from marketo.'),
       '#prefix' => '<div id="marketo-defined-fields-wrapper">',
       '#suffix' => '</div>',
-      '#default_value' => $this->implodeFields($config->get('field.defined_fields')),
+      '#default_value' => $config->get('field.enabled_fields'),
     ];
 
     // Add the ajax button that get's fields from the marketo API.
@@ -332,7 +357,7 @@ class MarketoMASettings extends ConfigFormBase {
       ->set('rest.batch_requests', $form_state->getValue('rest_batch_requests'))
       ->set('rest.client_id', $this->encrypt($form_state->getValue('rest_client_id')))
       ->set('rest.client_secret', $this->encrypt($form_state->getValue('rest_client_secret')))
-      ->set('field.defined_fields', $this->explodeFields($form_state->getValue('field_defined_fields')))
+      ->set('field.enabled_fields', array_filter($form_state->getValue('field_enabled_fields')))
       ->set('tracking.request_path.pages', $form_state->getValue('tracking_request_path_pages'))
       ->set('tracking.request_path.negate', $form_state->getValue('tracking_request_path_negate'))
       ->set('tracking.roles', array_filter($form_state->getValue('tracking_roles')))
@@ -349,52 +374,16 @@ class MarketoMASettings extends ConfigFormBase {
    *   The form element to replace in the ajax wrapper setting.
    */
   public function retrieveApiFields(array &$form, FormStateInterface $form_state) {
-    // Get the fields from the api.
-    $api_fields = $this->client->getFields();
+
+    // Build an options array from the api response.
+    $options = $this->service->getAvailableFields(TRUE);
+
     // Reset the defined fields value.
-    $form['field_tab']['field_defined_fields']['#value'] = '';
-    // Loop through results and get the default key/display names.
-    foreach ($api_fields as $api_field) {
-      $form['field_tab']['field_defined_fields']['#value'] .= "{$api_field['default_name']}|{$api_field['displayName']}\n";
-    }
+    $form['field_tab']['field_enabled_fields']['#value'] = [];
+    $form['field_tab']['field_enabled_fields']['#options'] = $options;
+
     // Return the form element that will bre replaced in the wrapper element.
-    return $form['field_tab']['field_defined_fields'];
-  }
-
-  /**
-   * Takes a pipe delimited input value converts it to a key/value config sequence.
-   *
-   * @param string $submitted_value
-   * @return array
-   */
-  protected function explodeFields($submitted_value) {
-    // Return an empty array for empty values.
-    if (empty($submitted_value)) {
-      return [];
-    }
-
-    // Buffer fields.
-    $fields = [];
-
-    // Split lines and delimited values into a fields array.
-    array_map(function ($line) use (&$fields) {
-      $key_value = explode('|', $line);
-      $fields[reset($key_value)] = array_pop($key_value);
-    }, array_filter(preg_split('/[\r\n]+/', $submitted_value)));
-
-    return $fields;
-  }
-
-  /**
-   * Converts a config array into a pipe delimited multi-line value.
-   *
-   * @param $config_array
-   * @return string
-   */
-  protected function implodeFields($config_array) {
-    return implode(PHP_EOL, array_map(function($k, $v){
-      return "{$k}|{$v}";
-    }, array_keys($config_array), $config_array)) . PHP_EOL;
+    return $form['field_tab']['field_enabled_fields'];
   }
 
 }

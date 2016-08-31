@@ -12,10 +12,7 @@ rest:
   client_id: ''
   client_secret: ''
 field:
-  defined_fields:
-    FirstName: 'First Name'
-    LastName: 'Last Name'
-    Email: 'Email Address'
+  enabled_fields: {}
 tracking:
   request_path:
     negate: 1

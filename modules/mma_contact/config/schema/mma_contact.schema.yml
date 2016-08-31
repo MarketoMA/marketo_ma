@@ -10,13 +10,3 @@ contact.form.*.third_party.mma_contact:
     enabled:
       label: 'Whether Marketo tracking is enabled for the contact form.'
       type: integer
-
-block.settings.mma_contact_block__additional_field_values:
-  type: block_settings
-  mapping:
-    contact_form:
-      type: string
-    fields:
-      type: sequence
-      sequence:
-        type: ignore

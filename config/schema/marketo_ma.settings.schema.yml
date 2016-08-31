@@ -38,12 +38,12 @@ marketo_ma.settings:
       type: config_object
       label: 'Field Definition config'
       mapping:
-        defined_fields:
+        enabled_fields:
           type: sequence
-          label: 'Marketo defined fields'
+          label: 'Enabled marketo fields'
           sequence:
-            type: string
-            label: 'Field Value'
+            type: integer
+            label: 'Marketo field ID'
     tracking:
       type: config_object
       label: 'Field Definition config'

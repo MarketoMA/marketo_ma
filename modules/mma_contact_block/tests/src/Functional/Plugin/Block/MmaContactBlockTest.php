@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\Tests\mma_contact\Kernel\Plugin\Block;
+namespace Drupal\Tests\mma_contact_block\Kernel\Plugin\Block;
 
 use Drupal\block\Entity\Block;
 use Drupal\contact\Entity\ContactForm;
@@ -14,17 +14,17 @@ use Drupal\simpletest\BlockCreationTrait;
 use Drupal\Tests\mma_contact\Functional\MmaContactTestBase;
 
 /**
- * @coversDefaultClass \Drupal\mma_contact\Plugin\Block\AdditionalFieldsContactBlock
- * @group mma_contact
+ * @coversDefaultClass \Drupal\mma_contact_block\Plugin\Block\MmaContactBlock
+ * @group mma_contact_block
  */
-class AdditionalFieldsContactBlockTest extends MmaContactTestBase {
+class MmaContactBlockTest extends MmaContactTestBase {
 
   use BlockCreationTrait;
 
   /**
    * {@inheritdoc}
    */
-  public static $modules = ['block', 'field'];
+  public static $modules = ['block', 'field', 'contact_block', 'mma_contact_block'];
 
   /**
    * {@inheritdoc}
@@ -81,7 +81,13 @@ class AdditionalFieldsContactBlockTest extends MmaContactTestBase {
       'id' => 'test_block',
     ];
 
-    $this->drupalPostForm('admin/structure/block/add/mma_contact_block__additional_field_values/tibco', $edit, 'Save block');
+    // Get the block creation form.
+    $this->drupalGet('admin/structure/block/add/mma_contact_block/seven');
+
+    // Make sure the fields form is displayed.
+    $this->assertSession()->fieldExists('settings[fields]');
+
+    $this->drupalPostForm('admin/structure/block/add/mma_contact_block/seven', $edit, 'Save block');
 
     $edit = [
       'settings[fields][subject][0][value]' => 'test subject',
@@ -99,7 +105,7 @@ class AdditionalFieldsContactBlockTest extends MmaContactTestBase {
    * Tests that the preconfigured value is passed along to the lead data.
    */
   public function testBlockSubmission() {
-    $this->placeBlock('mma_contact_block__additional_field_values', [
+    $this->placeBlock('mma_contact_block', [
       'contact_form' => 'test_contact',
       'fields' => [
         'field_test' => [['value' => 'test_value']],

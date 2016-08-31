@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\mma_contact\Plugin\Block;
+namespace Drupal\mma_contact_block\Plugin\Block;
 
 use Drupal\Component\Utility\NestedArray;
 use Drupal\contact\Entity\Message;
@@ -12,14 +12,14 @@ use Drupal\Core\Form\FormStateInterface;
  * Provides a 'ContactBlock' block with additional field values.
  *
  * @Block(
- *  id = "mma_contact_block__additional_field_values",
+ *  id = "mma_contact_block",
  *  admin_label = @Translation("Contact block (with additional values) "),
  * )
  *
  * @todo config schema
  * @todo tests
  */
-class AdditionalFieldsContactBlock extends ContactBlock {
+class MmaContactBlock extends ContactBlock {
 
   /**
    * {@inheritdoc}
@@ -40,14 +40,15 @@ class AdditionalFieldsContactBlock extends ContactBlock {
 
     $form['contact_form']['#ajax'] = [
       'callback' => [$this, 'onContactFormChange'],
-      'wrapper' => 'mma_contact_block__additional_field_values',
+      'wrapper' => 'mma_contact_block',
     ];
 
     $form['fields'] = [
-      '#prefix' => '<div id="mma_contact_block__additional_field_values">',
+      '#prefix' => '<div id="mma_contact_block">',
       '#type' => 'container',
       '#suffix' => '</div>',
     ];
+
     if (($contact_form_id = $form_state->getValue(['settings', 'contact_form'])) || ($contact_form_id = $this->configuration['contact_form'])) {
       $form['fields']['#type'] = 'details';
       $form['fields']['#open'] = TRUE;

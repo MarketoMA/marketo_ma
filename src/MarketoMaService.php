@@ -8,6 +8,8 @@ use Drupal\Core\Path\PathMatcherInterface;
 use Drupal\Core\Queue\QueueFactory;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Session\AccountInterface;
+use Drupal\Core\State\StateInterface;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\user\PrivateTempStoreFactory;
 
 /**
@@ -15,6 +17,8 @@ use Drupal\user\PrivateTempStoreFactory;
  * performs.
  */
 class MarketoMaService implements MarketoMaServiceInterface {
+
+  use StringTranslationTrait;
 
   /**
    * The config factory service.
@@ -73,10 +77,19 @@ class MarketoMaService implements MarketoMaServiceInterface {
   protected $temp_store_factory;
 
   /**
+   * The state storage service.
+   *
+   * @var \Drupal\Core\State\StateInterface
+   */
+  protected $state;
+
+  /**
    * Creates the Marketo API client wrapper service.
    *
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
-   * @param \Drupal\marketo_ma\MarketoMaApiClientInterface $client
+   *   The config factory.
+   * @param \Drupal\marketo_ma\MarketoMaApiClientInterface $api_client
+   *   The marketo ma api client.
    * @param \Drupal\Core\Session\AccountInterface $current_user
    *   The current user.
    * @param \Drupal\Core\Routing\RouteMatchInterface $route_match
@@ -89,16 +102,19 @@ class MarketoMaService implements MarketoMaServiceInterface {
    *   The queue service.
    * @param \Drupal\user\PrivateTempStoreFactory $temp_store_factory
    *   The factory for the temp store object.
+   * @param \Drupal\Core\State\StateInterface $state
+   *   The state key value store.
    */
-  public function __construct(ConfigFactoryInterface $config_factory, MarketoMaApiClientInterface $client, AccountInterface $current_user, RouteMatchInterface $route_match, PathMatcherInterface $path_matcher, MarketoMaMunchkinInterface $munchkin, QueueFactory $queue_factory, PrivateTempStoreFactory $temp_store_factory) {
+  public function __construct(ConfigFactoryInterface $config_factory, MarketoMaApiClientInterface $api_client, AccountInterface $current_user, RouteMatchInterface $route_match, PathMatcherInterface $path_matcher, MarketoMaMunchkinInterface $munchkin, QueueFactory $queue_factory, PrivateTempStoreFactory $temp_store_factory, StateInterface $state) {
     $this->config_factory = $config_factory;
-    $this->api_client = $client;
+    $this->api_client = $api_client;
     $this->current_user = $current_user;
     $this->route_match = $route_match;
     $this->path_matcher = $path_matcher;
     $this->munchkin = $munchkin;
     $this->queue_factory = $queue_factory;
     $this->temp_store_factory = $temp_store_factory;
+    $this->state = $state;
   }
 
   /**
@@ -240,6 +256,35 @@ class MarketoMaService implements MarketoMaServiceInterface {
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public function getAvailableFields($reset = FALSE) {
+    // Reset if requested or fields have never been retrieved.
+    if ($reset || $this->state->get('marketo_ma.field.defined_fields', FALSE) === FALSE) {
+      // Get the fields.
+      $api_fields = $this->api_client->canConnect() ? $this->api_client->getFields() : [];
+
+      // Loop through and sanitize the values.
+      $field_options = [];
+      foreach ($api_fields as $row) {
+        $field_options[$row['id']] = [
+          $this->t(':value', [':value' => !isset($row['id']) ? '' : $row['id']]),
+          $this->t(':value', [':value' => !isset($row['displayName']) ? '' : $row['displayName']]),
+          $this->t(':value', [':value' => !isset($row['rest']['name']) ? '' : $row['rest']['name']]),
+          $this->t(':value', [':value' => !isset($row['soap']['name']) ? '' : $row['soap']['name']]),
+        ];
+      }
+
+      // Save the field options in state.
+      if (!empty($field_options)) {
+        $this->state->set('marketo_ma.field.defined_fields', $field_options);
+      }
+    }
+
+    return $this->state->get('marketo_ma.field.defined_fields', []);
+  }
+
+  /**
    * Gets the private temporary storage for the marketo_ma module.
    *
    * @return \Drupal\user\PrivateTempStore
@@ -247,4 +292,5 @@ class MarketoMaService implements MarketoMaServiceInterface {
   protected function temporaryStorage() {
     return $this->temp_store_factory->get('marketo_ma');
   }
+
 }

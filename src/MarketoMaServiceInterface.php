@@ -87,4 +87,15 @@ interface MarketoMaServiceInterface {
    */
   public function updateLead($lead);
 
+  /**
+   * Get's the fields that are available for mapping.
+   *
+   * @param boolean $reset
+   *   Whether to try to refresh the fields form the API client.
+   *
+   * @return array
+   *   All fields available for mapping keyed by marketo field ID.
+   */
+  public function getAvailableFields($reset = FALSE);
+
 }
