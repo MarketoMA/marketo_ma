@@ -90,3 +90,41 @@ function marketo_ma_webform_update_7100(&$sandbox) {
   );
   return t('Option field created.');
 }
+
+/**
+ * Webforms which previously used the SOAP API will be updated to use REST API.
+ */
+function marketo_ma_webform_update_7200(&$sandbox) {
+  $message = '';
+  $webforms = db_select('marketo_ma_webform', 'w')
+    ->fields('w')
+    ->execute()
+    ->fetchAll();
+  foreach ($webforms as $webform) {
+    $options = unserialize($webform->options);
+    $old = $options['tracking_method'];
+    $update = FALSE;
+    if ($old == 'soap') {
+      $new = 'rest';
+      $options['tracking_method'] = $new;
+      $update = TRUE;
+    }
+    elseif ($old == 'soap_async') {
+      $new = 'rest_async';
+      $options['tracking_method'] = $new;
+      $update = TRUE;
+    }
+    
+    if ($update) {
+      db_merge('marketo_ma_webform')
+        ->key(array('nid' => $webform->nid))
+        ->fields(array(
+          'options' => serialize($options),
+        ))
+        ->execute();
+      $message .= t('Webform [!nid] tracking method updated from [!old] to [!new]', array('!nid' => $webform->nid, '!old' => $old, '!new' => $new));
+    }
+  }
+  if ($message == '') $message = t('No webform updates required');
+  return $message;
+}

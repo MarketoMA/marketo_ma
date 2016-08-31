@@ -7,7 +7,7 @@
 
 define('MARKETO_MA_PAGES', "admin\nadmin/*\nbatch\nnode/add*\nnode/*/*\nuser/*/*");
 define('MARKETO_MA_TRACKING_METHOD_DEFAULT', 'munchkin');
-define('MARKETO_MA_WEBFORM_FIELD_DEFAULTS', "FirstName|First Name|firstName\nLastName|Last Name|lastName\nEmail|Email Address|email");
+define('MARKETO_MA_WEBFORM_FIELD_DEFAULTS', NULL);
 
 define('MARKETO_MA_SCHEMA_LEAD_FIELDS', 'marketo_ma_lead_fields');
 
@@ -42,7 +42,7 @@ function marketo_ma_permission() {
   return array(
     'administer marketo' => array(
       'title' => t('Administer Marketo MA'),
-      'description' => t('Configure Marketo settings such as page visibility, Munchkin keys, and SOAP API endpoint'),
+      'description' => t('Configure Marketo settings such as page visibility, Munchkin keys, and API endpoint'),
     ),
   );
 }
@@ -231,11 +231,11 @@ function _marketo_ma_associate_lead($lead) {
       }
       break;
 
-    case 'soap_async':
+    case 'rest_async':
       _marketo_ma_queue_lead($lead);
       break;
 
-    case 'soap':
+    case 'rest':
     default:
       _marketo_ma_associate_lead_rest($lead);
       break;
@@ -253,8 +253,8 @@ function _marketo_ma_associate_lead_munchkin($lead) {
     $key = variable_get('marketo_ma_munchkin_api_private_key', NULL);
     
     // Marketo MA uses REST field names by default and Munchkin uses SOAP names.
-    // Update field names to their SOAP equivalant and exclude unusable fields.
-//    $fields = variable_get('marketo_ma_webform_fields', MARKETO_MA_WEBFORM_FIELD_DEFAULTS);
+    // Update field names to their SOAP equivalent and exclude fields which have
+    // no associated SOAP equivalent.
     $fields = _marketo_ma_get_fields(TRUE); // get fields as defined in db.
     $newLeadData = array();
     foreach ($lead['data'] as $marketoKey => $marketoValue) {
@@ -374,58 +374,6 @@ function _marketo_ma_associate_lead_rest($lead) {
 }
 
 /**
- * Sends lead data using SOAP API.
- * 
- * @param array $lead
- *   Lead data
- * 
- * @throws Exception
- */
-function _marketo_ma_associate_lead_soap($lead) {
-  if (_marketo_ma_soap_is_configured()) {
-    module_load_include('inc', 'marketo_ma', 'includes/marketo_ma.rest');
-
-    $secret_key = variable_get('marketo_ma_soap_encryption_key');
-    $access_key = variable_get('marketo_ma_soap_user_id');
-    $soap_endpoint = variable_get('marketo_ma_soap_endpoint');
-
-    if (array_key_exists('marketoCookie', $lead)) {
-      $mkto_trk = $lead['marketoCookie'];
-    }
-    else {
-      $mkto_trk = NULL;
-    }
-
-    try {
-      $soap_settings = _marketo_ma_soap_proxy_settings();
-      $soap_settings['trace'] = variable_get('marketo_ma_logging', FALSE);
-      $client = new MarketoClient($access_key, $secret_key, $soap_endpoint, $soap_settings);
-      $sync = $client->syncLead($lead['data'], $lead['email'], $mkto_trk, array('extendedResponse' => TRUE));
-      if ($sync['success']) {
-        if (variable_get('marketo_ma_logging', FALSE)) {
-          watchdog('marketo', 'Associating lead !email [soap] <pre>@data @result</pre>', array(
-            '!email' => $lead['email'],
-            '@data' => print_r($lead['data'], TRUE),
-            '@result' => print_r($sync['result'], TRUE),
-            ), WATCHDOG_INFO);
-        }
-      }
-      else {
-        watchdog('marketo', 'Unable to sync lead !email [soap] <pre>@error</pre> Request XML: <pre>@request</pre> Response XML: <pre>@response</pre>', array(
-          '!email' => $lead['email'],
-          '@error' => $sync['result'],
-          '@request' => $client->__getLastRequest(),
-          '@response' => $client->__getLastResponse(),
-          ), WATCHDOG_ERROR);
-      }
-    }
-    catch (Exception $e) {
-      watchdog('marketo', 'Unable to sync lead !email [soap] <pre>@error</pre>', array('!email' => $lead['email'], '@error' => $e->getMessage()), WATCHDOG_ERROR);
-    }
-  }
-}
-
-/**
  * Add a lead to the queue for submission later.
  * 
  * @param array $lead
@@ -453,17 +401,19 @@ function _marketo_ma_queue_lead($lead) {
  *   Key/value pairs of defined Marketo fields
  */
 function _marketo_ma_get_field_options($labels = TRUE, $sort = TRUE) {
-  // TODO: should only return enabled fields
   $raw_options = _marketo_ma_get_fields();
+  $mapped_fields = variable_get('marketo_ma_webform_fields');
   $options = array();
 
   // Loop over all the rows getting the keys and values for the fields.
   foreach ($raw_options as $key => $value) {
-    if ($labels) {
-      $options[$key] = $value['displayName'] . ' (' . $key . ')';
-    }
-    else {
-      $options[$key] = $value['displayName'];
+    if (array_key_exists($value['id'], $mapped_fields)) {
+      if ($labels) {
+        $options[$value['restName']] = $value['displayName'] . ' (' . $value['restName'] . ')';
+      }
+      else {
+        $options[$value['restName']] = $value['displayName'];
+      }
     }
   }
   if ($sort) {
@@ -605,8 +555,8 @@ function _marketo_ma_is_configured() {
     $track = variable_get('marketo_ma_tracking_method');
     if (
       ($track == 'munchkin' & _marketo_ma_munchkin_is_configured()) ||
-      ($track == 'soap' & _marketo_ma_soap_is_configured()) ||
-      ($track == 'soap_async' & _marketo_ma_soap_is_configured())
+      ($track == 'rest' & _marketo_ma_soap_is_configured()) ||
+      ($track == 'rest_async' & _marketo_ma_soap_is_configured())
     ) {
       $configured = TRUE;
     }
@@ -683,31 +633,6 @@ function _marketo_ma_rest_is_configured() {
       variable_get('marketo_ma_rest_identity', FALSE) &&
       variable_get('marketo_ma_rest_client_id', FALSE) &&
       variable_get('marketo_ma_rest_client_secret', FALSE)
-    ) {
-      $configured = TRUE;
-    }
-    else {
-      $configured = FALSE;
-    }
-  }
-  return $configured;
-}
-
-/**
- * Tests to see if soap is configured.
- * 
- * @staticvar bool $configured
- * @return bool
- *   Returns TRUE is SOAP API settings are configured
- */
-function _marketo_ma_soap_is_configured() {
-  static $configured;
-
-  if (!isset($configured)) {
-    if (
-      variable_get('marketo_ma_soap_encryption_key', FALSE) &&
-      variable_get('marketo_ma_soap_endpoint', FALSE) &&
-      variable_get('marketo_ma_soap_user_id', FALSE)
     ) {
       $configured = TRUE;
     }

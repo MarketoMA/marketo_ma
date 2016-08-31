@@ -41,9 +41,9 @@ function marketo_ma_webform_settings_form($form, &$form_state, $node) {
   if (_marketo_ma_forms2_is_configured()) {
     $methods['forms2'] = t('Forms 2.0');
   }
-  if (_marketo_ma_soap_is_configured()) {
-    $methods['soap'] = t('SOAP API (Synchronous)');
-    $methods['soap_async'] = t('SOAP API (Asynchronous)');
+  if (_marketo_ma_rest_is_configured()) {
+    $methods['rest'] = t('REST API (Synchronous)');
+    $methods['rest_async'] = t('REST API (Asynchronous)');
   }
   $form['marketo_ma_advanced']['marketo_ma_webform_capture_method'] = array(
     '#title' => t('Capture Method'),

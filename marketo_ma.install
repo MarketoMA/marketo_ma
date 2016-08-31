@@ -188,5 +188,26 @@ function marketo_ma_update_7200(&$sandbox) {
   db_create_table($tablename, $table);
   $message .= t('Table [!tablename] created.', array('!tablename' => $tablename));
 
+  // Switch tracking method to Munchkin if currently using SOAP.
+  $tracking_default = 'munchkin';
+  $track = variable_get('marketo_ma_tracking_method');
+  if ($track == 'soap' || $track == 'soap_async') {
+    variable_set('marketo_ma_tracking_method', $tracking_default);
+    $message .= t('Tracking method has been changed from [!track] to [!tracking_default].', array('!track' => $track, '!tracking_default' => $tracking_default));
+    $message .= t('Tracking options can be configured at !url.', array('!url' => '/admin/config/search/marketo_ma'));
+  }
+
+  // Remove SOAP variable which are no longer relevant
+  variable_del('marketo_ma_soap_encryption_key');
+  variable_del('marketo_ma_soap_endpoint');
+  variable_del('marketo_ma_soap_proxy_host');
+  variable_del('marketo_ma_soap_proxy_login');
+  variable_del('marketo_ma_soap_proxy_password');
+  variable_del('marketo_ma_soap_proxy_port');
+  variable_del('marketo_ma_soap_user_id');
+  variable_del('marketo_ma_webform_fields_soap');
+  $message .= t('SOAP configuration options have been removed as they are no longer used.');
+
+
   return $message;
 }

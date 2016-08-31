@@ -60,8 +60,8 @@ function marketo_ma_admin_settings_form($form, &$form_state) {
     '#type' => 'radios',
     '#options' => array(
       'munchkin' => t('Munchkin Javascript API'),
-      'soap' => t('SOAP API (Synchronous)'),
-      'soap_async' => t('SOAP API (Asynchronous)'),
+      'rest' => t('REST API (Synchronous)'),
+      'rest_async' => t('REST API (Asynchronous)'),
     ),
     '#default_value' => variable_get('marketo_ma_tracking_method', MARKETO_MA_TRACKING_METHOD_DEFAULT),
     '#required' => TRUE,
@@ -86,61 +86,6 @@ function marketo_ma_admin_settings_form($form, &$form_state) {
     '#description' => t('Value can be found on the Munchkin Admin page at Admin > Integration > Munchkin'),
   );
 
-  $form['marketo_ma_tabs']['marketo_ma_api']['marketo_ma_soap'] = array(
-    '#title' => t('SOAP API'),
-    '#type' => 'fieldset',
-    '#description' => t('Values can be found on the SOAP API Admin page at Admin > Integration > SOAP API'),
-  );
-  $form['marketo_ma_tabs']['marketo_ma_api']['marketo_ma_soap']['marketo_ma_soap_endpoint'] = array(
-    '#type' => 'textfield',
-    '#title' => t('SOAP endpoint'),
-    '#default_value' => variable_get('marketo_ma_soap_endpoint', ''),
-    '#required' => FALSE,
-  );
-  $form['marketo_ma_tabs']['marketo_ma_api']['marketo_ma_soap']['marketo_ma_soap_user_id'] = array(
-    '#type' => 'textfield',
-    '#title' => t('User ID'),
-    '#default_value' => variable_get('marketo_ma_soap_user_id', ''),
-    '#required' => FALSE,
-  );
-  $form['marketo_ma_tabs']['marketo_ma_api']['marketo_ma_soap']['marketo_ma_soap_encryption_key'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Encryption Key'),
-    '#default_value' => variable_get('marketo_ma_soap_encryption_key', ''),
-    '#required' => FALSE,
-  );
-  $form['marketo_ma_tabs']['marketo_ma_api']['marketo_ma_soap']['marketo_ma_soap_proxy'] = array(
-    '#title' => t('SoapClient Proxy Settings'),
-    '#type' => 'fieldset',
-    '#description' => t('For making an HTTP connection through a proxy server, the options proxy_host, proxy_port, proxy_login and proxy_password are also available.'),
-    '#collapsible' => TRUE,
-    '#collapsed' => TRUE,
-  );
-  $form['marketo_ma_tabs']['marketo_ma_api']['marketo_ma_soap']['marketo_ma_soap_proxy']['marketo_ma_soap_proxy_host'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Proxy Host'),
-    '#default_value' => variable_get('marketo_ma_soap_proxy_host', ''),
-    '#required' => FALSE,
-  );
-  $form['marketo_ma_tabs']['marketo_ma_api']['marketo_ma_soap']['marketo_ma_soap_proxy']['marketo_ma_soap_proxy_port'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Proxy Port'),
-    '#default_value' => variable_get('marketo_ma_soap_proxy_port', ''),
-    '#required' => FALSE,
-  );
-  $form['marketo_ma_tabs']['marketo_ma_api']['marketo_ma_soap']['marketo_ma_soap_proxy']['marketo_ma_soap_proxy_login'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Proxy Login'),
-    '#default_value' => variable_get('marketo_ma_soap_proxy_login', ''),
-    '#required' => FALSE,
-  );
-  $form['marketo_ma_tabs']['marketo_ma_api']['marketo_ma_soap']['marketo_ma_soap_proxy']['marketo_ma_soap_proxy_password'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Proxy Password'),
-    '#default_value' => variable_get('marketo_ma_soap_proxy_password', ''),
-    '#required' => FALSE,
-  );
-  
   $form['marketo_ma_tabs']['marketo_ma_api']['marketo_ma_rest'] = array(
     '#title' => t('REST API'),
     '#type' => 'fieldset',
@@ -208,7 +153,7 @@ function marketo_ma_admin_settings_form($form, &$form_state) {
     '#description' => t('The fields defined here will be available for mapping to Webform and User Profile fields'),
   );
 
-  if (isset($form_state['triggering_element']['#array_parents']) && in_array('marketo_ma_webform_fields_soap', $form_state['triggering_element']['#array_parents'])) {
+  if (isset($form_state['triggering_element']['#array_parents']) && in_array('marketo_ma_lead_fields_button', $form_state['triggering_element']['#array_parents'])) {
     // Get a fresh set of field data and cache the results
     $field_data = _marketo_ma_get_fields(FALSE, TRUE);
   }
@@ -225,9 +170,7 @@ function marketo_ma_admin_settings_form($form, &$form_state) {
       'restName' => $field_key,
       'soapName' => $field_value['soapName'],
     );
-//    if ($field_value['restReadOnly'] || $field_value['soapReadOnly']) {
-//      $options[$field_value['id']]['#disabled'] = TRUE;
-//    }
+    // TODO: handle readonly fields. should they be selectable?
   }
   $form['marketo_ma_tabs']['marketo_ma_fields']['marketo_ma_webform_fields'] = array(
     '#type' => 'tableselect',
@@ -240,21 +183,21 @@ function marketo_ma_admin_settings_form($form, &$form_state) {
     '#options' => $options,
     '#default_value' => $field_defaults,
     '#title' => t('Marketo fields'),
-    '#prefix' => '<div id="marketo-lead-fields-wrapper">',
+    '#prefix' => '<div id="marketo-webform-fields-wrapper">',
     '#suffix' => '</div>',
   );
 
-  $form['marketo_ma_tabs']['marketo_ma_fields']['marketo_ma_webform_fields_soap'] = array(
+  $form['marketo_ma_tabs']['marketo_ma_fields']['marketo_ma_lead_fields_button'] = array(
     '#type' => 'button',
     '#value' => t('Retrieve from Marketo'),
     '#ajax' => array(
-      'callback' => '_marketo_ma_webform_fields_soap_callback',
+      'callback' => '_marketo_ma_lead_fields_button_callback',
       'wrapper' => 'marketo-webform-fields-wrapper',
     ),
   );
-  // If SOAP settings have not been configured, the button should be disabled.
-  if (!_marketo_ma_soap_is_configured()) {
-    $form['marketo_ma_tabs']['marketo_ma_fields']['marketo_ma_webform_fields_soap']['#disabled'] = TRUE;
+  // If API settings have not been configured, the button should be disabled.
+  if (!_marketo_ma_rest_is_configured()) {
+    $form['marketo_ma_tabs']['marketo_ma_fields']['marketo_ma_lead_fields_button']['#disabled'] = TRUE;
   }
 
   $form['marketo_ma_tabs']['marketo_ma_page_vis'] = array(
@@ -313,16 +256,6 @@ function marketo_ma_admin_settings_form($form, &$form_state) {
 
 function marketo_ma_webform_fields_submit($form, &$form_state) {
   $fields = array_filter($form_state['values']['marketo_ma_webform_fields']);
-//  $field_data = $form_state['values']['marketo_ma_webform_fields'];
-//  $field_array = preg_split('/(\r\n?|\n)/', trim($field_data));
-//  $fields = array();
-//  foreach ($field_array as $value) {
-//    $field = explode('|', trim($value));
-//    $fields[$field[0]] = array(
-//      'displayName' => $field[1],
-//      'soapName' => $field[2]
-//    );
-//  }
   $form_state['values']['marketo_ma_webform_fields'] = $fields;
 }
 
@@ -330,10 +263,10 @@ function marketo_ma_webform_fields_submit($form, &$form_state) {
  * Implements hook_form_validate().
  */
 function marketo_ma_admin_settings_form_validate($form, &$form_state) {
-  // If using a soap option attempt validation.
+  // If using an API option attempt validation.
   if (
-    $form_state['values']['marketo_ma_tracking_method'] == 'soap' ||
-    $form_state['values']['marketo_ma_tracking_method'] == 'soap_async'
+    $form_state['values']['marketo_ma_tracking_method'] == 'rest' ||
+    $form_state['values']['marketo_ma_tracking_method'] == 'rest_async'
   ) {
     $form_state['values']['marketo_ma_rest_endpoint'] = trim($form_state['values']['marketo_ma_rest_endpoint']);
     $form_state['values']['marketo_ma_rest_identity'] = trim($form_state['values']['marketo_ma_rest_identity']);
@@ -378,15 +311,19 @@ function marketo_ma_admin_settings_form_validate($form, &$form_state) {
 /**
  * Performs validation for Marketo REST API settings.
  * 
- * @param string $access_key
- *   Access Key
- * @param string $secret_key
- *   Secret Key
- * @param string $soap_endpoint
- *   Endpoint
+ * @param string endpoint
+ *   REST Endpoint
+ * @param string $identity
+ *   REST Identity
+ * @param string $client_id
+ *   Client ID
+ * @param string $client_secret
+ *   Client Secret
+ * @param array $proxy
+ *   Proxy configuration options
  * 
  * @return bool
- *   Returns TRUE if SOAP settings are validated successfully
+ *   Returns TRUE if REST settings are validated successfully
  */
 function _marketo_ma_validate_rest_configuration($endpoint, $identity, $client_id, $client_secret, $proxy) {
   $result = FALSE;
@@ -402,36 +339,8 @@ function _marketo_ma_validate_rest_configuration($endpoint, $identity, $client_i
 }
 
 /**
- * Performs validation for Marketo SOAP API settings.
- * 
- * @param string $access_key
- *   Access Key
- * @param string $secret_key
- *   Secret Key
- * @param string $soap_endpoint
- *   Endpoint
- * 
- * @return bool
- *   Returns TRUE if SOAP settings are validated successfully
- */
-function _marketo_ma_validate_soap_configuration($access_key, $secret_key, $soap_endpoint, $proxy) {
-  module_load_include('inc', 'marketo_ma', 'includes/marketo_ma.rest');
-  try {
-    $client = new MarketoClient($access_key, $secret_key, $soap_endpoint, $proxy);
-    $result = $client->getFields();
-    if (!$result) {
-      $result = FALSE;
-    }
-  }
-  catch (Exception $e) {
-    $result = FALSE;
-  }
-  return $result;
-}
-
-/**
  * Callback for updating webform fields.
  */
-function _marketo_ma_webform_fields_soap_callback($form, &$form_state) {
+function _marketo_ma_lead_fields_button_callback($form, &$form_state) {
   return $form['marketo_ma_tabs']['marketo_ma_fields']['marketo_ma_webform_fields'];
 }

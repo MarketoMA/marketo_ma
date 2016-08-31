@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Class and methods for interacting with the Marketo SOAP API.
+ * Class and methods for interacting with the Marketo REST API.
  */
 
 /**
@@ -502,8 +502,12 @@ class MarketoClient {
         );
       }
     }
-    ksort($fields); // TODO: is this sorting necessary and useful?
+    usort($fields, array($this, 'sortLeadFields')); // TODO: is this sorting necessary and useful?
     return $fields;
+  }
+  
+  private function sortLeadFields($a, $b) {
+    return strcmp($a['displayName'], $b['displayName']);
   }
 
   /**
