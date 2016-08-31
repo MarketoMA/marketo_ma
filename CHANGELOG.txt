@@ -1,6 +1,10 @@
 Marketo MA Changelog
 ---------------------
 
+Marketo MA 7.x-2.x, 2016-08-31
+------------------------------
+- Replace SOAP API with REST API.
+
 Marketo MA 7.x-1.x, 2016-08-13
 ------------------------------
 - drush mma-fields now requires drush 6 or higher and allows display of
