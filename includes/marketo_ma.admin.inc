@@ -207,31 +207,42 @@ function marketo_ma_admin_settings_form($form, &$form_state) {
     '#type' => 'fieldset',
     '#description' => t('The fields defined here will be available for mapping to Webform and User Profile fields'),
   );
-  $form['marketo_ma_tabs']['marketo_ma_fields']['marketo_ma_webform_fields'] = array(
-    '#type' => 'textarea',
-    '#title' => t('Marketo fields'),
-    '#description' => t('Pipe "|" delimited strings of [REST Field Name]|[Friendly Label][Munchkin Field Name]. Enter one field per line. This information can be found in the Marketo admin page at Admin > Field Management > Export Field Names.<p>Once API settings have been configured, these fields can be automatically obtained from Marketo using the button below</p>'),
-    '#rows' => 10,
-    '#prefix' => '<div id="marketo-webform-fields-wrapper">',
-    '#suffix' => '</div>',
-  );
 
   if (isset($form_state['triggering_element']['#array_parents']) && in_array('marketo_ma_webform_fields_soap', $form_state['triggering_element']['#array_parents'])) {
-    $data = _marketo_ma_get_fields();
-    $mwf_default = "";
-    foreach ($data as $key => $value) {
-      $mwf_default .= $key . "|" . $value['displayName'] . "|" . $value['soapName'] . "\n";
-    }
-    $form['marketo_ma_tabs']['marketo_ma_fields']['marketo_ma_webform_fields']['#value'] = $mwf_default;
+    // Get a fresh set of field data and cache the results
+    $field_data = _marketo_ma_get_fields(FALSE, TRUE);
   }
   else {
-    $data = variable_get('marketo_ma_webform_fields', MARKETO_MA_WEBFORM_FIELD_DEFAULTS);
-    $mwf_default = "";
-    foreach ($data as $key => $value) {
-      $mwf_default .= $key . "|" . $value['displayName'] . "|" . $value['soapName'] . "\n";
-    }
-    $form['marketo_ma_tabs']['marketo_ma_fields']['marketo_ma_webform_fields']['#default_value'] = $mwf_default;
+    // Get field data from cache
+    $field_data = _marketo_ma_get_fields(TRUE);
   }
+  $field_defaults = variable_get('marketo_ma_webform_fields', NULL);
+  $options = array();
+  foreach ($field_data as $field_key => $field_value) {
+    $options[$field_value['id']] = array(
+      'displayName' => $field_value['displayName'],
+      'id' => $field_value['id'],
+      'restName' => $field_key,
+      'soapName' => $field_value['soapName'],
+    );
+//    if ($field_value['restReadOnly'] || $field_value['soapReadOnly']) {
+//      $options[$field_value['id']]['#disabled'] = TRUE;
+//    }
+  }
+  $form['marketo_ma_tabs']['marketo_ma_fields']['marketo_ma_webform_fields'] = array(
+    '#type' => 'tableselect',
+    '#header' => array(
+      'displayName' => t('Display Name'),
+      'id' => t('ID'),
+      'restName' => t('REST Field'),
+      'soapName' => t('SOAP/Munchkin Field'),
+    ),
+    '#options' => $options,
+    '#default_value' => $field_defaults,
+    '#title' => t('Marketo fields'),
+    '#prefix' => '<div id="marketo-lead-fields-wrapper">',
+    '#suffix' => '</div>',
+  );
 
   $form['marketo_ma_tabs']['marketo_ma_fields']['marketo_ma_webform_fields_soap'] = array(
     '#type' => 'button',
@@ -301,16 +312,17 @@ function marketo_ma_admin_settings_form($form, &$form_state) {
 }
 
 function marketo_ma_webform_fields_submit($form, &$form_state) {
-  $field_data = $form_state['values']['marketo_ma_webform_fields'];
-  $field_array = preg_split('/(\r\n?|\n)/', trim($field_data));
-  $fields = array();
-  foreach ($field_array as $value) {
-    $field = explode('|', trim($value));
-    $fields[$field[0]] = array(
-      'displayName' => $field[1],
-      'soapName' => $field[2]
-    );
-  }
+  $fields = array_filter($form_state['values']['marketo_ma_webform_fields']);
+//  $field_data = $form_state['values']['marketo_ma_webform_fields'];
+//  $field_array = preg_split('/(\r\n?|\n)/', trim($field_data));
+//  $fields = array();
+//  foreach ($field_array as $value) {
+//    $field = explode('|', trim($value));
+//    $fields[$field[0]] = array(
+//      'displayName' => $field[1],
+//      'soapName' => $field[2]
+//    );
+//  }
   $form_state['values']['marketo_ma_webform_fields'] = $fields;
 }
 

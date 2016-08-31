@@ -7,7 +7,9 @@
 
 define('MARKETO_MA_PAGES', "admin\nadmin/*\nbatch\nnode/add*\nnode/*/*\nuser/*/*");
 define('MARKETO_MA_TRACKING_METHOD_DEFAULT', 'munchkin');
-define('MARKETO_MA_WEBFORM_FIELD_DEFAULTS', "FirstName|First Name\nLastName|Last Name\nEmail|Email Address");
+define('MARKETO_MA_WEBFORM_FIELD_DEFAULTS', "FirstName|First Name|firstName\nLastName|Last Name|lastName\nEmail|Email Address|email");
+
+define('MARKETO_MA_SCHEMA_LEAD_FIELDS', 'marketo_ma_lead_fields');
 
 define('MARKETO_MA_SCHEMA_WEBFORM', 'marketo_ma_webform');
 define('MARKETO_MA_WEBFORM_FIELD_ACTIVE', 'is_active');
@@ -157,7 +159,6 @@ function _marketo_ma_client($endpoint = NULL, $identity = NULL, $client_id = NUL
  * Implements hook_page_alter().
  */
 function marketo_ma_page_alter(&$page) {
-  $lead = marketo_ma_get_lead('id:306-CIR-314&token:_mch-mma.dev-1472523506112-45953');
   global $user;
   $marketo_ma_data = marketo_ma_get_queue();
 
@@ -253,7 +254,8 @@ function _marketo_ma_associate_lead_munchkin($lead) {
     
     // Marketo MA uses REST field names by default and Munchkin uses SOAP names.
     // Update field names to their SOAP equivalant and exclude unusable fields.
-    $fields = variable_get('marketo_ma_webform_fields', MARKETO_MA_WEBFORM_FIELD_DEFAULTS);
+//    $fields = variable_get('marketo_ma_webform_fields', MARKETO_MA_WEBFORM_FIELD_DEFAULTS);
+    $fields = _marketo_ma_get_fields(TRUE); // get fields as defined in db.
     $newLeadData = array();
     foreach ($lead['data'] as $marketoKey => $marketoValue) {
       if (array_key_exists($marketoKey, $fields)) {
@@ -451,11 +453,8 @@ function _marketo_ma_queue_lead($lead) {
  *   Key/value pairs of defined Marketo fields
  */
 function _marketo_ma_get_field_options($labels = TRUE, $sort = TRUE) {
-  /*
-   * marketo_ma_webform_fields is multi-line, pipe "|" delimited data
-   * which needs to be parsed. First split it into rows of data.
-   */
-  $raw_options = variable_get('marketo_ma_webform_fields', MARKETO_MA_WEBFORM_FIELD_DEFAULTS);
+  // TODO: should only return enabled fields
+  $raw_options = _marketo_ma_get_fields();
   $options = array();
 
   // Loop over all the rows getting the keys and values for the fields.
@@ -480,21 +479,67 @@ function _marketo_ma_get_field_options($labels = TRUE, $sort = TRUE) {
  * @return array
  *   Marketo fields
  */
-function _marketo_ma_get_fields() {
+function _marketo_ma_get_fields($cache = FALSE, $update_cache = FALSE) {
   $result = array();
-  if (_marketo_ma_rest_is_configured()) {
-    try {
-      $client = _marketo_ma_client();
-      $result = $client->getFields();
-      if (!$result) {
-        watchdog('marketo', 'Unable to retrieve field information. Please check API configuration', WATCHDOG_ERROR);
+  if ($cache) {
+    $result = _marketo_ma_get_lead_fields_database();
+  }
+  else {
+    if (_marketo_ma_rest_is_configured()) {
+      try {
+        $client = _marketo_ma_client();
+        $result = $client->getFields();
+        if ($update_cache) {
+          _marketo_ma_save_lead_fields_database($result);
+        }
+        if (!$result) {
+          watchdog('marketo', 'Unable to retrieve field information. Please check API configuration', WATCHDOG_ERROR);
+        }
       }
-    }
-    catch (Exception $e) {
-      watchdog('marketo', 'Unable to retrieve field information. <pre>@error</pre>', array('@error' => $e->getMessage()), WATCHDOG_ERROR);
+      catch (Exception $e) {
+        watchdog('marketo', 'Unable to retrieve field information. <pre>@error</pre>', array('@error' => $e->getMessage()), WATCHDOG_ERROR);
+      }
     }
   }
 
+  return $result;
+}
+
+/**
+ * Saves lead field definitions to the database.
+ *
+ * @param array $fields
+ */
+function _marketo_ma_save_lead_fields_database($fields) {
+  foreach ($fields as $key => $value) {
+    // TODO: field validation and error checking
+    $execute = db_merge('marketo_ma_lead_fields')
+      ->key(array('id' => $value['id']))
+      ->fields(array(
+        'displayName' => $value['displayName'],
+        'dataType' => $value['dataType'],
+        'length' => $value['length'],
+        'restName' => $value['restName'],
+        'restReadOnly' => $value['restReadOnly'] ? 1 : 0,
+        'soapName' => $value['soapName'],
+        'soapReadOnly' => $value['soapReadOnly'] ? 1 : 0,
+      ))
+      ->execute();
+  }
+}
+
+/**
+ * Retrieves lead field definitions from the database.
+ *
+ * @return array
+ *   Associative array of lead fields keyed by their REST API name
+ */
+function _marketo_ma_get_lead_fields_database() {
+  $result = db_select('marketo_ma_lead_fields', 'f')
+    ->fields('f')
+    ->orderBy('displayName')
+    ->execute()
+    ->fetchAllAssoc('restName', PDO::FETCH_ASSOC);
   return $result;
 }
 

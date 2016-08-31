@@ -494,15 +494,15 @@ class MarketoClient {
           'dataType' => $field->dataType,
           'displayName' => $field->displayName,
           'id' => $field->id,
-          'length' => $field->length,
-          'name' => $field->rest->name,
-          'readOnly' => $field->rest->readOnly,
-          'soapName' => $field->soap->name,
-          'soapReadOnly' => $field->soap->readOnly,
+          'length' => isset($field->length) ? $field->length : NULL,
+          'restName' => $field->rest->name,
+          'restReadOnly' => $field->rest->readOnly,
+          'soapName' => isset($field->soap->name) ? $field->soap->name : NULL,
+          'soapReadOnly' => isset($field->soap->readOnly) ? $field->soap->readOnly : NULL,
         );
       }
     }
-    ksort($fields);
+    ksort($fields); // TODO: is this sorting necessary and useful?
     return $fields;
   }
 

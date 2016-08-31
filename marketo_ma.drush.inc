@@ -40,11 +40,11 @@ function marketo_ma_drush_command() {
       'default' => 'table',
       'pipe-format' => 'list',
       'field-labels' => array(
-        'name' => 'name',
+        'restName' => 'name',
         'displayName' => 'displayName',
         'dataType' => 'dataType',
         'length' => 'length',
-        'readOnly' => 'readOnly',
+        'restReadOnly' => 'readOnly',
         'id' => 'id',
         'soapName' => 'soapName',
         'soapReadOnly' => 'soapReadOnly',
@@ -160,9 +160,9 @@ function drush_marketo_ma_mma_get_lead($key = NULL) {
  * Callback function for mma-fields.
  */
 function drush_marketo_ma_mma_fields() {
-  $fields = _marketo_ma_get_fields();
+  $fields = _marketo_ma_get_fields(FALSE, FALSE);
   foreach ($fields as $key => $value) {
-    $rows[$value['name']] = $value;
+    $rows[$value['restName']] = $value;
   }
   return $rows;
 }
@@ -171,7 +171,7 @@ function drush_marketo_ma_mma_fields() {
  * Callback function for mma-verify.
  */
 function drush_marketo_ma_mma_verify() {
-  $fields = _marketo_ma_get_fields();
+  $fields = _marketo_ma_get_fields(FALSE, FALSE);
   if (count($fields) > 0) {
     drush_log('Successfully connected to Marketo', 'success');
   }

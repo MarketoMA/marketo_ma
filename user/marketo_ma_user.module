@@ -133,7 +133,7 @@ function marketo_ma_user_user_login(&$edit, $account) {
   $triggers = variable_get('marketo_ma_user_triggers', array());
   if (array_key_exists('login', $triggers) && $triggers['login'] && isset($account->mail)) {
     $data = _marketo_ma_user_get_mapped_fields($account);
-    $data['Email'] = $account->mail;
+    $data['email'] = $account->mail;
     marketo_ma_add_lead($account->mail, $data);
   }
 }
@@ -145,7 +145,7 @@ function marketo_ma_user_user_insert(&$edit, $account, $category) {
   $triggers = variable_get('marketo_ma_user_triggers', array());
   if (array_key_exists('insert', $triggers) && $triggers['insert'] && isset($account->mail)) {
     $data = _marketo_ma_user_get_mapped_fields($account);
-    $data['Email'] = $account->mail;
+    $data['email'] = $account->mail;
     marketo_ma_add_lead($account->mail, $data);
   }
 }
@@ -160,7 +160,7 @@ function marketo_ma_user_user_update(&$edit, $account, $category) {
     // See https://api.drupal.org/comment/23088#comment-23088
     // When email changes, can we create a new lead then merge the two?
     $data = _marketo_ma_user_get_mapped_fields($account);
-    $data['Email'] = $account->mail;
+    $data['email'] = $account->mail;
     marketo_ma_add_lead($account->mail, $data);
   }
 }
