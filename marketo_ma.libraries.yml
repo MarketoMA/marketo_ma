@@ -4,5 +4,6 @@ marketo-ma:
     js/marketo_ma.js: {}
   dependencies:
     - core/jquery
+    - core/jquery_once
     - core/drupal
     - core/drupalSettings
