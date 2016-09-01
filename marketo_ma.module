@@ -504,7 +504,8 @@ function marketo_ma_get_lead($key) {
   if (_marketo_ma_rest_is_configured()) {
     try {
       $client = _marketo_ma_client();
-      $result = $client->getLead($key);
+      $fields = implode(',', array_keys(_marketo_ma_get_fields(TRUE)));
+      $result = $client->getLead($key, NULL, $fields);
       if (!$result && variable_get('marketo_ma_logging', FALSE)) {
         watchdog('marketo', 'Lead data not found for !key', array('!key' => $key), WATCHDOG_INFO);
       }
