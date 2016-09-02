@@ -101,6 +101,8 @@ function marketo_ma_uninstall() {
   variable_del('marketo_ma_rest_token');
   variable_del('marketo_ma_roles');
   variable_del('marketo_ma_tabs__active_tab');
+  variable_del('marketo_ma_token');
+  variable_del('marketo_ma_token_expires_at');
   variable_del('marketo_ma_tracking_method');
   variable_del('marketo_ma_user_fieldmap');
   variable_del('marketo_ma_user_triggers');
