@@ -53,7 +53,7 @@ interface MarketoInterface {
 /**
  * Marketo Client
  */
-class MarketoClient {
+class MarketoClient implements MarketoInterface {
 
   // Authentication http://developers.marketo.com/documentation/rest/authentication/
   protected $client_id;
@@ -70,6 +70,7 @@ class MarketoClient {
   const API_VERSION = 'v1';
   const IDENTITY_API = 'oauth/token';
   const LEADS_API = 'leads.json';
+  const LEADS_ASSOCIATE = 'leads/!id/associate.json';
   const LEADS_DESCRIBE_API = 'leads/describe.json';
   const ACTIVITIES_API = 'activities.json';
   const ACTIVITIES_TYPES_API = 'activities/types.json';
@@ -336,10 +337,10 @@ class MarketoClient {
   /**
    * {@inheritdoc}
    */
-  public function getLeadActivity($key) {
+  public function getLeadActivity($key, $type = NULL) {
     $activity = array();
 
-    $keyType = $this->keyType($key);
+    $keyType = is_null($type) ? $this->keyType($key) : $type;
     if ($keyType != 'ID') {
       $key = $this->getLead($key, $keyType)->result[0]->id;
     }
@@ -441,40 +442,88 @@ class MarketoClient {
   /**
    * {@inheritdoc}
    */
-  public function syncLead(array $input, $action = NULL, $lookupField = NULL, $asyncProcessing = NULL, $partitionName = NULL) {
+//  public function syncLead(array $input, $action = NULL, $lookupField = NULL, $asyncProcessing = NULL, $partitionName = NULL) {
+  public function syncLead($input, $key = NULL, $cookie = NULL, $options = array ()) {
     // http://developers.marketo.com/documentation/rest/createupdate-leads/
     $url = $this->endpoint . MarketoClient::LEADS_API;
     $params = array(
       'input' => $input,
     );
-    // Options passed in as NULL are excluded to pickup Marketo default behavior
-    if (!is_null($action)) {
+
+    // default options
+    $optionset = array(
+      'action' => NULL,
+      'lookupField' => NULL,
+      'asyncProcessing' => NULL,
+      'partitionName' => NULL
+    );
+    // merge any provided options
+    $optionset += $options;
+    // Options which are NULL are excluded to pickup Marketo default behavior
+    if (!is_null($optionset['action'])) {
       $params['action'] = $action;
     }
-    if (!is_null($lookupField)) {
+    if (!is_null($optionset['lookupField'])) {
       $params['lookupField'] = $lookupField;
     }
-    if (!is_null($asyncProcessing)) {
+    if (!is_null($optionset['asyncProcessing'])) {
       $params['asyncProcessing'] = $asyncProcessing;
     }
-    if (!is_null($partitionName)) {
+    if (!is_null($optionset['partitionName'])) {
       $params['partitionName'] = $partitionName;
     }
 
     $response = array(
+      'requestId' => NULL,
       'success' => FALSE,
-      'result' => NULL,
+      'result' => NULL, // TODO: should make this array() to return a result every time
     );
 
     try {
       $json = $this->curlPost($url, json_encode($params));
       $response = json_decode($json);
-      if (!$response->success) {
+      // TODO: This could return multiple leads but assuming only one, needs better handling
+      if ($response->success) {
+        if (!is_null($cookie) && isset($response->result[0]->id)) {
+          $associate = $this->associateLead($response->result[0]->id, $cookie);
+        }
+      }
+      else {
+        // TODO: There may be response errors which can be handled gracefully
         throw new Exception($response->errors[0]->message, $response->errors[0]->code);
       }
     }
     catch (Exception $e) {
       $response->result = $e->getMessage();
+    }
+    return $response;
+  }
+
+  /**
+   * Associates a lead with a cookie value.
+   *
+   * @param int $id
+   * @param string $cookie
+   * @return array
+   * @throws Exception
+   */
+  public function associateLead($id, $cookie) {
+    http://developers.marketo.com/documentation/rest/associate-lead/
+    $url = $this->endpoint . format_string(MarketoClient::LEADS_ASSOCIATE, array('!id' => $id));
+    $params = array(
+      'cookie' => $cookie,
+    );
+    $url .= '?' . http_build_query($params);
+    try {
+      $json = $this->curlPost($url, NULL);
+      $response = json_decode($json);
+      if (!$response->success) {
+        // TODO: There may be response errors which can be handled gracefully
+        throw new Exception($response->errors[0]->message, $response->errors[0]->code);
+      }
+    }
+    catch (Exception $e) {
+      throw new Exception($e->getMessage(), $e->getCode());
     }
     return $response;
   }

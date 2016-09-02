@@ -347,7 +347,7 @@ function _marketo_ma_associate_lead_rest($lead) {
 
     try {
       $client = _marketo_ma_client();
-      $sync = $client->syncLead(array($lead['data']));
+      $sync = $client->syncLead(array($lead['data']), NULL, $mkto_trk);
 //      $sync = $client->syncLead($lead['data'], $lead['email'], $mkto_trk, array('extendedResponse' => TRUE));
       if ($sync->success) {
         if (variable_get('marketo_ma_logging', FALSE)) {
