@@ -81,6 +81,7 @@ function marketo_ma_schema() {
  */
 function marketo_ma_uninstall() {
   variable_del('marketo_ma_instance_host');
+  variable_del('marketo_ma_lead_fields_button');
   variable_del('marketo_ma_logging');
   variable_del('marketo_ma_munchkin_account_id');
   variable_del('marketo_ma_munchkin_api_private_key');
@@ -89,14 +90,16 @@ function marketo_ma_uninstall() {
   variable_del('marketo_ma_munchkin_partition');
   variable_del('marketo_ma_munchkin_tracking_code_type');
   variable_del('marketo_ma_pages');
+  variable_del('marketo_ma_rest_client_id');
+  variable_del('marketo_ma_rest_client_secret');
+  variable_del('marketo_ma_rest_endpoint');
+  variable_del('marketo_ma_rest_identity');
+  variable_del('marketo_ma_rest_proxy_host');
+  variable_del('marketo_ma_rest_proxy_login');
+  variable_del('marketo_ma_rest_proxy_password');
+  variable_del('marketo_ma_rest_proxy_port');
+  variable_del('marketo_ma_rest_token');
   variable_del('marketo_ma_roles');
-  variable_del('marketo_ma_soap_encryption_key');
-  variable_del('marketo_ma_soap_endpoint');
-  variable_del('marketo_ma_soap_proxy_host');
-  variable_del('marketo_ma_soap_proxy_login');
-  variable_del('marketo_ma_soap_proxy_password');
-  variable_del('marketo_ma_soap_proxy_port');
-  variable_del('marketo_ma_soap_user_id');
   variable_del('marketo_ma_tabs__active_tab');
   variable_del('marketo_ma_tracking_method');
   variable_del('marketo_ma_user_fieldmap');
@@ -104,7 +107,6 @@ function marketo_ma_uninstall() {
   variable_del('marketo_ma_visibility_pages');
   variable_del('marketo_ma_visibility_roles');
   variable_del('marketo_ma_webform_fields');
-  variable_del('marketo_ma_webform_fields_soap');
 }
 
 /**
