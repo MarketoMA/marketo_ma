@@ -150,7 +150,7 @@ function marketo_ma_admin_settings_form($form, &$form_state) {
   $form['marketo_ma_tabs']['marketo_ma_fields'] = array(
     '#title' => t('Field Definition'),
     '#type' => 'fieldset',
-    '#description' => t('The fields defined here will be available for mapping to Webform and User Profile fields'),
+    '#description' => t('The fields defined here will be available for mapping to Webform and User Profile fields. Read-only fields cannot be selected.'),
   );
 
   if (isset($form_state['triggering_element']['#array_parents']) && in_array('marketo_ma_lead_fields_button', $form_state['triggering_element']['#array_parents'])) {
@@ -163,6 +163,7 @@ function marketo_ma_admin_settings_form($form, &$form_state) {
   }
   $field_defaults = variable_get('marketo_ma_webform_fields', NULL);
   $options = array();
+  $disabled_options = array();
   foreach ($field_data as $field_key => $field_value) {
     $options[$field_value['id']] = array(
       'displayName' => $field_value['displayName'],
@@ -170,7 +171,9 @@ function marketo_ma_admin_settings_form($form, &$form_state) {
       'restName' => $field_key,
       'soapName' => $field_value['soapName'],
     );
-    // TODO: handle readonly fields. should they be selectable?
+    if ($field_value['restReadOnly'] || $field_value['soapReadOnly']) {
+      $disabled_options[] = $field_value['id'];
+    }
   }
   $form['marketo_ma_tabs']['marketo_ma_fields']['marketo_ma_webform_fields'] = array(
     '#type' => 'tableselect',
@@ -186,6 +189,9 @@ function marketo_ma_admin_settings_form($form, &$form_state) {
     '#prefix' => '<div id="marketo-webform-fields-wrapper">',
     '#suffix' => '</div>',
   );
+  foreach ($disabled_options as $field_key) {
+    $form['marketo_ma_tabs']['marketo_ma_fields']['marketo_ma_webform_fields'][$field_key]['#disabled'] = TRUE;
+  }
 
   $form['marketo_ma_tabs']['marketo_ma_fields']['marketo_ma_lead_fields_button'] = array(
     '#type' => 'button',
