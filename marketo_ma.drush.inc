@@ -127,7 +127,7 @@ function drush_marketo_ma_mma_get_lead($key = NULL) {
 
   foreach ($finds as $leadid => $find) {
     if ($info) {
-      drush_print('Marketo lead ID ' . $find['marketo']->Id);
+      drush_print('Marketo lead ID ' . $find['marketo']->id);
       $rows = array();
       $rows[] = array(dt('Group'), dt('Key'), dt('Value'));
       if ($find['drupal']->uid) {
@@ -144,11 +144,11 @@ function drush_marketo_ma_mma_get_lead($key = NULL) {
 
     if ($activity && array_key_exists('activity', $find)) {
       if (count($find['activity'])) {
-        drush_print('Activity for lead ID ' . $find['marketo']->Id);
+        drush_print('Activity for lead ID ' . $find['marketo']->id);
         _marketo_ma_print_activity_($find['activity']);
       }
       else {
-        drush_print('No activity found for lead ID ' . $find['marketo']->Id);
+        drush_print('No activity found for lead ID ' . $find['marketo']->id);
       }
     }
   }
@@ -232,7 +232,7 @@ function _marketo_ma_search_drupal_lead($key, $activity = FALSE) {
           'drupal' => $account,
         );
         if ($activity) {
-          $result[$lead->Id]['activity'] = marketo_ma_get_lead_activity($lead->id);
+          $result[$lead->id]['activity'] = marketo_ma_get_lead_activity($lead->id);
         }
       }
     }
