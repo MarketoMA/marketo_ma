@@ -88,6 +88,7 @@ function marketo_ma_webform_settings_form($form, &$form_state, $node) {
         $form['components'][$cid]['#options'] = array_merge(
           array($fieldmap[$cid] => "Undefined Field ($fieldmap[$cid])"), $options
         );
+        drupal_set_message(t('An undefined field [@field] is currently used and should be updated.', array('@field' => $fieldmap[$cid])), 'warning');
       }
       $form['components'][$cid]['#default_value'] = $fieldmap[$cid];
     }

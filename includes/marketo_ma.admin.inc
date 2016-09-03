@@ -89,31 +89,34 @@ function marketo_ma_admin_settings_form($form, &$form_state) {
   $form['marketo_ma_tabs']['marketo_ma_api']['marketo_ma_rest'] = array(
     '#title' => t('REST API'),
     '#type' => 'fieldset',
-    '#description' => t('Values can be found on the REST API Admin page at Admin > Integration > REST API'),
   );
   $form['marketo_ma_tabs']['marketo_ma_api']['marketo_ma_rest']['marketo_ma_rest_endpoint'] = array(
     '#type' => 'textfield',
     '#title' => t('REST endpoint'),
     '#default_value' => variable_get('marketo_ma_rest_endpoint', ''),
     '#required' => FALSE,
+    '#description' => t('Value can be found on the REST API Admin page at Admin > Integration > Web Services'),
   );
   $form['marketo_ma_tabs']['marketo_ma_api']['marketo_ma_rest']['marketo_ma_rest_identity'] = array(
     '#type' => 'textfield',
     '#title' => t('REST identity'),
     '#default_value' => variable_get('marketo_ma_rest_identity', ''),
     '#required' => FALSE,
+    '#description' => t('Value can be found on the REST API Admin page at Admin > Integration > Web Services'),
   );
   $form['marketo_ma_tabs']['marketo_ma_api']['marketo_ma_rest']['marketo_ma_rest_client_id'] = array(
     '#type' => 'textfield',
     '#title' => t('Client ID'),
     '#default_value' => variable_get('marketo_ma_rest_client_id', ''),
     '#required' => FALSE,
+    '#description' => t('Client ID is established as part of a <a href="@url">Custom Service</a>.', array('@url' => url('http://developers.marketo.com/documentation/rest/custom-service/'))),
   );
   $form['marketo_ma_tabs']['marketo_ma_api']['marketo_ma_rest']['marketo_ma_rest_client_secret'] = array(
     '#type' => 'textfield',
     '#title' => t('Client Secret'),
     '#default_value' => variable_get('marketo_ma_rest_client_secret', ''),
     '#required' => FALSE,
+    '#description' => t('Client Secret is established as part of a <a href="@url">Custom Service</a>.', array('@url' => url('http://developers.marketo.com/documentation/rest/custom-service/'))),
   );
   $form['marketo_ma_tabs']['marketo_ma_api']['marketo_ma_rest']['marketo_ma_rest_proxy'] = array(
     '#title' => t('REST Client Proxy Settings'),
@@ -150,7 +153,7 @@ function marketo_ma_admin_settings_form($form, &$form_state) {
   $form['marketo_ma_tabs']['marketo_ma_fields'] = array(
     '#title' => t('Field Definition'),
     '#type' => 'fieldset',
-    '#description' => t('The fields defined here will be available for mapping to Webform and User Profile fields. Read-only fields cannot be selected.'),
+    '#description' => t('By default, all fields below will be available for mapping to Webform and User Profile fields. It is possible to limit the available fields by selecting them below. Read-only fields are displayed here but are never available for mapping.'),
   );
 
   if (isset($form_state['triggering_element']['#array_parents']) && in_array('marketo_ma_lead_fields_button', $form_state['triggering_element']['#array_parents'])) {
@@ -161,14 +164,14 @@ function marketo_ma_admin_settings_form($form, &$form_state) {
     // Get field data from cache
     $field_data = _marketo_ma_get_fields(TRUE);
   }
-  $field_defaults = variable_get('marketo_ma_webform_fields', NULL);
+  $field_defaults = variable_get('marketo_ma_webform_fields', array());
   $options = array();
   $disabled_options = array();
   foreach ($field_data as $field_key => $field_value) {
     $options[$field_value['id']] = array(
       'displayName' => $field_value['displayName'],
       'id' => $field_value['id'],
-      'restName' => $field_key,
+      'restName' => $field_value['restName'],
       'soapName' => $field_value['soapName'],
     );
     if ($field_value['restReadOnly'] || $field_value['soapReadOnly']) {

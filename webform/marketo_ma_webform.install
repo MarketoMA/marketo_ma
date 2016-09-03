@@ -92,7 +92,8 @@ function marketo_ma_webform_update_7100(&$sandbox) {
 }
 
 /**
- * Webforms which previously used the SOAP API will be updated to use REST API.
+ * Webforms which previously used the SOAP API will be updated to use the Munchkin API.
+ * Tracking via API can be enabled once REST settings have been configured.
  */
 function marketo_ma_webform_update_7200(&$sandbox) {
   $message = '';
@@ -104,13 +105,8 @@ function marketo_ma_webform_update_7200(&$sandbox) {
     $options = unserialize($webform->options);
     $old = $options['tracking_method'];
     $update = FALSE;
-    if ($old == 'soap') {
-      $new = 'rest';
-      $options['tracking_method'] = $new;
-      $update = TRUE;
-    }
-    elseif ($old == 'soap_async') {
-      $new = 'rest_async';
+    if ($old == 'soap' || $old == 'soap_async') {
+      $new = 'default';
       $options['tracking_method'] = $new;
       $update = TRUE;
     }

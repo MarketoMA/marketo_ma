@@ -120,7 +120,9 @@ function marketo_ma_disable() {
 }
 
 /**
- * Adds table for Marketo lead field definitions, populates via API call, and enables fields set in marketo_ma_webform_fields if available.
+ * Adds table for Marketo lead field definitions and sets the tracking
+ * method back to Munchkin. Tracking via API can be enabled once REST settings
+ * have been configured.
  */
 function marketo_ma_update_7200(&$sandbox) {
   $message = '';
@@ -201,7 +203,7 @@ function marketo_ma_update_7200(&$sandbox) {
     $message .= t('Tracking options can be configured at !url.', array('!url' => '/admin/config/search/marketo_ma'));
   }
 
-  // Remove SOAP variable which are no longer relevant
+  // Remove SOAP variables which are no longer relevant
   variable_del('marketo_ma_soap_encryption_key');
   variable_del('marketo_ma_soap_endpoint');
   variable_del('marketo_ma_soap_proxy_host');
@@ -212,6 +214,7 @@ function marketo_ma_update_7200(&$sandbox) {
   variable_del('marketo_ma_webform_fields_soap');
   $message .= t('SOAP configuration options have been removed as they are no longer used.');
 
+  variable_del('marketo_ma_webform_fields');
 
   return $message;
 }
