@@ -28,5 +28,5 @@ Feature: Marketo MA Drush features
     Then drush output should contain "Successfully connected to Marketo"
     
     When I run drush "mma-fields"
-    Then drush output should contain " Name "
-    And drush output should contain " Label "
+    Then drush output should contain " name "
+    And drush output should contain " displayName "

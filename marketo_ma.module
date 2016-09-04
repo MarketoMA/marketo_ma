@@ -400,7 +400,7 @@ function _marketo_ma_queue_lead($lead) {
  *   Key/value pairs of defined Marketo fields
  */
 function _marketo_ma_get_field_options($labels = TRUE, $sort = TRUE) {
-  $raw_options = _marketo_ma_get_fields();
+  $raw_options = _marketo_ma_get_fields(TRUE);
   $mapped_fields = variable_get('marketo_ma_webform_fields', array());
   $options = array();
 

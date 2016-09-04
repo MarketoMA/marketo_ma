@@ -65,8 +65,9 @@ class FeatureContext extends RawDrupalContext implements SnippetAcceptingContext
    *
    * @Given all Marketo MA modules are clean
    * @Given all Marketo MA modules are clean and using :config
+   * @Given all Marketo MA modules are clean and using :config with lead fields :fields
    */
-  public function allMarketoMaModulesClean($config = 'marketo_default_settings') {
+  public function allMarketoMaModulesClean($config = 'marketo_default_settings', $fields = 'marketo_default_lead_fields') {
     $module_list = array('marketo_ma', 'marketo_ma_user', 'marketo_ma_webform');
 
     foreach ($module_list as $module) {
@@ -76,6 +77,7 @@ class FeatureContext extends RawDrupalContext implements SnippetAcceptingContext
     }
 
     $this->iPopulateConfigFromBehatYml($config);
+    $this->iPopulatedLeadFieldsUsingConfig($fields);
     drupal_flush_all_caches();
 
     foreach ($module_list as $module) {
@@ -227,6 +229,28 @@ class FeatureContext extends RawDrupalContext implements SnippetAcceptingContext
     $settings = array_merge($this->params['marketo_default_settings'], $this->params[$config]);
     foreach ($settings as $key => $value) {
       variable_set($key, $value);
+    }
+  }
+
+  /**
+   * @Given lead fields are defined using :config
+   */
+  public function iPopulatedLeadFieldsUsingConfig($config) {
+    $fields = $this->params[$config];
+    db_query('delete from marketo_ma_lead_fields');
+    foreach ($fields as $key => $value) {
+    $execute = db_insert('marketo_ma_lead_fields')
+      ->fields(array(
+        'id' => $value['id'],
+        'displayName' => $value['displayName'],
+        'dataType' => $value['dataType'],
+        'length' => $value['length'],
+        'restName' => $value['restName'],
+        'restReadOnly' => $value['restReadOnly'],
+        'soapName' => $value['soapName'],
+        'soapReadOnly' => $value['soapReadOnly'],
+      ))
+      ->execute();
     }
   }
 

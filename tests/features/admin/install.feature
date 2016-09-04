@@ -28,3 +28,5 @@ Feature: Module setup
     Given I uninstall all Marketo MA modules
     And I run drush "vget" "marketo_ma --format=json"
     Then drush output should contain '{"marketo_ma_bogus":"bogus"}'
+    When I run drush "sqlq" "'show tables'"
+    Then drush output should not contain "marketo_ma"

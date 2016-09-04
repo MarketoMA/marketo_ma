@@ -8,10 +8,11 @@ default:
                 marketo_ma_instance_host: change_me_to_a_live_value
                 marketo_ma_munchkin_account_id: change_me_to_a_live_value
                 marketo_ma_munchkin_api_private_key: change_me_to_a_live_value
-                marketo_ma_soap_encryption_key: change_me_to_a_live_value
-                marketo_ma_soap_endpoint: change_me_to_a_live_value
-                marketo_ma_soap_user_id: change_me_to_a_live_value
-                marketo_ma_tracking_method: soap
+                marketo_ma_rest_client_id: change_me_to_a_live_value
+                marketo_ma_rest_client_secret: change_me_to_a_live_value
+                marketo_ma_rest_endpoint: change_me_to_a_live_value
+                marketo_ma_rest_identity: change_me_to_a_live_value
+                marketo_ma_tracking_method: rest
               
               marketo_test_settings:
                 marketo_ma_instance_host: app-sjqe.marketo.com
@@ -38,6 +39,7 @@ default:
                 
               marketo_default_settings:
                 marketo_ma_instance_host: ''
+                marketo_ma_lead_fields_button: 'Retrieve from Marketo'
                 marketo_ma_logging: 0
                 marketo_ma_munchkin_account_id: ''
                 marketo_ma_munchkin_api_private_key: ''
@@ -45,17 +47,18 @@ default:
                 marketo_ma_munchkin_lead_source: ''
                 marketo_ma_munchkin_partition: ''
                 marketo_ma_pages: "admin\r\nadmin/*\r\nbatch\r\nnode/add*\r\nnode/*/*\r\nuser/*/*"
+                marketo_ma_rest_client_id: ''
+                marketo_ma_rest_client_secret: ''
+                marketo_ma_rest_endpoint: ''
+                marketo_ma_rest_identity: ''
+                marketo_ma_rest_proxy_host: ''
+                marketo_ma_rest_proxy_login: ''
+                marketo_ma_rest_proxy_password: ''
+                marketo_ma_rest_proxy_port: ''
                 marketo_ma_roles:
                   1: 0
                   2: 0
                   3: 0
-                marketo_ma_soap_encryption_key: ''
-                marketo_ma_soap_endpoint: ''
-                marketo_ma_soap_proxy_host: ''
-                marketo_ma_soap_proxy_login: ''
-                marketo_ma_soap_proxy_password: ''
-                marketo_ma_soap_proxy_port: ''
-                marketo_ma_soap_user_id: ''
                 marketo_ma_tracking_method: munchkin
                 marketo_ma_user_fieldmap: []
                 marketo_ma_user_triggers:
@@ -64,8 +67,39 @@ default:
                   update: update
                 marketo_ma_visibility_pages: '0'
                 marketo_ma_visibility_roles: '1'
-                marketo_ma_webform_fields: "FirstName|First Name\r\nLastName|Last Name\r\nEmail|Email Address"
-                marketo_ma_webform_fields_soap: 'Retrieve from Marketo'
+                marketo_ma_webform_fields: {  }
+
+              marketo_default_lead_fields:
+                1:
+                  id: 1
+                  displayName: First Name
+                  dataType: string
+                  length: 255
+                  restName: firstName
+                  restReadOnly: 0
+                  soapName: FirstName
+                  soapReadOnly: 0
+                  enabled: 0
+                2:
+                  id: 2
+                  displayName: Last Name
+                  dataType: string
+                  length: 255
+                  restName: lastName
+                  restReadOnly: 0
+                  soapName: LastName
+                  soapReadOnly: 0
+                  enabled: 0
+                3:
+                  id: 3
+                  displayName: Email Address
+                  dataType: string
+                  length: 255
+                  restName: email
+                  restReadOnly: 0
+                  soapName: Email
+                  soapReadOnly: 0
+                  enabled: 0
 
               marketo_page_vis_only:
                 marketo_ma_munchkin_account_id: 000-AAA-000

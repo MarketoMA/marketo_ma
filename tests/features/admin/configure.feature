@@ -28,9 +28,9 @@ Feature: Module configuration
     When I go to "/admin/config/search/marketo_ma"
     And I fill in "marketo_ma_munchkin_account_id" with "bogus"
     And I fill in "marketo_ma_munchkin_api_private_key" with "bogus"
-    And I select the radio button "SOAP API (Synchronous)" with the id "edit-marketo-ma-tracking-method-soap"
+    And I select the radio button "REST API (Synchronous)" with the id "edit-marketo-ma-tracking-method-rest"
     When I press "Save configuration"
-    Then I should see "Unable to validate SOAP API settings."
+    Then I should see "Unable to validate REST API settings."
   
   @config @live
   Scenario: Configure live module settings
