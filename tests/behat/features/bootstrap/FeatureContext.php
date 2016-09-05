@@ -294,7 +294,7 @@ class FeatureContext extends RawDrupalContext implements SnippetAcceptingContext
   /**
    * @Then Munchkin associateLead action should send data
    */
-  public function assertMunchkinAssociateLeadSendData(TableNode $fields) {
+  public function assertMunchkinAssociateLeadShoudSendData(TableNode $fields) {
     $actions = $this->getSession()->evaluateScript("return Drupal.settings.marketo_ma.actions");
     if ((isset($actions[0]['action']) && $actions[0]['action'] == 'associateLead') == FALSE) {
       throw new \Exception("Munchkin associateLead did not fire as expected");
@@ -303,6 +303,22 @@ class FeatureContext extends RawDrupalContext implements SnippetAcceptingContext
       if ($actions[0]['data'][$row['field']] != $row['value']) {
         $message = sprintf('Field "%s" was expected to be "%s" but was "%s".', $row['field'], $row['value'], $actions[0]['data'][$row['field']]);
         throw new \Exception($message);
+      }
+    }
+  }
+
+  /**
+   * @Then Munchkin associateLead action should not fire
+   */
+  public function assertMunchkinAssociateLeadShoudNotSendData() {
+    $enabled = $this->getSession()->evaluateScript("return (Drupal.settings.marketo_ma === undefined) ? false : Drupal.settings.marketo_ma.track;");
+    if (!$enabled) {
+      return;
+    }
+    else {
+      $actions = $this->getSession()->evaluateScript("return Drupal.settings.marketo_ma.actions");
+      if ((isset($actions[0]['action']) && $actions[0]['action'] == 'associateLead') == TRUE) {
+        throw new \Exception("Munchkin associateLead fired but should not have");
       }
     }
   }

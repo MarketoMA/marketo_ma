@@ -42,7 +42,7 @@ Feature: Marketo MA User features
     And the "field_company123" field should contain "Example Co."
 
   @javascript
-  Scenario: Mapped user fields are sent to Marketo
+  Scenario: Mapped user fields are sent to Marketo when triggers are active
     Given I am logged in as a user with the "administer marketo" permission
     When I go to "/admin/config/search/marketo_ma"
     And I click "User Integration"
@@ -50,7 +50,10 @@ Feature: Marketo MA User features
     And I select "lastName" from "field_lastname123 (field_lastname123)"
     And I press "Save configuration"
     Then I should see "The configuration options have been saved."
-    And I go to "/user/logout"
+    And the "edit-marketo-ma-user-triggers-login" checkbox should be checked
+    And the "edit-marketo-ma-user-triggers-insert" checkbox should be checked
+    And the "edit-marketo-ma-user-triggers-update" checkbox should be checked
+    And I go to "user/logout"
 
     When I go to "/user/login"
     And I enter "mmatest1" for "edit-name"
@@ -61,3 +64,44 @@ Feature: Marketo MA User features
       | Email     | mmatest1@mma.example.com |
       | FirstName | Mma1                     |
       | LastName  | Test1                    |
+
+    When I go to "/user"
+    And I click "Edit"
+    And I enter "Mma1updated" for "field_firstname123"
+    And I press "Save"
+    Then I should see "The changes have been saved."
+    And Munchkin associateLead action should send data
+      | field     | value                    |
+      | Email     | mmatest1@mma.example.com |
+      | FirstName | Mma1updated              |
+      | LastName  | Test1                    |
+
+  @javascript
+  Scenario: Mapped user fields should not be sent to Marketo when triggers are inactive
+    Given I am logged in as a user with the "administer marketo" permission
+    When I go to "/admin/config/search/marketo_ma"
+    And I click "User Integration"
+    And I uncheck "edit-marketo-ma-user-triggers-login"
+    And I uncheck "edit-marketo-ma-user-triggers-insert"
+    And I uncheck "edit-marketo-ma-user-triggers-update"
+    And I select "firstName" from "field_firstname123 (field_firstname123)"
+    And I select "lastName" from "field_lastname123 (field_lastname123)"
+    And I press "Save configuration"
+    Then I should see "The configuration options have been saved."
+    And the "edit-marketo-ma-user-triggers-login" checkbox should not be checked
+    And the "edit-marketo-ma-user-triggers-insert" checkbox should not be checked
+    And the "edit-marketo-ma-user-triggers-update" checkbox should not be checked
+    And I go to "user/logout"
+
+    When I go to "/user/login"
+    And I enter "mmatest1" for "edit-name"
+    And I enter "password" for "edit-pass"
+    And I press "Log in"
+    Then Munchkin associateLead action should not fire
+
+    When I go to "/user"
+    And I click "Edit"
+    And I enter "Mma1updated" for "field_firstname123"
+    And I press "Save"
+    Then I should see "The changes have been saved."
+    And Munchkin associateLead action should not fire
