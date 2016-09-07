@@ -2,11 +2,16 @@
 
 namespace Drupal\mma_contact_block\Plugin\Block;
 
-use Drupal\Component\Utility\NestedArray;
-use Drupal\contact\Entity\Message;
-use Drupal\contact\MessageInterface;
 use Drupal\contact_block\Plugin\Block\ContactBlock;
+use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Entity\EntityFieldManagerInterface;
+use Drupal\Core\Entity\EntityFormBuilderInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Field\BaseFieldDefinition;
+use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Render\RendererInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Provides a 'ContactBlock' block with additional field values.
@@ -15,11 +20,40 @@ use Drupal\Core\Form\FormStateInterface;
  *  id = "mma_contact_block",
  *  admin_label = @Translation("Contact block (with additional values) "),
  * )
- *
- * @todo config schema
- * @todo tests
  */
 class MmaContactBlock extends ContactBlock {
+
+  /**
+   * The entity field manager.
+   *
+   * @var \Drupal\Core\Entity\EntityFieldManagerInterface
+   */
+  protected $entityFieldManager;
+
+  /**
+   * {@inheritdoc}
+   */
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager, ConfigFactoryInterface $config_factory, EntityFormBuilderInterface $entity_form_builder, RendererInterface $renderer, EntityFieldManagerInterface $entityFieldManager) {
+    parent::__construct($configuration, $plugin_id, $plugin_definition, $entity_type_manager, $config_factory, $entity_form_builder, $renderer);
+
+    $this->entityFieldManager = $entityFieldManager;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    return new static(
+      $configuration,
+      $plugin_id,
+      $plugin_definition,
+      $container->get('entity_type.manager'),
+      $container->get('config.factory'),
+      $container->get('entity.form_builder'),
+      $container->get('renderer'),
+      $container->get('entity_field.manager')
+    );
+  }
 
   /**
    * {@inheritdoc}
@@ -41,6 +75,7 @@ class MmaContactBlock extends ContactBlock {
     $form['contact_form']['#ajax'] = [
       'callback' => [$this, 'onContactFormChange'],
       'wrapper' => 'mma_contact_block',
+      '#limit_validation_errors' => [],
     ];
 
     $form['fields'] = [
@@ -53,46 +88,23 @@ class MmaContactBlock extends ContactBlock {
       $form['fields']['#type'] = 'details';
       $form['fields']['#open'] = TRUE;
 
-      $contact_message = Message::create([
-        'contact_form' => $contact_form_id,
-      ]);
-      $this->applyFieldValuesToEntity($contact_message, $this->configuration['fields']);
-      $form_display = $this->getFormDisplay($contact_form_id);
+      $fields = $this->entityFieldManager->getFieldDefinitions('contact_message', $contact_form_id);
+      // Exclude any base field, which excludes stuff liek subject and body.
+      $fields = array_filter($fields, function (FieldDefinitionInterface $fieldDefinition) {
+        return !$fieldDefinition instanceof BaseFieldDefinition;
+      });
 
-      // We need to setup the right paths, so $form_display::extractFormValues
-      // works in the submit function.
-      $form['fields']['#parents'] = ['settings', 'fields'];
-      $form_display->buildForm($contact_message, $form['fields'], $form_state);
+      $form['fields'] += array_map(function (FieldDefinitionInterface $fieldDefinition) {
+        $element = [
+          '#type' => 'textfield',
+          '#default_value' => isset($this->configuration['fields'][$fieldDefinition->getName()]) ? $this->configuration['fields'][$fieldDefinition->getName()] : '',
+          '#title' => $fieldDefinition->getLabel(),
+        ];
+        return $element;
+      }, $fields);
     }
 
     return $form;
-  }
-
-  /**
-   * Gets the contact message form display for a specific contact form.
-   *
-   * @param string $contact_form_id
-   *   The contact form ID.
-   *
-   * @return \Drupal\Core\Entity\Display\EntityFormDisplayInterface
-   *   The entity form display.
-   */
-  protected function getFormDisplay($contact_form_id) {
-    return entity_get_form_display('contact_message', $contact_form_id, 'block_form');
-  }
-
-  /**
-   * Applies the preconfigured field values to the contact message entity.
-   *
-   * @param \Drupal\contact\MessageInterface $contact_message
-   *   The contact message entity.
-   * @param array $field_values
-   *   The preconfigured field values.
-   */
-  protected function applyFieldValuesToEntity(MessageInterface $contact_message, array $field_values) {
-    foreach ($this->configuration['fields'] as $field_name => $field_values) {
-      $contact_message->get($field_name)->setValue($field_values);
-    }
   }
 
   /**
@@ -102,49 +114,19 @@ class MmaContactBlock extends ContactBlock {
     parent::blockSubmit($form, $form_state);
 
     if ($contact_form_id = $form_state->getValue(['contact_form'])) {
-      $contact_message = Message::create([
-        'contact_form' => $contact_form_id,
-      ]);
-
-      $form_display = $this->getFormDisplay($contact_form_id);
-      // We need to setup the right paths, so $form_display::extractFormValues
-      // works.
-      $entity_form = $form['settings']['fields'];
-      $entity_form['#parents'] = ['fields'];
-      $extracted_fields = $form_display->extractFormValues($contact_message, $entity_form, $form_state);
-
-      $pre_configured_field_values = [];
-      foreach ($extracted_fields as $extract_field) {
-        $field_value = $contact_message->{$extract_field}->getValue();
-        $pre_configured_field_values[$extract_field] = $field_value;
-      }
-
-      $this->configuration['fields'] = $pre_configured_field_values;
+      $this->configuration['fields'] = $form_state->getValue(['fields']);
     }
   }
 
   /**
-   * Ajax callback when changing the contact form.
-   *
-   * @param array $form
-   *   The build form.
-   *
-   * @return array
-   *   The subpart of the form which should be rendered.
-   */
-  public function onContactFormChange($form) {
-    return NestedArray::getValue($form, ['settings', 'fields']);
-  }
-
-  /**
-   * Creates the contact message entity without saving it.
-   *
-   * @return \Drupal\contact\Entity\Message|null
-   *   The contact message entity. NULL if the entity does not exist.
+   * {@inheritdoc}
    */
   protected function createContactMessage() {
     if ($contact_message = parent::createContactMessage()) {
-      $this->applyFieldValuesToEntity($contact_message, $this->configuration['fields']);
+      foreach ($this->configuration['fields'] as $field_name => $field_value) {
+        $main_property = $contact_message->getFieldDefinition($field_name)->getFieldStorageDefinition()->getMainPropertyName();
+        $contact_message->get($field_name)->{$main_property} = $field_value;
+      }
     }
     return $contact_message;
   }

@@ -4,8 +4,6 @@ namespace Drupal\Tests\mma_contact_block\Kernel\Plugin\Block;
 
 use Drupal\block\Entity\Block;
 use Drupal\contact\Entity\ContactForm;
-use Drupal\Core\Entity\Entity\EntityFormDisplay;
-use Drupal\Core\Entity\Entity\EntityFormMode;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\marketo_ma\Lead;
@@ -24,7 +22,7 @@ class MmaContactBlockTest extends MmaContactTestBase {
   /**
    * {@inheritdoc}
    */
-  public static $modules = ['block', 'field', 'contact_block', 'mma_contact_block'];
+  public static $modules = ['block', 'field', 'contact_block', 'contact_storage', 'mma_contact', 'mma_contact_block'];
 
   /**
    * {@inheritdoc}
@@ -52,22 +50,6 @@ class MmaContactBlockTest extends MmaContactTestBase {
 
     $contact_form->save();
 
-    EntityFormMode::create([
-      'id' => 'contact_message.block_form',
-      'targetEntityType' => 'contact_message',
-    ])->save();
-
-    $entity_form_display = EntityFormDisplay::create([
-      'targetEntityType' => 'contact_message',
-      'bundle' => 'test_contact',
-      'mode' => 'block_form',
-      'content' => [],
-    ]);
-    $entity_form_display->setComponent('field_test', [
-      'type' => 'string_textfield',
-    ]);
-    $entity_form_display->save();
-
     $account = $this->drupalCreateUser(['administer contact forms', 'administer marketo', 'access site-wide contact form', 'administer blocks']);
     $this->drupalLogin($account);
   }
@@ -76,29 +58,29 @@ class MmaContactBlockTest extends MmaContactTestBase {
    * Tests the block UI.
    */
   public function testBlockSettings() {
+    // Get the block creation form.
+    $this->drupalGet('admin/structure/block/add/mma_contact_block/seven');
+
     $edit = [
       'settings[contact_form]' => 'test_contact',
       'id' => 'test_block',
     ];
 
-    // Get the block creation form.
-    $this->drupalGet('admin/structure/block/add/mma_contact_block/seven');
-
-    // Make sure the fields form is displayed.
-    $this->assertSession()->fieldExists('settings[fields]');
-
     $this->drupalPostForm('admin/structure/block/add/mma_contact_block/seven', $edit, 'Save block');
 
-    $edit = [
-      'settings[fields][subject][0][value]' => 'test subject',
-      'settings[fields][message][0][value]' => 'test message',
-      'settings[fields][field_test][0][value]' => 'test value',
-    ];
-    $this->drupalPostForm('admin/structure/block/manage/test_block', $edit, 'Save block');
+    $this->drupalGet('admin/structure/block/manage/test_block');
 
+    // Make sure the fields form is displayed.
+    $this->assertSession()->fieldNotExists('settings[fields][message]');
+    $this->assertSession()->fieldExists('settings[fields][field_test]');
+
+    $edit = [
+      'settings[fields][field_test]' => 'test value',
+    ];
+    $this->drupalPostForm(NULL, $edit, 'Save block');
 
     $block_settings = Block::load('test_block');
-    $this->assertEquals([['value' => 'test value']], $block_settings->getPlugin()->getConfiguration()['fields']['field_test']);
+    $this->assertEquals('test value', $block_settings->getPlugin()->getConfiguration()['fields']['field_test']);
   }
 
   /**
@@ -108,7 +90,7 @@ class MmaContactBlockTest extends MmaContactTestBase {
     $this->placeBlock('mma_contact_block', [
       'contact_form' => 'test_contact',
       'fields' => [
-        'field_test' => [['value' => 'test_value']],
+        'field_test' => 'test_value',
       ],
     ]);
 
