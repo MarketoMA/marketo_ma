@@ -13,6 +13,8 @@ namespace Drupal\marketo_ma;
  */
 interface MarketoMaServiceInterface {
 
+  const TRACKING_METHOD_API = 'api_client';
+  const TRACKING_METHOD_MUNCHKIN = 'munchkin';
 
   /**
    * Gets the marketo_ma config.
@@ -48,11 +50,11 @@ interface MarketoMaServiceInterface {
   /**
    * Sets temporary user data for this session.
    *
-   * @param $data
-   *   The marketo user data.
+   * @param \Drupal\marketo_ma\Lead $lead
+   *   The marketo lead.
    * @return $this
    */
-  public function setUserData($data);
+  public function setUserData($lead);
 
   /**
    * Gets temporary user data for the current session.
@@ -80,7 +82,7 @@ interface MarketoMaServiceInterface {
   /**
    * Updates lead information respecting batch settings.
    *
-   * @param \Drupal\marketo_ma\LeadInterface $lead
+   * @param \Drupal\marketo_ma\Lead $lead
    *   The Lead object.
    *
    * @return $this
@@ -88,14 +90,33 @@ interface MarketoMaServiceInterface {
   public function updateLead($lead);
 
   /**
-   * Get's the fields that are available for mapping.
+   * Get's fields that are defined in marketo.
    *
    * @param boolean $reset
    *   Whether to try to refresh the fields form the API client.
    *
-   * @return array
+   * @return \Drupal\marketo_ma\MarketoFieldDefinition[]
+   *   All marketo fields fields keyed by the marketo field ID.
+   */
+  public function getMarketoFields($reset = FALSE);
+
+  /**
+   * Get's all marketo fields converted to table select options.
+   *
+   * @param boolean $reset
+   *   Whether to try to refresh the fields form the API client.
+   *
+   * @return \Drupal\marketo_ma\MarketoFieldDefinition[]
+   *   All marketo fields fields keyed by the marketo field ID.
+   */
+  public function getMarketoFieldsAsTableSelectOptions($reset = FALSE);
+
+  /**
+   * Get's fields that have been enabled.
+   *
+   * @return \Drupal\marketo_ma\MarketoFieldDefinition[]
    *   All fields available for mapping keyed by marketo field ID.
    */
-  public function getAvailableFields($reset = FALSE);
+  public function getEnabledFields();
 
 }

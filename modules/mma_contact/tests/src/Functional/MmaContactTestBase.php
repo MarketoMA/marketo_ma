@@ -18,6 +18,12 @@ abstract class MmaContactTestBase extends BrowserTestBase {
   protected function setUp() {
     parent::setUp();
 
+    // Enable some mappable fields.
+    \Drupal::configFactory()->getEditable('marketo_ma.settings')
+      ->set('field.enabled_fields', [1=>1, 2=>2, 3=>3, 4=>4])
+      ->save();
+
+
     /** @var \Drupal\contact\ContactFormInterface $contact_form */
     $contact_form = ContactForm::create([
       'label' => 'test contact',

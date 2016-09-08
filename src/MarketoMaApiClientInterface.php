@@ -34,7 +34,7 @@ interface MarketoMaApiClientInterface {
    * @param string $email
    *   The leads email address.
    *
-   * @return \Drupal\marketo_ma\LeadInterface
+   * @return \Drupal\marketo_ma\Lead
    *   The lead.
    */
   public function getLeadByEmail($email);
@@ -46,7 +46,7 @@ interface MarketoMaApiClientInterface {
    * @param string $id
    *   The leads marketo id.
    *
-   * @return \Drupal\marketo_ma\LeadInterface
+   * @return \Drupal\marketo_ma\Lead
    *   The lead.
    */
   public function getLeadById($id);
@@ -54,15 +54,15 @@ interface MarketoMaApiClientInterface {
   /**
    * Retrieves lead activity information.
    *
-   * @param \Drupal\marketo_ma\LeadInterface
+   * @param \Drupal\marketo_ma\Lead
    *   The lead.
    */
-  public function getLeadActivity(LeadInterface $lead);
+  public function getLeadActivity(Lead $lead);
 
   /**
    * Inserts or updates a lead.
    *
-   * @param \Drupal\marketo_ma\LeadInterface $lead
+   * @param \Drupal\marketo_ma\Lead $lead
    *   The lead to be updated.
    * @param string $key
    *   Lead Key, typically email address
@@ -72,7 +72,7 @@ interface MarketoMaApiClientInterface {
    * @return array
    *   An array of lead ids and status messages.
    */
-  public function syncLead(LeadInterface $lead, $key = 'email', $options = []);
+  public function syncLead(Lead $lead, $key = 'email', $options = []);
 
   /**
    * Delete one or more leads.

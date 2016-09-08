@@ -91,7 +91,7 @@ class MarketoMaMunchkin implements MarketoMaMunchkinInterface {
   /**
    * {@inheritdoc}
    */
-  public function getAction($action_type, LeadInterface $lead, $args = []) {
+  public function getAction($action_type, Lead $lead, $args = []) {
     if ($action_type === MarketoMaMunchkinInterface::ACTION_ASSOCIATE_LEAD && !empty($lead->getEmail())) {
       // The `associateLead` action requires the email and signing.
       return [

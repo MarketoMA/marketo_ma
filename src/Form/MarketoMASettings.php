@@ -174,8 +174,8 @@ class MarketoMASettings extends ConfigFormBase {
         ':opt2' => 'REST API | Via the REST API on the server side.',
       ]),
       '#options' => [
-        'munchkin' => $this->t('Munchkin Javascript API'),
-        'api_client' => $this->t('REST API'),
+        MarketoMaServiceInterface::TRACKING_METHOD_MUNCHKIN => $this->t('Munchkin Javascript API'),
+        MarketoMaServiceInterface::TRACKING_METHOD_API => $this->t('REST API'),
       ],
       '#default_value' => $config->get('tracking_method'),
       '#required' => TRUE,
@@ -256,7 +256,7 @@ class MarketoMASettings extends ConfigFormBase {
       $this->t('Munchkin key'),
     ];
     // Get fields options from the marketo ma service.
-    $options = $this->service->getAvailableFields();
+    $options = $this->service->getMarketoFieldsAsTableSelectOptions();
 
     $form['field_tab']['field_enabled_fields'] = [
       '#type' => 'tableselect',
@@ -376,7 +376,7 @@ class MarketoMASettings extends ConfigFormBase {
   public function retrieveApiFields(array &$form, FormStateInterface $form_state) {
 
     // Build an options array from the api response.
-    $options = $this->service->getAvailableFields(TRUE);
+    $options = $this->service->getMarketoFieldsAsTableSelectOptions(TRUE);
 
     // Reset the defined fields value.
     $form['field_tab']['field_enabled_fields']['#value'] = [];

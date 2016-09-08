@@ -6,15 +6,15 @@ use Drupal\contact\MessageInterface;
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\marketo_ma\Lead;
-use Drupal\marketo_ma\MarketoMaApiClientInterface;
+use Drupal\marketo_ma\MarketoMaServiceInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class ContactMessageInsert implements ContainerInjectionInterface {
 
   /**
-   * @var \Drupal\marketo_ma\MarketoMaApiClientInterface
+   * @var \Drupal\marketo_ma\MarketoMaServiceInterface
    */
-  protected $marketoClient;
+  protected $mma_service;
 
   /**
    * @var \Drupal\Core\Entity\EntityTypeManagerInterface
@@ -31,11 +31,11 @@ class ContactMessageInsert implements ContainerInjectionInterface {
   /**
    * Creates a new ContactMessageInsert instance.
    *
-   * @param \Drupal\marketo_ma\MarketoMaApiClientInterface $marketoClient
+   * @param \Drupal\marketo_ma\MarketoMaServiceInterface $mma_service
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
    */
-  public function __construct(MarketoMaApiClientInterface $marketoClient, EntityTypeManagerInterface $entityTypeManager) {
-    $this->marketoClient = $marketoClient;
+  public function __construct(MarketoMaServiceInterface $mma_service, EntityTypeManagerInterface $entityTypeManager) {
+    $this->mma_service = $mma_service;
     $this->entityTypeManager = $entityTypeManager;
   }
 
@@ -44,7 +44,7 @@ class ContactMessageInsert implements ContainerInjectionInterface {
    */
   public static function create(ContainerInterface $container) {
     return new static(
-      $container->get('marketo_ma.api_client'),
+      $container->get('marketo_ma'),
       $container->get('entity_type.manager')
     );
   }
@@ -55,7 +55,7 @@ class ContactMessageInsert implements ContainerInjectionInterface {
   public function contactMessageInsert(MessageInterface $message) {
     if ($tracking_enabled = $this->isTrackingEnabled($message->bundle())) {
       $data = $this->determineMappedData($message);
-      $this->marketoClient->syncLead(new Lead($data));
+      $this->mma_service->updateLead(new Lead($data));
     }
   }
 
@@ -100,12 +100,18 @@ class ContactMessageInsert implements ContainerInjectionInterface {
    *  The mapping data, keyed by marketo field name.
    */
   protected function determineMappedData(MessageInterface $message) {
+    $enables_fields = $this->mma_service->getEnabledFields();
+
     $mapping = $this->loadMappingConfiguration($message->bundle());
     $data = [];
 
-    foreach ($mapping as $contact_field_name => $marketo_field_name) {
-      if ($field_item = $message->get($contact_field_name)->first()) {
-        $data[$marketo_field_name] = $field_item->{$field_item->mainPropertyName()};
+    foreach ($mapping as $contact_field_name => $marketo_field_id) {
+      // Make sure there is a value to set and the field is still enabled.
+      if (($field_item = $message->get($contact_field_name)->first()) && isset($enables_fields[$marketo_field_id])) {
+        // Get the field name.
+        $field_name = $enables_fields[$marketo_field_id]->getFieldName($this->mma_service->trackingMethod());
+        // Adds the field value to the mapped data.
+        $data[$field_name] = $field_item->{$field_item->mainPropertyName()};
       }
     }
     return $data;

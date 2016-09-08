@@ -7,7 +7,8 @@ use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\marketo_ma\MarketoMaApiClientInterface;
+use Drupal\marketo_ma\MarketoFieldDefinition;
+use Drupal\marketo_ma\MarketoMaServiceInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -30,8 +31,8 @@ class MmaContactConfiguration extends FormBase {
    */
   protected $contactForm;
 
-  /** @var \Drupal\marketo_ma\MarketoMaApiClientInterface */
-  protected $marketoClient;
+  /** @var \Drupal\marketo_ma\MarketoMaServiceInterface */
+  protected $service;
 
   /** @var \Drupal\Core\Entity\EntityFieldManagerInterface */
   protected $entityFieldManager;
@@ -39,13 +40,13 @@ class MmaContactConfiguration extends FormBase {
   /**
    * Creates a new MmaContactConfiguration instance.
    *
-   * @param \Drupal\marketo_ma\MarketoMaApiClientInterface $marketoClient
-   *   The marketo client.
+   * @param \Drupal\marketo_ma\MarketoMaServiceInterface
+   *   The marketo ma service.
    * @param \Drupal\Core\Entity\EntityFieldManagerInterface $entityFieldManager
    *   The entity field manager.
    */
-  public function __construct(MarketoMaApiClientInterface $marketoClient, EntityFieldManagerInterface $entityFieldManager) {
-    $this->marketoClient = $marketoClient;
+  public function __construct(MarketoMaServiceInterface $service, EntityFieldManagerInterface $entityFieldManager) {
+    $this->service = $service;
     $this->entityFieldManager = $entityFieldManager;
   }
 
@@ -54,7 +55,7 @@ class MmaContactConfiguration extends FormBase {
    */
   public static function create(ContainerInterface $container) {
     return new static(
-      $container->get('marketo_ma.api_client'),
+      $container->get('marketo_ma'),
       $container->get('entity_field.manager')
     );
   }
@@ -135,14 +136,9 @@ class MmaContactConfiguration extends FormBase {
    * @return string[]
    */
   protected function getMarketoFields() {
-    $fields = $this->marketoClient->getFields();
-    $keys = array_map(function ($field) {
-      return $field['default_name'];
-    }, $fields);
-    $labels = array_map(function ($field) {
-      return $field['displayName'];
-    }, $fields);
-    return array_combine($keys, $labels);
+    return array_map(function ($field) {
+      return $field instanceof MarketoFieldDefinition ? $field->getDisplayName() : '';
+    }, $this->service->getEnabledFields());
   }
 
   /**

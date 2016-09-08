@@ -3,7 +3,7 @@
 namespace Drupal\mma_contact_test;
 
 use Drupal\Core\State\StateInterface;
-use Drupal\marketo_ma\LeadInterface;
+use Drupal\marketo_ma\Lead;
 use Drupal\marketo_ma\MarketoMaApiClientInterface;
 
 /**
@@ -37,30 +37,61 @@ class TestMarketoMaApiClient implements MarketoMaApiClientInterface {
    * {@inheritdoc}
    */
   public function getFields() {
-    $fields = [];
-    $fields[] = [
-      'id' => 1,
-      'displayName' => 'First name',
-      'default_name' => 'firstName',
-      'dataType' => 'string',
-      'length' => 255,
-    ];
-    $fields[] = [
-      'id' => 2,
-      'displayName' => 'Second name',
-      'default_name' => 'secondName',
-      'dataType' => 'string',
-      'length' => 255,
-    ];
-    $fields[] = [
-      'id' => 3,
-      'displayName' => 'mail',
-      'default_name' => 'email',
-      'dataType' => 'string',
-      'length' => 255,
+    return [
+      [
+        'id' => 1,
+        'displayName' => 'First name',
+        'dataType' => "string",
+        'rest' => [
+          'name' => 'firstName',
+          'readOnly' => FALSE,
+        ],
+        'soap' => [
+          'name' => 'firstname',
+          'readOnly' => FALSE,
+        ],
+      ],
+      [
+        'id' => 2,
+        'displayName' => 'Second name',
+        'dataType' => 'string',
+        'rest' => [
+          'name' => 'secondName',
+          'readOnly' => FALSE,
+        ],
+        'soap' => [
+          'name' => 'secondname',
+          'readOnly' => FALSE,
+        ],
+      ],
+      [
+        'id' => 3,
+        'displayName' => 'mail',
+        'dataType' => 'string',
+        'rest' => [
+          'name' => 'email',
+          'readOnly' => FALSE,
+        ],
+        'soap' => [
+          'name' => 'email',
+          'readOnly' => FALSE,
+        ],
+      ],
+      [
+        'id' => 4,
+        'displayName' => 'Field Test',
+        'dataType' => 'string',
+        'rest' => [
+          'name' => 'fieldTest',
+          'readOnly' => FALSE,
+        ],
+        'soap' => [
+          'name' => 'field_test',
+          'readOnly' => FALSE,
+        ],
+      ],
     ];
 
-    return $fields;
   }
 
   /**
@@ -80,14 +111,14 @@ class TestMarketoMaApiClient implements MarketoMaApiClientInterface {
   /**
    * {@inheritdoc}
    */
-  public function getLeadActivity(LeadInterface $lead) {
+  public function getLeadActivity(Lead $lead) {
     return [];
   }
 
   /**
    * {@inheritdoc}
    */
-  public function syncLead(LeadInterface $lead, $key = 'email', $cookie = null, $options = []) {
+  public function syncLead(Lead $lead, $key = 'email', $cookie = null, $options = []) {
     $this->syncedLeads[] = $lead;
     $this->state->set(static::class, $this->syncedLeads);
 

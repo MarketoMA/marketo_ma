@@ -50,7 +50,7 @@ interface MarketoMaMunchkinInterface {
    *
    * @param $action_type
    *   The type of action to be preformed. ('visitWebPage', 'clickLink', 'associateLead')
-   * @param LeadInterface $lead
+   * @param \Drupal\marketo_ma\Lead $lead
    *   The lead to be associated. Note: A Lead email is required the
    *   `associateLead` action.
    * @param array $args
@@ -59,6 +59,6 @@ interface MarketoMaMunchkinInterface {
    * @return array
    *   The Drupal settings array required for the action.
    */
-  public function getAction($action_type, LeadInterface $lead, $args = []);
+  public function getAction($action_type, Lead $lead, $args = []);
 
 }

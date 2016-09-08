@@ -7,7 +7,7 @@ namespace Drupal\marketo_ma;
  *
  * @package Drupal\marketo_ma
  */
-class Lead implements LeadInterface, \Serializable {
+class Lead {
 
   /**
    * The lead data.
@@ -32,21 +32,32 @@ class Lead implements LeadInterface, \Serializable {
   }
 
   /**
-   * {@inheritdoc}
+   * Get the Marketo MA lead's email address.
+   *
+   * @return string
+   *   The Lead's email.
    */
   public function getEmail() {
     return $this->get('email');
   }
 
   /**
-   * {@inheritdoc}
+   * Get the current session "_mkto_trk" cookie value.
+   *
+   * @return string
+   *   The Lead's email.
    */
   public function getCookie() {
     return $this->get('cookies');
   }
 
   /**
-   * {@inheritdoc}
+   * Sets the leads tracking cookie value.
+   *
+   * @param string $value
+   *   The value from the "_mkto_trk" cookie.
+   *
+   * @return \Drupal\marketo_ma\Lead $this
    */
   public function setCookie($value) {
     $this->set('cookies', $value);
@@ -54,14 +65,22 @@ class Lead implements LeadInterface, \Serializable {
   }
 
   /**
-   * {@inheritdoc}
+   * Get the Marketo MA lead's Marketo ID.
+   *
+   * @return string
+   *   The Lead's marketo ID.
    */
   public function id() {
     return $this->get('id');
   }
 
   /**
-   * {@inheritdoc}
+   * Get a specific lead value.
+   *
+   * @param string $data_key
+   *   The key used to store the data. i.e. "email".
+   * @return mixed
+   *   The requested value.
    */
   public function get($data_key) {
     return !empty($this->data[$data_key]) ? $this->data[$data_key] : NULL;
@@ -69,7 +88,14 @@ class Lead implements LeadInterface, \Serializable {
   }
 
   /**
-   * {@inheritdoc}
+   * Set a specific lead value.
+   *
+   * @param $data_key
+   *   The key used to store the data. i.e. "email".
+   * @param mixed $value
+   *
+   * @return \Drupal\marketo_ma\Lead $this
+   *   The lead object.
    */
   public function set($data_key, $value) {
     $this->data[$data_key] = $value;
@@ -77,23 +103,13 @@ class Lead implements LeadInterface, \Serializable {
   }
 
   /**
-   * {@inheritdoc}
+   * Get all the data stored in this lead.
+   *
+   * @return array
+   *   Lead data set.
    */
   public function data() {
     return $this->data;
   }
 
-  /**
-   * {@inheritdoc}
-   */
-  public function serialize() {
-    return serialize($this->data());
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function unserialize($data) {
-    $this->data = unserialize($data);
-  }
 }

@@ -74,7 +74,7 @@ class MarketoMaServiceTest extends KernelTestBase {
    */
   public function testMarketoMaService() {
     self::assertTrue($this->service instanceof MarketoMaServiceInterface);
-    self::assertEquals('api_client', $this->service->trackingMethod());
+    self::assertEquals(MarketoMaServiceInterface::TRACKING_METHOD_API, $this->service->trackingMethod());
   }
 
   /**

@@ -114,7 +114,7 @@ class MarketoMaApiClient implements MarketoMaApiClientInterface {
   /**
    * {@inheritdoc}
    */
-  public function getLeadActivity(LeadInterface $lead) {
+  public function getLeadActivity(Lead $lead) {
     /**
      * @todo: Use configuration form to manage the default activity types.
      *
@@ -133,7 +133,7 @@ class MarketoMaApiClient implements MarketoMaApiClientInterface {
   /**
    * {@inheritdoc}
    */
-  public function syncLead(LeadInterface $lead, $key = 'email', $options = []) {
+  public function syncLead(Lead $lead, $key = 'email', $options = []) {
     // Add the create/update leads call to do the association.
     $result = $this->getClient()->createOrUpdateLeads([$lead->data()], $key, $options)->getResult();
     return $result;

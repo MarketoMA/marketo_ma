@@ -43,9 +43,9 @@ class MmaContactBlockTest extends MmaContactTestBase {
 
     $contact_form = ContactForm::load('test_contact');
     $contact_form->setThirdPartySetting('mma_contact', 'mapping', [
-      'name' => 'firstName',
-      'mail' => 'email',
-      'field_test' => 'fieldTest',
+      'name' => '1',
+      'mail' => '3',
+      'field_test' => '4',
     ]);
 
     $contact_form->save();

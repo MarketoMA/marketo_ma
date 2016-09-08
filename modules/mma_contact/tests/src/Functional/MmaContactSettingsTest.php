@@ -26,15 +26,15 @@ class MmaContactSettingsTest extends MmaContactTestBase {
 
     $edit = [
       'enabled' => 1,
-      'mapping[name][mapping]' => 'firstName',
-      'mapping[mail][mapping]' => 'email',
+      'mapping[name][mapping]' => '1',
+      'mapping[mail][mapping]' => '3',
     ];
     $this->drupalPostForm("admin/structure/contact/manage/{$contact_form_id}/marketo", $edit, 'Save');
 
     $contact_form = ContactForm::load($contact_form_id);
     $this->assertEquals([
-      'name' => 'firstName',
-      'mail' => 'email',
+      'name' => '1',
+      'mail' => '3',
     ], $contact_form->getThirdPartySetting('mma_contact', 'mapping'));
   }
 
