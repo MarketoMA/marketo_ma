@@ -85,9 +85,8 @@ class MmaContactConfiguration extends FormBase {
     $form['mapping'] = [
       '#type' => 'table',
       '#header' => [
-        'title' => $this->t('Title'),
-        'tracking' => $this->t('Tracking enabled'),
-        'mapping' => $this->t('Components mapping'),
+        'title' => $this->t('Contact form field'),
+        'mapping' => $this->t('Marketo Field'),
       ],
     ];
 
@@ -95,7 +94,6 @@ class MmaContactConfiguration extends FormBase {
     foreach ($this->getContactFields() as $field_name => $label) {
       $form['mapping'][$field_name] = [
         'title' => ['#markup' => $label],
-        'tracking' => ['#markup' => ''],
         'mapping' => [
           '#type' => 'select',
           '#title' => $this->t('Select mapped component'),
