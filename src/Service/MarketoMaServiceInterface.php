@@ -107,7 +107,7 @@ interface MarketoMaServiceInterface {
    *   Whether to try to refresh the fields form the API client.
    *
    * @return \Drupal\marketo_ma\MarketoFieldDefinition[]
-   *   All marketo fields fields keyed by the marketo field ID.
+   *   All marketo fields keyed by the marketo field ID.
    */
   public function getMarketoFieldsAsTableSelectOptions($reset = FALSE);
 
@@ -118,5 +118,13 @@ interface MarketoMaServiceInterface {
    *   All fields available for mapping keyed by marketo field ID.
    */
   public function getEnabledFields();
+
+  /**
+   * Determines if the API client is configured and available.
+   *
+   * @return bool
+   *   Whether or not the API client can connect
+   */
+  public function apiClientCanConnect();
 
 }

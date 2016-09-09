@@ -31,6 +31,16 @@ interface MarketoMaApiClientInterface {
   public function getFields();
 
   /**
+   * Gets the activity types fields that are available from marketo.
+   *
+   * @see: http://developers.marketo.com/documentation/rest/get-activity-types/
+   *
+   * @return array
+   *   All of the activity types.
+   */
+  public function getActivityTypes();
+
+  /**
    * Retrieves lead information.
    *
    * @param string $email

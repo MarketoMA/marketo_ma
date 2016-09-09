@@ -8,7 +8,6 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\encryption\EncryptionTrait;
 use Drupal\Core\Link;
 use Drupal\Core\Url;
-use Drupal\marketo_ma\Service\MarketoMaApiClientInterface;
 use Drupal\marketo_ma\Service\MarketoMaServiceInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -22,13 +21,6 @@ class MarketoMASettings extends ConfigFormBase {
   use EncryptionTrait;
 
   /**
-   * The Marketo MA API client.
-   *
-   * @var \Drupal\marketo_ma\Service\MarketoMaApiClientInterface
-   */
-  protected $client;
-
-  /**
    * The Marketo MA core service.
    *
    * @var \Drupal\marketo_ma\Service\MarketoMaServiceInterface
@@ -40,14 +32,11 @@ class MarketoMASettings extends ConfigFormBase {
    *
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
    *   The factory for configuration objects.
-   * @param \Drupal\marketo_ma\Service\MarketoMaApiClientInterface $marketo_ma_api_client
-   *   The Marketo MA API client.
    * @param \Drupal\marketo_ma\Service\MarketoMaServiceInterface
    *   The marketo ma service.
    */
-  public function __construct(ConfigFactoryInterface $config_factory, MarketoMaApiClientInterface $marketo_ma_api_client, MarketoMaServiceInterface $service) {
+  public function __construct(ConfigFactoryInterface $config_factory, MarketoMaServiceInterface $service) {
     parent::__construct($config_factory);
-    $this->client = $marketo_ma_api_client;
     $this->service = $service;
   }
 
@@ -57,7 +46,6 @@ class MarketoMASettings extends ConfigFormBase {
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('config.factory'),
-      $container->get('marketo_ma.api_client'),
       $container->get('marketo_ma')
     );
   }
@@ -211,8 +199,8 @@ class MarketoMASettings extends ConfigFormBase {
     //<editor-fold desc="REST configuration">
     $form['api_tab']['group_rest'] = [
       '#title' => $this->t('REST API config'),
-      '#description' => $this->t('You will need an api user and service configured for this application. See !link for details.', [
-        '!link' => Link::fromTextAndUrl('Quick Start Guide for Marketo REST API', Url::fromUri('http://developers.marketo.com/blog/quick-start-guide-for-marketo-rest-api/'))->toString(),
+      '#description' => $this->t('You will need an api user and service configured for this application. See :link for details.', [
+        ':link' => Link::fromTextAndUrl('Quick Start Guide for Marketo REST API', Url::fromUri('http://developers.marketo.com/blog/quick-start-guide-for-marketo-rest-api/'))->toString(),
       ]),
       '#type' => 'fieldset',
       '#states' => [
@@ -259,7 +247,7 @@ class MarketoMASettings extends ConfigFormBase {
     $options = $this->service->getMarketoFieldsAsTableSelectOptions();
 
     // Only show the enabled options unless retrieving from marketo.
-    if (!in_array('field_api_retrieve_fields', $form_state->getTriggeringElement()['#parents'])) {
+    if (!($trigger = $form_state->getTriggeringElement()) || end($trigger['#parents']) !== 'field_api_retrieve_fields') {
       $options = array_intersect_key($options, $config->get('field.enabled_fields'));
     }
 
@@ -269,7 +257,7 @@ class MarketoMASettings extends ConfigFormBase {
       '#description' => $this->t('Pipe "|" delimited strings of [API Name]|[Friendly Label]. Enter one field per line. This information can be found in the Marketo admin page at Admin > Field Management > Export Field Names.<p>Once API client settings have been configured, these fields can be automatically obtained from Marketo using the button below</p>'),
       '#header' => $header,
       '#options' => $options,
-      '#empty' => $this->t('No fields, Try retrieving from marketo.'),
+      '#empty' => $this->t('No fields, try retrieving from marketo.'),
       '#prefix' => '<div id="marketo-defined-fields-wrapper">',
       '#suffix' => '</div>',
       '#default_value' => $config->get('field.enabled_fields'),
@@ -279,7 +267,7 @@ class MarketoMASettings extends ConfigFormBase {
     $form['field_tab']['field_api_retrieve_fields'] = [
       '#type' => 'button',
       '#value' => $this->t('Retrieve from Marketo'),
-      '#disabled' => !$this->client->canConnect(),
+      '#disabled' => !$this->service->apiClientCanConnect(),
       '#ajax' => [
         'callback' => [$this, 'retrieveApiFields'],
         'event' => 'mouseup',

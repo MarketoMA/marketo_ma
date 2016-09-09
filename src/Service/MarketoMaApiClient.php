@@ -80,6 +80,13 @@ class MarketoMaApiClient implements MarketoMaApiClientInterface {
   /**
    * {@inheritdoc}
    */
+  public function getActivityTypes() {
+    return $this->getClient()->getActivityTypes()->getResult();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function canConnect() {
     return !empty($this->client_config['munchkin_id'])
       && !empty($this->client_config['client_id'])

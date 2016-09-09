@@ -85,7 +85,7 @@ class MarketoMaService implements MarketoMaServiceInterface {
   protected $state;
 
   /**
-   * Creates the Marketo API client wrapper service.
+   * Creates the Marketo MA core service..
    *
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
    *   The config factory.
@@ -143,7 +143,7 @@ class MarketoMaService implements MarketoMaServiceInterface {
       }
 
       // Get the Lead data from temporary user storage.
-      if (! $lead = $this->getUserData()) {
+      if (!($lead = $this->getUserData())) {
         $lead = new Lead();
       }
 
@@ -321,6 +321,13 @@ class MarketoMaService implements MarketoMaServiceInterface {
    */
   protected function temporaryStorage() {
     return $this->temp_store_factory->get('marketo_ma');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function apiClientCanConnect() {
+    return $this->api_client->canConnect();
   }
 
 }
