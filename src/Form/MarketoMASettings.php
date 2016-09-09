@@ -258,6 +258,11 @@ class MarketoMASettings extends ConfigFormBase {
     // Get fields options from the marketo ma service.
     $options = $this->service->getMarketoFieldsAsTableSelectOptions();
 
+    // Only show the enabled options unless retrieving from marketo.
+    if (!in_array('field_api_retrieve_fields', $form_state->getTriggeringElement()['#parents'])) {
+      $options = array_intersect_key($options, $config->get('field.enabled_fields'));
+    }
+
     $form['field_tab']['field_enabled_fields'] = [
       '#type' => 'tableselect',
       '#title' => t('Marketo fields'),
@@ -378,8 +383,7 @@ class MarketoMASettings extends ConfigFormBase {
     // Build an options array from the api response.
     $options = $this->service->getMarketoFieldsAsTableSelectOptions(TRUE);
 
-    // Reset the defined fields value.
-    $form['field_tab']['field_enabled_fields']['#value'] = [];
+    // Add the retrieved options.
     $form['field_tab']['field_enabled_fields']['#options'] = $options;
 
     // Return the form element that will bre replaced in the wrapper element.
