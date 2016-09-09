@@ -8,7 +8,7 @@ use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\marketo_ma\MarketoFieldDefinition;
-use Drupal\marketo_ma\MarketoMaServiceInterface;
+use Drupal\marketo_ma\Service\MarketoMaServiceInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -31,7 +31,7 @@ class MmaContactConfiguration extends FormBase {
    */
   protected $contactForm;
 
-  /** @var \Drupal\marketo_ma\MarketoMaServiceInterface */
+  /** @var \Drupal\marketo_ma\Service\MarketoMaServiceInterface */
   protected $service;
 
   /** @var \Drupal\Core\Entity\EntityFieldManagerInterface */
@@ -40,7 +40,7 @@ class MmaContactConfiguration extends FormBase {
   /**
    * Creates a new MmaContactConfiguration instance.
    *
-   * @param \Drupal\marketo_ma\MarketoMaServiceInterface
+   * @param \Drupal\marketo_ma\Service\MarketoMaServiceInterface
    *   The marketo ma service.
    * @param \Drupal\Core\Entity\EntityFieldManagerInterface $entityFieldManager
    *   The entity field manager.

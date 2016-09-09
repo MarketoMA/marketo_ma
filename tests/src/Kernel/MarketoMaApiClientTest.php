@@ -4,7 +4,7 @@ namespace Drupal\Tests\marketo_ma\Kernel;
 
 use Drupal\KernelTests\KernelTestBase;
 use Drupal\marketo_ma\Lead;
-use \Drupal\marketo_ma\MarketoMaApiClientInterface;
+use \Drupal\marketo_ma\Service\MarketoMaApiClientInterface;
 use Drupal\Core\Site\Settings;
 
 /**
@@ -13,7 +13,7 @@ use Drupal\Core\Site\Settings;
 class MarketoMaApiClientTest extends KernelTestBase {
 
   /**
-   * @var \Drupal\marketo_ma\MarketoMaApiClientInterface The marketo_ma client service.
+   * @var \Drupal\marketo_ma\Service\MarketoMaApiClientInterface The marketo_ma client service.
    */
   protected $api_client;
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\marketo_ma;
+namespace Drupal\marketo_ma\Service;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Path\PathMatcherInterface;
@@ -9,6 +9,8 @@ use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\State\StateInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
+use Drupal\marketo_ma\Lead;
+use Drupal\marketo_ma\MarketoFieldDefinition;
 use Drupal\user\PrivateTempStoreFactory;
 
 /**
@@ -29,7 +31,7 @@ class MarketoMaService implements MarketoMaServiceInterface {
   /**
    * The marketo MA API client service.
    *
-   * @var \Drupal\marketo_ma\MarketoMaApiClientInterface
+   * @var \Drupal\marketo_ma\Service\MarketoMaApiClientInterface
    */
   private $api_client;
 
@@ -57,7 +59,7 @@ class MarketoMaService implements MarketoMaServiceInterface {
   /**
    * The Marketo MA munchkin service.
    *
-   * @var \Drupal\marketo_ma\MarketoMaMunchkinInterface
+   * @var \Drupal\marketo_ma\Service\MarketoMaMunchkinInterface
    */
   protected $munchkin;
 
@@ -87,7 +89,7 @@ class MarketoMaService implements MarketoMaServiceInterface {
    *
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
    *   The config factory.
-   * @param \Drupal\marketo_ma\MarketoMaApiClientInterface $api_client
+   * @param \Drupal\marketo_ma\Service\MarketoMaApiClientInterface $api_client
    *   The marketo ma api client.
    * @param \Drupal\Core\Session\AccountInterface $current_user
    *   The current user.
@@ -95,7 +97,7 @@ class MarketoMaService implements MarketoMaServiceInterface {
    *   The route match.
    * @param \Drupal\Core\Path\PathMatcherInterface $path_matcher
    *   The path matcher service.
-   * @param \Drupal\marketo_ma\MarketoMaMunchkinInterface $munchkin
+   * @param \Drupal\marketo_ma\Service\MarketoMaMunchkinInterface $munchkin
    *   The munchkin service.
    * @param \Drupal\Core\Queue\QueueFactory $queue_factory
    *   The queue service.

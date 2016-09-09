@@ -4,12 +4,12 @@ namespace Drupal\mma_contact_test;
 
 use Drupal\Core\State\StateInterface;
 use Drupal\marketo_ma\Lead;
-use Drupal\marketo_ma\MarketoMaApiClientInterface;
+use Drupal\marketo_ma\Service\MarketoMaApiClientInterface;
 
 /**
  * Stub implementation of an marketo api client.
  */
-class TestMarketoMaApiClient implements MarketoMaApiClientInterface {
+class TestMarketoMaApiClient implements MarketoMaApiClientInterface  {
 
   /**
    * {@inheritdoc}

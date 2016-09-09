@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\marketo_ma;
+namespace Drupal\marketo_ma\Service;
 
 /**
  * Service interface for the `marketo_ma` worker service.

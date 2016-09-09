@@ -1,6 +1,8 @@
 <?php
 
-namespace Drupal\marketo_ma;
+namespace Drupal\marketo_ma\Service;
+
+use Drupal\marketo_ma\Lead;
 
 /**
  * Service interface for the `marketo_ma` API client.

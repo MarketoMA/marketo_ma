@@ -2,7 +2,7 @@
 
 use Drupal\KernelTests\KernelTestBase;
 use Drupal\Core\Site\Settings;
-use Drupal\marketo_ma\MarketoMaServiceInterface;
+use Drupal\marketo_ma\Service\MarketoMaServiceInterface;
 
 /**
  * @group marketo_ma
@@ -10,7 +10,7 @@ use Drupal\marketo_ma\MarketoMaServiceInterface;
 class MarketoMaServiceTest extends KernelTestBase {
 
   /**
-   * @var \Drupal\marketo_ma\MarketoMaServiceInterface The marketo_ma client service.
+   * @var \Drupal\marketo_ma\Service\MarketoMaServiceInterface The marketo_ma client service.
    */
   protected $service;
 

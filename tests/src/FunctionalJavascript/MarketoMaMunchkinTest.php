@@ -2,7 +2,7 @@
 
 namespace Drupal\Tests\marketo_ma\FunctionalJavascript;
 
-use Drupal\marketo_ma\MarketoMaMunchkinInterface;
+use Drupal\marketo_ma\Service\MarketoMaMunchkinInterface;
 
 /**
  * Tests the Marketo MA module in Munchkin mode.

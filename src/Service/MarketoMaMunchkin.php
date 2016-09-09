@@ -1,11 +1,12 @@
 <?php
 
-namespace Drupal\marketo_ma;
+namespace Drupal\marketo_ma\Service;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\encryption\EncryptionTrait;
+use Drupal\marketo_ma\Lead;
 
 /**
  * The marketo MA munchkin service (marketo_ma.munchkin).

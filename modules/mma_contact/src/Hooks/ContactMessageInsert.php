@@ -6,13 +6,13 @@ use Drupal\contact\MessageInterface;
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\marketo_ma\Lead;
-use Drupal\marketo_ma\MarketoMaServiceInterface;
+use Drupal\marketo_ma\Service\MarketoMaServiceInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class ContactMessageInsert implements ContainerInjectionInterface {
 
   /**
-   * @var \Drupal\marketo_ma\MarketoMaServiceInterface
+   * @var \Drupal\marketo_ma\Service\MarketoMaServiceInterface
    */
   protected $mma_service;
 
@@ -31,7 +31,7 @@ class ContactMessageInsert implements ContainerInjectionInterface {
   /**
    * Creates a new ContactMessageInsert instance.
    *
-   * @param \Drupal\marketo_ma\MarketoMaServiceInterface $mma_service
+   * @param \Drupal\marketo_ma\Service\MarketoMaServiceInterface $mma_service
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
    */
   public function __construct(MarketoMaServiceInterface $mma_service, EntityTypeManagerInterface $entityTypeManager) {

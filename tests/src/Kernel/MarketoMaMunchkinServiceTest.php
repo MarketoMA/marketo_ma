@@ -4,7 +4,7 @@ namespace Drupal\Tests\marketo_ma\Kernel;
 
 use Drupal\KernelTests\KernelTestBase;
 use Drupal\Core\Site\Settings;
-use Drupal\marketo_ma\MarketoMaMunchkinInterface;
+use Drupal\marketo_ma\Service\MarketoMaMunchkinInterface;
 
 /**
  * @group marketo_ma
@@ -12,7 +12,7 @@ use Drupal\marketo_ma\MarketoMaMunchkinInterface;
 class MarketoMaMunchkinServiceTest extends KernelTestBase {
 
   /**
-   * @var \Drupal\marketo_ma\MarketoMaMunchkinInterface The marketo_ma munchkin service.
+   * @var \Drupal\marketo_ma\Service\MarketoMaMunchkinInterface The marketo_ma munchkin service.
    */
   protected $munchkin;
 

@@ -10,12 +10,12 @@ namespace Drupal\Tests\marketo_ma\FunctionalJavascript;
 class MarketoMaApiClientTest extends MmaJavascriptTestBase {
 
   /**
-   * @var \Drupal\marketo_ma\MarketoMaApiClientInterface The marketo_ma client service.
+   * @var \Drupal\marketo_ma\Service\MarketoMaApiClientInterface The marketo_ma client service.
    */
   protected $client;
 
   /**
-   * @var \Drupal\marketo_ma\MarketoMaServiceInterface The marketo_ma client service.
+   * @var \Drupal\marketo_ma\Service\MarketoMaServiceInterface The marketo_ma client service.
    */
   protected $service;
 

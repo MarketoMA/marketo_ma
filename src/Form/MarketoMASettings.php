@@ -8,8 +8,8 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\encryption\EncryptionTrait;
 use Drupal\Core\Link;
 use Drupal\Core\Url;
-use Drupal\marketo_ma\MarketoMaApiClientInterface;
-use Drupal\marketo_ma\MarketoMaServiceInterface;
+use Drupal\marketo_ma\Service\MarketoMaApiClientInterface;
+use Drupal\marketo_ma\Service\MarketoMaServiceInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -24,14 +24,14 @@ class MarketoMASettings extends ConfigFormBase {
   /**
    * The Marketo MA API client.
    *
-   * @var \Drupal\marketo_ma\MarketoMaApiClientInterface
+   * @var \Drupal\marketo_ma\Service\MarketoMaApiClientInterface
    */
   protected $client;
 
   /**
    * The Marketo MA core service.
    *
-   * @var \Drupal\marketo_ma\MarketoMaServiceInterface
+   * @var \Drupal\marketo_ma\Service\MarketoMaServiceInterface
    */
   protected $service;
 
@@ -40,9 +40,9 @@ class MarketoMASettings extends ConfigFormBase {
    *
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
    *   The factory for configuration objects.
-   * @param \Drupal\marketo_ma\MarketoMaApiClientInterface $marketo_ma_api_client
+   * @param \Drupal\marketo_ma\Service\MarketoMaApiClientInterface $marketo_ma_api_client
    *   The Marketo MA API client.
-   * @param \Drupal\marketo_ma\MarketoMaServiceInterface
+   * @param \Drupal\marketo_ma\Service\MarketoMaServiceInterface
    *   The marketo ma service.
    */
   public function __construct(ConfigFactoryInterface $config_factory, MarketoMaApiClientInterface $marketo_ma_api_client, MarketoMaServiceInterface $service) {

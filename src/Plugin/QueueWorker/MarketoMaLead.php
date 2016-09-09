@@ -4,7 +4,7 @@ namespace Drupal\marketo_ma\Plugin\QueueWorker;
 
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Queue\QueueWorkerBase;
-use Drupal\marketo_ma\MarketoMaApiClientInterface;
+use Drupal\marketo_ma\Service\MarketoMaApiClientInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -21,7 +21,7 @@ class MarketoMaLead extends QueueWorkerBase implements ContainerFactoryPluginInt
   /**
    * The Marketo MA API Client.
    *
-   * @var \Drupal\marketo_ma\MarketoMaApiClientInterface
+   * @var \Drupal\marketo_ma\Service\MarketoMaApiClientInterface
    */
   protected $api_client;
 
@@ -34,7 +34,7 @@ class MarketoMaLead extends QueueWorkerBase implements ContainerFactoryPluginInt
    *   The plugin_id for the plugin instance.
    * @param mixed $plugin_definition
    *   The plugin implementation definition.
-   * @param \Drupal\marketo_ma\MarketoMaApiClientInterface $api_client
+   * @param \Drupal\marketo_ma\Service\MarketoMaApiClientInterface $api_client
    *   The marketo API client.
    */
   public function __construct(array $configuration, $plugin_id, $plugin_definition, MarketoMaApiClientInterface $api_client = NULL) {

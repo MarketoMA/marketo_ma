@@ -1,10 +1,11 @@
 <?php
 
-namespace Drupal\marketo_ma;
+namespace Drupal\marketo_ma\Service;
 
 use CSD\Marketo\Client;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\encryption\EncryptionTrait;
+use Drupal\marketo_ma\Lead;
 
 /**
  * This is a wrapper for the default API client library. It could be switched
