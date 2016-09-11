@@ -22,6 +22,8 @@ class FeatureContext extends RawDrupalContext implements SnippetAcceptingContext
   /** @var DrushContext */
   private $drushContext;
 
+  private $nodeReference;
+
   /**
    * Keep track of fields so they can be cleaned up.
    *
@@ -191,6 +193,30 @@ class FeatureContext extends RawDrupalContext implements SnippetAcceptingContext
         throw new \Exception($message);
       }
     }
+  }
+
+  /**
+   * @Given I visit the node titled :title
+   */
+  public function visitNodeTitled($title) {
+    $node = $this->nodeReference[$title];
+    $this->getSession()->visit($this->locatePath('/node/' . $node->nid));
+  }
+
+  /**
+   * @Given I am viewing a/an :type titled :title
+   */
+  public function iAmViewingTypeTitled($type, $title) {
+    // @todo make this easily extensible.
+    $node = (object) array(
+      'title' => $title,
+      'type' => $type,
+      'body' => $this->getRandom()->name(255),
+    );
+    $saved = $this->nodeCreate($node);
+    $this->nodeReference[$title] = $saved;
+    // Set internal page on the new node.
+    $this->getSession()->visit($this->locatePath('/node/' . $saved->nid));
   }
 
   /**

@@ -63,7 +63,7 @@ Feature: Module configuration
     Then I should see "Account ID field is required."
     And I should see "API Private Key field is required."
 
-  @config @live
+  @config @live @production
   Scenario: Configure live module settings
     Given I populate the Marketo MA config using "marketo_settings"
     And I am logged in as an administrator
