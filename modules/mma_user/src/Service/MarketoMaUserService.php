@@ -3,13 +3,22 @@
 namespace Drupal\mma_user\Service;
 
 
+use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\State\StateInterface;
+use Drupal\marketo_ma\Lead;
 use Drupal\marketo_ma\Service\MarketoMaApiClientInterface;
 use Drupal\marketo_ma\Service\MarketoMaServiceInterface;
 use Drupal\mma_user\ActivityType;
 use Drupal\user\UserInterface;
 
 class MarketoMaUserService implements MarketoMaUserServiceInterface {
+
+  /**
+   * The config factory service.
+   *
+   * @var \Drupal\Core\Config\ConfigFactoryInterface
+   */
+  protected $config_factory;
 
   /**
    * The marketo MA API client service.
@@ -35,6 +44,8 @@ class MarketoMaUserService implements MarketoMaUserServiceInterface {
   /**
    * Creates the Marketo MA user core service..
    *
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
+   *   The config factory.
    * @param \Drupal\marketo_ma\Service\MarketoMaServiceInterface $marketo_ma
    *   The Marketo MA service.
    * @param \Drupal\marketo_ma\Service\MarketoMaApiClientInterface $api_client
@@ -42,7 +53,8 @@ class MarketoMaUserService implements MarketoMaUserServiceInterface {
    * @param \Drupal\Core\State\StateInterface $state
    *   The state key value store.
    */
-  public function __construct(MarketoMaServiceInterface $marketo_ma, MarketoMaApiClientInterface $api_client, StateInterface $state) {
+  public function __construct(ConfigFactoryInterface $config_factory, MarketoMaServiceInterface $marketo_ma, MarketoMaApiClientInterface $api_client, StateInterface $state) {
+    $this->config_factory = $config_factory;
     $this->marketo_ma = $marketo_ma;
     $this->api_client = $api_client;
     $this->state = $state;
@@ -51,29 +63,69 @@ class MarketoMaUserService implements MarketoMaUserServiceInterface {
   /**
    * {@inheritdoc}
    */
+  public function config() {
+    // Use static caching.
+    static $config = NULL;
+    // Load config if not already loaded.
+    if (empty($config)) {
+      $config = $this->config_factory->get('marketo_ma_user.settings');
+    }
+
+    return $config;
+  }
+
+
+  /**
+   * {@inheritdoc}
+   */
   public function userLogin(UserInterface $account) {
-    $stop=1;
+    if (in_array('login', $this->config()->get('events'))) {
+      $this->updateLead($account);
+    }
   }
 
   /**
    * {@inheritdoc}
    */
   public function userCreate(UserInterface $user) {
-    $stop=1;
+    if (in_array('create', $this->config()->get('events'))) {
+      $this->updateLead($user);
+    }
   }
 
   /**
    * {@inheritdoc}
    */
   public function userUpdate(UserInterface $user) {
-    $stop=1;
+    if (in_array('update', $this->config()->get('events'))) {
+      $this->updateLead($user);
+    }
   }
 
   /**
    * {@inheritdoc}
    */
-  public function apiClientCanConnect() {
-    return $this->api_client->canConnect();
+  public function updateLead(UserInterface $user) {
+    // Get the enabled fields from the marketo ma service.
+    $enabled_fields = $this->marketo_ma->getEnabledFields();
+
+    $mapping = $this->config()->get('mapping');
+    $data = [];
+
+    foreach ($mapping as $contact_field_name => $marketo_field_id) {
+      // Make sure there is a value to set and the field is still enabled.
+      if (($field_item = $user->get($contact_field_name)->first()) && isset($enabled_fields[$marketo_field_id])) {
+        // Get the field name.
+        $field_name = $enabled_fields[$marketo_field_id]->getFieldName($this->marketo_ma->trackingMethod());
+        // Adds the field value to the mapped data.
+        $data[$field_name] = $field_item->{$field_item->mainPropertyName()};
+      }
+    }
+
+    if (!empty($data)) {
+      // Let the Marketo MA module handle the rest.
+      $this->marketo_ma->updateLead(new Lead($data));
+    }
   }
 
   /**

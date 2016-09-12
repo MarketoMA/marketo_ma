@@ -143,36 +143,18 @@ class MarketoMaService implements MarketoMaServiceInterface {
       }
 
       // Get the Lead data from temporary user storage.
-      if (!($lead = $this->getUserData())) {
-        $lead = new Lead();
-      }
-
-      // Check for logged in user.
-      if (empty($lead->getEmail()) && !empty($this->current_user->getEmail())) {
-        $lead->set('email', $this->current_user->getEmail());
-      }
+      $lead = $this->getUserData();
 
       // Check for the munchkin option and that the munchkin api is configured.
-      if ($this->trackingMethod() == MarketoMaServiceInterface::TRACKING_METHOD_MUNCHKIN
+      if ($lead
+        && $this->trackingMethod() == MarketoMaServiceInterface::TRACKING_METHOD_MUNCHKIN
         && $this->munchkin->isConfigured()
         && !empty($lead->getEmail())
-        && $lead->get('associated') !== TRUE
       ) {
         // Set drupalSettings so JS will do the lead association.
         $page['#attached']['drupalSettings']['marketo_ma']['actions'][] = $this->munchkin->getAction(MarketoMaMunchkinInterface::ACTION_ASSOCIATE_LEAD, $lead);
         // Set the associated flag so we are not associating on every request.
-        $this->setUserData($lead->set('associated', TRUE));
-      }
-      // Check for the api option and that the client can connect.
-      elseif ($this->trackingMethod() == MarketoMaServiceInterface::TRACKING_METHOD_API
-        && $this->api_client->canConnect()
-        && !empty($lead->getEmail())
-        && $lead->get('associated') !== TRUE
-      ) {
-        // Use the API to associate the lead.
-        $this->updateLead($lead);
-        // Set the associated flag so we are not associating on every request.
-        $this->setUserData($lead->set('associated', TRUE));
+        $this->resetUserData();
       }
     }
   }
@@ -241,7 +223,7 @@ class MarketoMaService implements MarketoMaServiceInterface {
    */
   public function setUserData($lead) {
     // Make sure we have a real user before trying to access user data.
-    if (!empty($this->current_user->getLastAccessedTime())) {
+    if ($this->sessionAvailable()) {
       $this->temporaryStorage()->set('user_data', $lead);
     }
     return $this;
@@ -259,7 +241,7 @@ class MarketoMaService implements MarketoMaServiceInterface {
    */
   public function resetUserData() {
     // Make sure we have a real user before trying to access user data.
-    if (!empty($this->current_user->getLastAccessedTime())) {
+    if ($this->sessionAvailable()) {
       $this->temporaryStorage()->delete('user_data');
     }
     return $this;
@@ -330,4 +312,12 @@ class MarketoMaService implements MarketoMaServiceInterface {
     return $this->api_client->canConnect();
   }
 
+  /**
+   * Check whether user data is available for the current user.
+   *
+   * @return bool
+   */
+  protected function sessionAvailable() {
+    return ($this->current_user->id() || \Drupal::requestStack()->getCurrentRequest()->getSession());
+  }
 }

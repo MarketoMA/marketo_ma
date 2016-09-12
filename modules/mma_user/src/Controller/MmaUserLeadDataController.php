@@ -72,6 +72,38 @@ class MmaUserLeadDataController extends ControllerBase {
     return $this->t('Marketo Lead (:username)', [':username' => $user->getAccountName()]);
   }
 
+  /**
+   * Viewlead.
+   *
+   * @return string
+   *   Return Hello string.
+   */
+  public function viewActivity(UserInterface $user) {
+    $activity = $this->getLeadActivity($user->getEmail());
+    if (!empty($activity)) {
+      $header = ['one', 'two', 'three'];
+      $rows = array(array(1, 2, 3), array(4, 5, 6), array(7, 8, 9));
+
+      return [
+        '#type' => 'table',
+        '#header' => $header,
+        '#rows' => $rows,
+      ];
+    } else {
+      return ['#markup' => $this->t('No lead activity found for %username.', ['%username' => $user->getAccountName()])];
+    }
+  }
+
+  /**
+   * Gets the title for the view lead page.
+   *
+   * @return string
+   *   Return Hello string.
+   */
+  public function viewActivityTitle(UserInterface $user) {
+    return $this->t('Marketo Lead (:username)', [':username' => $user->getAccountName()]);
+  }
+
 
   /**
    * Gets activity given a leads email address.

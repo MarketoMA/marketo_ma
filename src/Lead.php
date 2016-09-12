@@ -38,7 +38,7 @@ class Lead {
    *   The Lead's email.
    */
   public function getEmail() {
-    return $this->get('email');
+    return isset($this->data['email']) ? $this->data['email'] : ($this->data['Email'] ? $this->data['Email'] : NULL);
   }
 
   /**

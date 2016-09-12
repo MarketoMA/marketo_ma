@@ -3,8 +3,12 @@
 namespace Drupal\mma_user\Form;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Entity\EntityFieldManagerInterface;
+use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\marketo_ma\MarketoFieldDefinition;
+use Drupal\marketo_ma\Service\MarketoMaServiceInterface;
 use Drupal\mma_user\Service\MarketoMaUserServiceInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -18,21 +22,41 @@ class MarketoMaUserSettings extends ConfigFormBase {
   /**
    * The Marketo MA API client.
    *
+   * @var \Drupal\marketo_ma\Service\MarketoMaServiceInterface
+   */
+  protected $mma_service;
+
+  /**
+   * The Marketo MA API client.
+   *
    * @var \Drupal\mma_user\Service\MarketoMaUserServiceInterface
    */
   protected $mma_user_service;
+
+  /**
+   * Th entity field manager.
+   *
+   * @var \Drupal\Core\Entity\EntityFieldManagerInterface
+   */
+  protected $entity_field_manager;
 
   /**
    * Constructs a \Drupal\marketo_ma\Form\MarketoMASettings object.
    *
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
    *   The factory for configuration objects.
+   * @param \Drupal\marketo_ma\Service\MarketoMaServiceInterface $mma_service
+   *   The Marketo MA API client.
    * @param \Drupal\mma_user\Service\MarketoMaUserServiceInterface $mma_user_service
    *   The Marketo MA API client.
+   * @param \Drupal\Core\Entity\EntityFieldManagerInterface $entity_field_manager
+   *   The entity field manager.
    */
-  public function __construct(ConfigFactoryInterface $config_factory, MarketoMaUserServiceInterface $mma_user_service) {
+  public function __construct(ConfigFactoryInterface $config_factory, MarketoMaServiceInterface $mma_service, MarketoMaUserServiceInterface $mma_user_service, EntityFieldManagerInterface $entity_field_manager) {
     parent::__construct($config_factory);
+    $this->mma_service = $mma_service;
     $this->mma_user_service = $mma_user_service;
+    $this->entity_field_manager = $entity_field_manager;
   }
 
   /**
@@ -41,7 +65,9 @@ class MarketoMaUserSettings extends ConfigFormBase {
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('config.factory'),
-      $container->get('marketo_ma.user')
+      $container->get('marketo_ma'),
+      $container->get('marketo_ma.user'),
+      $container->get('entity_field.manager')
     );
   }
 
@@ -105,9 +131,32 @@ class MarketoMaUserSettings extends ConfigFormBase {
       ],
     ];
 
-    $form['user_settings_tab']['group_mappings']['mappings'] = [
-
+    $form['user_settings_tab']['group_mappings']['mapping'] = [
+      '#type' => 'table',
+      '#header' => [
+        'title' => $this->t('User Field'),
+        'mapping' => $this->t('Marketo Field'),
+      ],
+      '#empty' => $this->t('There are no user fields available for mapping.'),
     ];
+
+    // Get mappings from config
+    $mapping = $config->get('mapping');
+    // Get enabled marketo fields.
+    $marketo_field_options = ['' => $this->t('None')] + $this->getMarketoFields();
+    // Add an mapping select field for each user field.
+    foreach ($this->getUserFields() as $field_name => $label) {
+      $form['user_settings_tab']['group_mappings']['mapping'][$field_name] = [
+        'title' => ['#markup' => $label],
+        'mapping' => [
+          '#type' => 'select',
+          '#title' => $this->t('Select mapped component'),
+          '#title_display' => 'hidden',
+          '#options' => $marketo_field_options,
+          '#default_value' => isset($mapping[$field_name]) ? $mapping[$field_name] : FALSE,
+        ],
+      ];
+    }
 
     // Get fields options from the marketo ma service.
     $options = $this->mma_user_service->getActivitiesAsTableSelectOptions();
@@ -135,7 +184,7 @@ class MarketoMaUserSettings extends ConfigFormBase {
     $form['user_settings_tab']['group_activities']['activity_api_retrieve_fields'] = [
       '#type' => 'button',
       '#value' => $this->t('Retrieve from Marketo'),
-      '#disabled' => !$this->mma_user_service->apiClientCanConnect(),
+      '#disabled' => !$this->mma_service->apiClientCanConnect(),
       '#ajax' => [
         'callback' => [$this, 'retrieveApiActivities'],
         'event' => 'mouseup',
@@ -167,8 +216,14 @@ class MarketoMaUserSettings extends ConfigFormBase {
   public function submitForm(array &$form, FormStateInterface $form_state) {
     parent::submitForm($form, $form_state);
 
+    // Get the mapping values.
+    $mapping = array_map(function ($form_value) {
+      return $form_value['mapping'];
+    }, $form_state->getValue('mapping'));
+
     $this->config('marketo_ma_user.settings')
       ->set('events', array_filter($form_state->getValue('events')))
+      ->set('mapping', array_filter($mapping))
       ->set('enabled_activities', array_filter($form_state->getValue('enabled_activities')))
       ->save();
   }
@@ -192,6 +247,30 @@ class MarketoMaUserSettings extends ConfigFormBase {
 
     // Return the form element that will bre replaced in the wrapper element.
     return $form['user_settings_tab']['group_activities']['enabled_activities'];
+  }
+
+
+  /**
+   * Returns the available marketo field labels, keyed by machine name.
+   *
+   * @return string[]
+   */
+  protected function getMarketoFields() {
+    return array_map(function ($field) {
+      return $field instanceof MarketoFieldDefinition ? $field->getDisplayName() : '';
+    }, $this->mma_service->getEnabledFields());
+  }
+
+  /**
+   * Returns all available user form field labels, keyed by machine name.
+   *
+   * @return string[]
+   */
+  protected function getUserFields() {
+    $fields = $this->entity_field_manager->getFieldDefinitions('user', 'user');
+    return array_map(function (FieldDefinitionInterface $field_definition) {
+      return $field_definition->getLabel();
+    }, $fields);
   }
 
 }

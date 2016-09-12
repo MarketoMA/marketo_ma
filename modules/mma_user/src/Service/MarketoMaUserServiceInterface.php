@@ -7,6 +7,14 @@ use Drupal\user\UserInterface;
 interface MarketoMaUserServiceInterface {
 
   /**
+   * Gets the Marketo MA user config object.
+   *
+   * @return \Drupal\Core\Config\ImmutableConfig|null
+   *   The `marketo_ma_user.settings` config object.
+   */
+  public function config();
+
+  /**
    * Callback for `hook_user_login`.
    *
    * @param \Drupal\user\UserInterface $account
@@ -32,14 +40,6 @@ interface MarketoMaUserServiceInterface {
    * @return mixed
    */
   public function userUpdate(UserInterface $user);
-
-  /**
-   * Determines if the API client is configured and available.
-   *
-   * @return bool
-   *   Whether or not the API client can connect
-   */
-  public function apiClientCanConnect();
 
   /**
    * Get's activity types that are defined in marketo.

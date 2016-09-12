@@ -136,4 +136,11 @@ class TestMarketoMaApiClient implements MarketoMaApiClientInterface  {
     return [];
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function getActivityTypes() {
+    return [];
+  }
+
 }
