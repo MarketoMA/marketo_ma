@@ -16,8 +16,6 @@ Feature: Module setup
 
   @uninstall
   Scenario: Disable and uninstall all Marketo MA modules
-    Given I run drush "vset" "marketo_ma_bogus 'bogus'"
-
     Given I am logged in as an administrator
     And I go to "/admin/config/search/marketo_ma"
     And I fill in "marketo_ma_munchkin_account_id" with "bogus"
@@ -26,7 +24,7 @@ Feature: Module setup
     Then I should see "The configuration options have been saved."
 
     Given I uninstall all Marketo MA modules
-    And I run drush "vget" "marketo_ma --format=json"
-    Then drush output should contain '{"marketo_ma_bogus":"bogus"}'
+    And I run drush "vget" "--format=yaml"
+    Then drush output should not contain 'marketo_ma'
     When I run drush "sqlq" "'show tables'"
     Then drush output should not contain "marketo_ma"
