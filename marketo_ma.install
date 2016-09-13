@@ -5,209 +5,84 @@
  * Install hooks for Marketo MA module.
  */
 
-/**
- * Implements hook_schema().
- */
-function marketo_ma_schema() {
-  $schema['marketo_ma_lead_fields'] = array(
-    'description' => 'Marketo Lead Field Detail.',
-    'primary key' => array('id'),
-    'unique keys' => array(),
-    'fields' => array(
-      'id' => array(
-        'description' => 'Marketo identifier for field.',
-        'type' => 'int',
-        'unsigned' => TRUE,
-        'not null' => TRUE,
-      ),
-      'displayName' => array(
-        'description' => 'Lead field display name.',
-        'type' => 'varchar',
-        'length' => 128,
-        'not null' => TRUE,
-      ),
-      'dataType' => array(
-        'description' => 'Lead field data type.',
-        'type' => 'varchar',
-        'length' => 128,
-        'not null' => TRUE,
-      ),
-      'length' => array(
-        'description' => 'Lead field length.',
-        'type' => 'int',
-        'unsigned' => TRUE,
-      ),
-      'restName' => array(
-        'description' => 'Lead field key for REST API.',
-        'type' => 'varchar',
-        'length' => 128,
-      ),
-      'restReadOnly' => array(
-        'description' => 'TRUE (1) if REST field is read only.',
-        'type' => 'int',
-        'size' => 'small',
-        'unsigned' => TRUE,
-        'not null' => TRUE,
-        'default' => 0,
-      ),
-      'soapName' => array(
-        'description' => 'Lead field key for SOAP API.',
-        'type' => 'varchar',
-        'length' => 128,
-      ),
-      'soapReadOnly' => array(
-        'description' => 'TRUE (1) if SOAP field is read only.',
-        'type' => 'int',
-        'size' => 'small',
-        'unsigned' => TRUE,
-        'not null' => TRUE,
-        'default' => 0,
-      ),
-      'enabled' => array(
-        'description' => 'TRUE (1) if enabled in Marketo MA configuration.',
-        'type' => 'int',
-        'size' => 'small',
-        'unsigned' => TRUE,
-        'not null' => TRUE,
-        'default' => 0,
-      ),
-    ),
-  );
-  return $schema;
-}
+use Drupal\Core\Link;
 
 /**
- * Implements hook_uninstall().
+ * Implements hook_requirements().
+ *
+ * - Checks the ability to connect to the marketo REST API.
  */
-function marketo_ma_uninstall() {
-  variable_del('marketo_ma_instance_host');
-  variable_del('marketo_ma_logging');
-  variable_del('marketo_ma_munchkin_account_id');
-  variable_del('marketo_ma_munchkin_api_private_key');
-  variable_del('marketo_ma_munchkin_javascript_library');
-  variable_del('marketo_ma_munchkin_lead_source');
-  variable_del('marketo_ma_munchkin_partition');
-  variable_del('marketo_ma_munchkin_tracking_code_type');
-  variable_del('marketo_ma_pages');
-  variable_del('marketo_ma_roles');
-  variable_del('marketo_ma_soap_encryption_key');
-  variable_del('marketo_ma_soap_endpoint');
-  variable_del('marketo_ma_soap_proxy_host');
-  variable_del('marketo_ma_soap_proxy_login');
-  variable_del('marketo_ma_soap_proxy_password');
-  variable_del('marketo_ma_soap_proxy_port');
-  variable_del('marketo_ma_soap_user_id');
-  variable_del('marketo_ma_tabs__active_tab');
-  variable_del('marketo_ma_tracking_method');
-  variable_del('marketo_ma_user_fieldmap');
-  variable_del('marketo_ma_user_triggers');
-  variable_del('marketo_ma_visibility_pages');
-  variable_del('marketo_ma_visibility_roles');
-  variable_del('marketo_ma_webform_fields');
-  variable_del('marketo_ma_webform_fields_soap');
-}
+function marketo_ma_requirements($phase) {
 
-/**
- * Implements hook_disable().
- */
-function marketo_ma_disable() {
-  $queue = DrupalQueue::get('marketo_ma_lead', TRUE);
-  $queue->deleteQueue();
-}
+  if ($phase == 'runtime') {
 
-/**
- * Adds table for Marketo lead field definitions, populates via API call, and enables fields set in marketo_ma_webform_fields if available.
- */
-function marketo_ma_update_7200(&$sandbox) {
-  $message = '';
-  $tablename = 'marketo_ma_lead_fields';
-  $table = array(
-    'description' => 'Marketo Lead Field Detail.',
-    'primary key' => array('id'),
-    'unique keys' => array(),
-    'fields' => array(
-      'id' => array(
-        'description' => 'Marketo identifier for field.',
-        'type' => 'int',
-        'unsigned' => TRUE,
-        'not null' => TRUE,
-      ),
-      'displayName' => array(
-        'description' => 'Lead field display name.',
-        'type' => 'varchar',
-        'length' => 128,
-        'not null' => TRUE,
-      ),
-      'dataType' => array(
-        'description' => 'Lead field data type.',
-        'type' => 'varchar',
-        'length' => 128,
-        'not null' => TRUE,
-      ),
-      'length' => array(
-        'description' => 'Lead field length.',
-        'type' => 'int',
-        'unsigned' => TRUE,
-      ),
-      'restName' => array(
-        'description' => 'Lead field key for REST API.',
-        'type' => 'varchar',
-        'length' => 128,
-      ),
-      'restReadOnly' => array(
-        'description' => 'TRUE (1) if REST field is read only.',
-        'type' => 'int',
-        'size' => 'small',
-        'unsigned' => TRUE,
-        'not null' => TRUE,
-        'default' => 0,
-      ),
-      'soapName' => array(
-        'description' => 'Lead field key for SOAP API.',
-        'type' => 'varchar',
-        'length' => 128,
-      ),
-      'soapReadOnly' => array(
-        'description' => 'TRUE (1) if SOAP field is read only.',
-        'type' => 'int',
-        'size' => 'small',
-        'unsigned' => TRUE,
-        'not null' => TRUE,
-        'default' => 0,
-      ),
-      'enabled' => array(
-        'description' => 'TRUE (1) if enabled in Marketo MA configuration.',
-        'type' => 'int',
-        'size' => 'small',
-        'unsigned' => TRUE,
-        'not null' => TRUE,
-        'default' => 0,
-      ),
-    ),
-  );
-  db_create_table($tablename, $table);
-  $message .= t('Table [!tablename] created.', array('!tablename' => $tablename));
+    // Get the Marketo settings.
+    $config = \Drupal::config('marketo_ma.settings');
 
-  // Switch tracking method to Munchkin if currently using SOAP.
-  $tracking_default = 'munchkin';
-  $track = variable_get('marketo_ma_tracking_method');
-  if ($track == 'soap' || $track == 'soap_async') {
-    variable_set('marketo_ma_tracking_method', $tracking_default);
-    $message .= t('Tracking method has been changed from [!track] to [!tracking_default].', array('!track' => $track, '!tracking_default' => $tracking_default));
-    $message .= t('Tracking options can be configured at !url.', array('!url' => '/admin/config/search/marketo_ma'));
+    // Run Marketo REST tests.
+    if ($config->get('tracking_method') == 'api_client') {
+
+      /** @var \Drupal\marketo_ma\Service\MarketoMaApiClientInterface $marketo_client */
+      $marketo_client = \Drupal::service('marketo_ma.api_client');
+
+      if (!class_exists('\CSD\Marketo\Client')) {
+        // The composer library is missing.
+        return [
+          'marketo_ma_rest_api_client' => [
+            'description' => t("The Marketo REST api client is required for the Marketo MA module. Please read the module's readme for installation instructions."),
+            'title' => t('Marketo REST client'),
+            'severity' => REQUIREMENT_ERROR,
+            'value' => t('Not found'),
+          ],
+        ];
+      }
+      elseif (!$marketo_client->canConnect()) {
+        // Some required configuration is missing for the Marketo API.
+        return [
+          'marketo_ma_rest_configuration' => [
+            'description' => t('The Marketo REST API was chosen for connection method but some !link seems to be missing.', [
+              '!link' => Link::createFromRoute('configuration', 'marketo_ma.settings')->toString(),
+            ]),
+            'title' => t('Marketo MA configuration.'),
+            'severity' => REQUIREMENT_ERROR,
+            'value' => t('Configuration incomplete.'),
+          ],
+        ];
+      }
+      else {
+        // Get available lead fields from marketo.
+        // @todo: Consider moving this check to the configuration form.
+        try {
+          $fields = $marketo_client->getFields();
+        }
+        catch (\Exception $e) {
+          return [
+            'marketo_ma_rest_connection' => [
+              'description' => t('There was an error connecting to the Marketo REST API. check your api credentials on the !link page: %message', [
+                '%message' => $e->getMessage(),
+                '!link' => Link::createFromRoute('Marketo MA configuration', 'marketo_ma.settings')->toString(),
+              ]),
+              'title' => t('Marketo REST Connection'),
+              'severity' => REQUIREMENT_ERROR,
+              'value' => t('Connection Error'),
+            ],
+          ];
+        }
+        if (!isset($fields)) {
+          // Unable to get a valid response from Marketo for some reason.
+          return [
+            'marketo_ma_rest_connection' => [
+              'description' => t('There was an error connecting to the Marketo REST API. Check your api credentials on the !link page.', [
+                '!link' => Link::createFromRoute('Marketo MA configuration', 'marketo_ma.settings')->toString(),
+              ]),
+              'title' => t('Marketo REST Connection'),
+              'severity' => REQUIREMENT_ERROR,
+              'value' => t('Connection Error'),
+            ],
+          ];
+        }
+      }
+    }
   }
-
-  // Remove SOAP variable which are no longer relevant
-  variable_del('marketo_ma_soap_encryption_key');
-  variable_del('marketo_ma_soap_endpoint');
-  variable_del('marketo_ma_soap_proxy_host');
-  variable_del('marketo_ma_soap_proxy_login');
-  variable_del('marketo_ma_soap_proxy_password');
-  variable_del('marketo_ma_soap_proxy_port');
-  variable_del('marketo_ma_soap_user_id');
-  variable_del('marketo_ma_webform_fields_soap');
-  $message .= t('SOAP configuration options have been removed as they are no longer used.');
-
-
-  return $message;
+  return [];
 }

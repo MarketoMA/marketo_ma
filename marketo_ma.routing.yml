@@ -1,0 +1,10 @@
+
+marketo_ma.settings:
+  path: 'admin/config/services/marketo-ma'
+  defaults:
+    _form: '\Drupal\marketo_ma\Form\MarketoMASettings'
+    _title: 'Marketo MA configuration'
+  requirements:
+    _permission: 'administer marketo'
+  options:
+    _admin_route: TRUE

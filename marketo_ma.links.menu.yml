@@ -1,0 +1,6 @@
+marketo_ma.settings:
+  title: 'Marketo MA'
+  route_name: marketo_ma.settings
+  description: 'Marketo MA configuration.'
+  parent: system.admin_config_services
+  weight: 99

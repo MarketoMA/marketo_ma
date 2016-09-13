@@ -1,0 +1,65 @@
+# Schema for the marketo_ma.settigns configuration.
+marketo_ma.settings:
+  type: config_object
+  label: 'Marketo MA configuration'
+  mapping:
+    instance_host:
+      type: string
+      label: 'Marketo Instance Host'
+    logging:
+      type: integer
+    tracking_method:
+      type: string
+    munchkin:
+      type: config_object
+      label: 'Munchkin Javascript API'
+      mapping:
+        javascript_library:
+          type: string
+        api_private_key:
+          type: string
+        partition:
+          type: string
+        lead_source:
+          type: string
+        account_id:
+          type: string
+    rest:
+      type: config_object
+      label: 'REST API config'
+      mapping:
+        batch_requests:
+          type: integer
+        client_id:
+          type: string
+        client_secret:
+          type: string
+    field:
+      type: config_object
+      label: 'Field Definition config'
+      mapping:
+        enabled_fields:
+          type: sequence
+          label: 'Enabled marketo fields'
+          sequence:
+            type: integer
+            label: 'Marketo field ID'
+    tracking:
+      type: config_object
+      label: 'Field Definition config'
+      mapping:
+        request_path:
+          type: config_object
+          mapping:
+            negate:
+              type: integer
+              label: 'Negate page paths'
+            pages:
+              type: string
+              label: 'Pages'
+        roles:
+          type: sequence
+          label: 'Roles'
+          sequence:
+            type: string
+            label: 'Role ID'

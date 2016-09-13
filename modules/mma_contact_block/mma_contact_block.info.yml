@@ -1,0 +1,8 @@
+name: Marketo MA Contact Block
+type: module
+description: Provides a contact block with additional fields for marketo mapping.
+core: 8.x
+package: Marketo
+dependencies:
+  - mma_contact
+  - contact_block

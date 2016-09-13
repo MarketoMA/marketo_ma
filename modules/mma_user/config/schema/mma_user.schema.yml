@@ -1,0 +1,20 @@
+marketo_ma_user.settings:
+  type: config_object
+  label: 'Marketo MA User settings'
+  mapping:
+    events:
+      label: 'Trigger a lead update on these events'
+      type: sequence
+      sequence:
+        label: 'User event'
+        type: string
+    mapping:
+      label: 'User fields to marketo fields mapping'
+      type: sequence
+      sequence:
+        type: string
+    enabled_activities:
+      label: 'Enabled activity ids.'
+      type: sequence
+      sequence:
+        type: integer

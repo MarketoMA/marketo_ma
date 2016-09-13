@@ -4,20 +4,25 @@ This module adds Marketo tracking capability to your Drupal site.
 
 ## Requirements
 
-- Drupal 7.x
-- An active Marketo account http://www.marketo.com/
+- Drupal 8.x
+- Composer <https://getcomposer.org/>
+- An active Marketo account <http://www.marketo.com/>
 
 ## Installation
 
-1. Copy the entire marketo_ma directory the Drupal sites/all/modules directory.
+1. Copy the entire `marketo_ma` directory the Drupal `modules` directory. You
+   can optionally user drush to download with `drush dl marketo_ma`.
 
-2. Login as an administrator. Enable the Marketo MA module in
+2. Add the SOAP API library to drupal using `composer require
+   dchesterton/marketo-rest-api:dev-master`.
+
+3. Login as an administrator. Enable the Marketo MA module in
    "Administer" -> "Modules"
 
-3. (Optional) Enable the Marketo MA User module in
+4. (Optional) Enable the Marketo MA User module in
    "Administer" -> "Modules"
 
-4. (Optional) Enable the Marketo MA Webform module in
+5. (Optional) Enable the Marketo MA Webform module in
    "Administer" -> "Modules"
 
 
@@ -103,7 +108,7 @@ and [Export a List of All Marketo API Field Names](http://community.marketo.com/
 **Marketo Fields**
 This section should contain a pipe "|" delimited list of the fields in the format
 "[Field API Name]|[Friendly Label]". Example:
-    
+
     FirstName|First Name
     LastName|Last Name
     Email|Email Address
@@ -176,13 +181,13 @@ attached to it and provides an overview of each item's current state.
 
 - **Title**
   The title of the webform.
-  
+
 - **Tracking Enabled**
   A Yes/No value indicating if tracking is currently enabled for this webform.
-  
+
 - **Components Mapped**
   The number of form components that have been mapped to a Marketo field.
-  
+
 - **Manage**
   A direct link to the Marketo component mapping page for this webform.
 

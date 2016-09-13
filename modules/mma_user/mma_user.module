@@ -1,0 +1,60 @@
+<?php
+
+/**
+ * @file
+ *   Contains mma_user.module..
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_help().
+ */
+function mma_user_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    // Main module help for the mma_user module.
+    case 'help.page.mma_user':
+      return t('<h3>:title</h3><p>:description</p>', [
+        ':title' => 'About',
+        ':description' => 'Integrates Marketo with core User actions.',
+      ]);
+
+    default:
+  }
+}
+
+
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function mma_user_form_marketo_ma_settings_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+  /** @var \Drupal\mma_user\Form\MarketoMaUserSettings $user_settings_form_class */
+  $user_settings_form_class = \Drupal::service('class_resolver')->getInstanceFromDefinition(Drupal\mma_user\Form\MarketoMaUserSettings::class);
+  // Get the marketo user settings form additions.
+  $form = $user_settings_form_class->buildForm($form, $form_state);
+}
+
+/**
+ * Implements hook_user_login().
+ */
+function mma_user_user_login($account) {
+  // Hand off to the marketo_ma.user service.
+  \Drupal::service('marketo_ma.user')->userLogin($account);
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_create().
+ */
+function mma_user_user_create(\Drupal\Core\Entity\EntityInterface $entity) {
+  // Hand off to the marketo_ma.user service.
+  \Drupal::service('marketo_ma.user')->userCreate($entity);
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_update().
+ */
+function mma_user_user_update(Drupal\Core\Entity\EntityInterface $entity) {
+  // Hand off to the marketo_ma.user service.
+  \Drupal::service('marketo_ma.user')->userUpdate($entity);
+}

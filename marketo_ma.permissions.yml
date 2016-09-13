@@ -1,0 +1,5 @@
+
+administer marketo:
+  title: 'Administer Marketo MA'
+  description: 'Configure Marketo settings such as page visibility, Munchkin keys, and SOAP API endpoint.'
+  restrict access: true

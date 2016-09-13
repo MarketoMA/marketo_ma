@@ -1,0 +1,5 @@
+name: mma_contact_test
+type: module
+core: 8.x
+dependencies:
+  - mma_contact
