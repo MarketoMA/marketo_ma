@@ -1,7 +1,7 @@
 Marketo MA Changelog
 ---------------------
 
-Marketo MA 7.x-1.x, 2016-08-13
+Marketo MA 7.x-1.x, 2016-09-12
 ------------------------------
 - drush mma-fields now requires drush 6 or higher and allows display of
   additional field attributes. See 'drush help mma-fields'.
@@ -12,6 +12,7 @@ Marketo MA 7.x-1.x, 2016-08-13
 - #2507733: User Integration now allow mapping core user object fields.
 - #2567255: Resolved undefined property error when saving user object.
 - #2765039: Ensure Marketo javascript is only loaded once.
+- Updated test suite to follow drupal_ti
 
 Marketo MA 7.x-1.5, 2014-08-20
 ------------------------------

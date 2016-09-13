@@ -12,7 +12,7 @@ default:
                 marketo_ma_soap_endpoint: change_me_to_a_live_value
                 marketo_ma_soap_user_id: change_me_to_a_live_value
                 marketo_ma_tracking_method: soap
-              
+
               marketo_test_settings:
                 marketo_ma_instance_host: app-sjqe.marketo.com
                 marketo_ma_munchkin_account_id: 000-AAA-000
@@ -35,7 +35,7 @@ default:
                   picture: none
                   init: none
                   data: none
-                
+
               marketo_default_settings:
                 marketo_ma_instance_host: ''
                 marketo_ma_logging: 0
@@ -99,16 +99,23 @@ default:
         - Drupal\DrupalExtension\Context\DrushContext
   extensions:
     Behat\MinkExtension:
+      base_url: "$DRUPAL_TI_WEBSERVER_URL:$DRUPAL_TI_WEBSERVER_PORT/"
       goutte: ~
-      selenium2: ~
-      base_url: http://localhost
+      selenium2:
+        capabilities:
+          browser: "$DRUPAL_TI_BEHAT_BROWSER"
+          browserVersion: ANY
+          version: ANY
+          deviceType: ANY
+      browser_name: "$DRUPAL_TI_BEHAT_BROWSER"
     Drupal\DrupalExtension:
       blackbox: ~
-      api_driver: 'drupal'
-      drush:
-        root: '/var/www'
+      api_driver: "drupal"
+      drush_driver: "drush"
       drupal:
-        drupal_root: '/var/www'
+        drupal_root: "$DRUPAL_TI_DRUPAL_DIR"
+      drush:
+        root: "$DRUPAL_TI_DRUPAL_DIR"
       region_map:
         primary tabs: "ul.tabs.primary"
         secondary tabs: "ul.tabs.secondary"
