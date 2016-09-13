@@ -58,7 +58,7 @@ class ActivityType {
    *   The name of the primary attributes.
    */
   public function getPrimaryAttributeName() {
-    return $this->definition['primaryAttribute']['name'];
+    return isset($this->definition['primaryAttribute']['name']) ? $this->definition['primaryAttribute']['name'] : NULL;
   }
 
 

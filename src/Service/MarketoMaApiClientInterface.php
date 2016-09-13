@@ -68,8 +68,10 @@ interface MarketoMaApiClientInterface {
    *
    * @param \Drupal\marketo_ma\Lead
    *   The lead.
+   * @param array
+   *   Activity type ids to be viewed.
    */
-  public function getLeadActivity(Lead $lead);
+  public function getLeadActivity(Lead $lead, $activity_type_ids = []);
 
   /**
    * Inserts or updates a lead.

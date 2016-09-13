@@ -2,31 +2,13 @@
 
 namespace Drupal\Tests\marketo_ma\Kernel;
 
-use Drupal\KernelTests\KernelTestBase;
 use Drupal\marketo_ma\Lead;
-use \Drupal\marketo_ma\Service\MarketoMaApiClientInterface;
-use Drupal\Core\Site\Settings;
+use Drupal\marketo_ma\Service\MarketoMaApiClientInterface;
 
 /**
  * @group marketo_ma
  */
-class MarketoMaApiClientTest extends KernelTestBase {
-
-  /**
-   * @var \Drupal\marketo_ma\Service\MarketoMaApiClientInterface The marketo_ma client service.
-   */
-  protected $api_client;
-
-  protected $test_lead_email;
-
-  /**
-   * {@inheritdoc}
-   */
-  public static $modules = [
-    'user',
-    'encryption',
-    'marketo_ma',
-  ];
+class MarketoMaApiClientTest extends MarketoMaKernelTestBase {
 
   /**
    * {@inheritdoc}
@@ -34,34 +16,11 @@ class MarketoMaApiClientTest extends KernelTestBase {
   public function setUp() {
     parent::setUp();
 
-    // Install config for this module.
-    $this->installConfig('marketo_ma');
-
-    // Get the settings object.
-    $settings = Settings::getAll();
-    // Add a randomly generated encryption key.
-    new Settings($settings + ['encryption_key' => base64_encode(random_bytes(32))]);
-
-    // Get the encryption service.
-    $encryption_service = \Drupal::service('encryption');
-
-    // Get the API settings.
-    $config = \Drupal::configFactory()->getEditable('marketo_ma.settings');
-
     // Set up required settings.
-    $config->set('tracking_method', 'api_client')
-      ->set('munchkin.account_id', $encryption_service->encrypt(getenv('marketo_ma_munchkin_account_id')))
-      ->set('rest.client_id', $encryption_service->encrypt(getenv('marketo_ma_rest_client_id')))
-      ->set('rest.client_secret', $encryption_service->encrypt(getenv('marketo_ma_rest_client_secret')))
+    $this->config
+      ->set('tracking_method', 'api_client')
       ->save();
-
-    // Get the API client service.
-    $this->api_client = \Drupal::service('marketo_ma.api_client');
-
-    // Set the test lead ID.
-    $this->test_lead_email = 'test_lead-'.$this->randomMachineName().'@marketo.com';
   }
-
 
   /**
    * Tests the marketo_ma service.

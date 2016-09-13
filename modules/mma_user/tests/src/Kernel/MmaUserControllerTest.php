@@ -8,10 +8,11 @@ use Drupal\user\Entity\User;
 /**
  * @group mma_user
  */
-class MmaUserControllerTest extends MmaUserTestBase {
+class MmaUserControllerKernelTest extends MmaUserKernelTestBase {
 
   public function testLeadController() {
 
+    // @todo: Add tests for the two controller callbacks.
     // Get the controller.
     $controller = MmaUserLeadDataController::create($this->container);
 
@@ -23,6 +24,7 @@ class MmaUserControllerTest extends MmaUserTestBase {
       'email' => $account_email,
       'name' => $account_name,
     ]);
+
     // Get the page title.
     $title = (string) $controller->viewLeadTitle($user);
     // Build the output.

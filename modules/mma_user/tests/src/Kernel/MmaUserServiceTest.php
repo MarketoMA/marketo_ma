@@ -8,7 +8,7 @@ use Drupal\mma_user\Service\MarketoMaUserServiceInterface;
  * @coversDefaultClass \Drupal\mma_user\Service\MarketoMaUserService
  * @group mma_user
  */
-class MmaUserServiceTest extends MmaUserTestBase {
+class MmaUserServiceKernelTest extends MmaUserKernelTestBase {
 
   public function testLeadController() {
 

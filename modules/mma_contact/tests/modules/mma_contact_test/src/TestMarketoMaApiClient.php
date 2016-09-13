@@ -111,7 +111,7 @@ class TestMarketoMaApiClient implements MarketoMaApiClientInterface  {
   /**
    * {@inheritdoc}
    */
-  public function getLeadActivity(Lead $lead) {
+  public function getLeadActivity(Lead $lead, $activity_type_ids = []) {
     return [];
   }
 

@@ -122,16 +122,8 @@ class MarketoMaApiClient implements MarketoMaApiClientInterface {
   /**
    * {@inheritdoc}
    */
-  public function getLeadActivity(Lead $lead) {
-    /**
-     * @todo: Use configuration form to manage the default activity types.
-     *
-     * The other option is to get all activity type ids, and request activity in
-     * groups of 10 ids and aggregate the results.
-     */
-    // Use ids for common activities (max 10 activity ids pre request).
-    $activity_type_ids = '1,2,3';
-
+  public function getLeadActivity(Lead $lead, $activity_type_ids = []) {
+    // @todo: split activity_type_ids into groups of 10 and concatenate results.
     // A paging token is required by the activities.json call.
     $paging_token = $this->getClient()->getPagingToken(date('c'))->getNextPageToken();
     // Calls get lead activities on the API client.
