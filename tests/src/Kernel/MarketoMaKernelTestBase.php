@@ -12,7 +12,16 @@ use Drupal\marketo_ma\Service\MarketoMaServiceInterface;
 abstract class MarketoMaKernelTestBase extends KernelTestBase {
 
   /**
-   * @var \Drupal\marketo_ma\Service\MarketoMaApiClientInterface The marketo_ma client service.
+   * The marketo_ma service.
+   *
+   * @var \Drupal\marketo_ma\Service\MarketoMaServiceInterface
+   */
+  protected $service;
+
+  /**
+   * The marketo_ma rest client service.
+   *
+   * @var \Drupal\marketo_ma\Service\MarketoMaApiClientInterface
    */
   protected $api_client;
 
@@ -61,6 +70,8 @@ abstract class MarketoMaKernelTestBase extends KernelTestBase {
 
     // Get the API client service.
     $this->api_client = \Drupal::service('marketo_ma.api_client');
+    // Get the marketo_ma service.
+    $this->service = \Drupal::service('marketo_ma');
 
     // Set the test lead ID.
     $this->test_lead_email = 'test_lead-'.$this->randomMachineName().'@marketo.com';
