@@ -162,7 +162,7 @@ class MarketoMaUserSettings extends ConfigFormBase {
     $options = $this->mma_user_service->getActivitiesAsTableSelectOptions();
 
     // Only show the enabled options unless retrieving from marketo.
-    if (!($trigger = $form_state->getTriggeringElement()) || end($trigger['#parents']) !== 'activity_api_retrieve_fields') {
+    if (!($trigger = $form_state->getTriggeringElement()) || end($trigger['#parents']) !== 'activity_api_retrieve_activities') {
       $options = array_intersect_key($options, $config->get('enabled_activities'));
     }
     $form['user_settings_tab']['group_activities']['enabled_activities'] = [
@@ -181,9 +181,9 @@ class MarketoMaUserSettings extends ConfigFormBase {
       '#default_value' => $config->get('enabled_activities'),
     ];
     // Add the ajax button that get's fields from the marketo API.
-    $form['user_settings_tab']['group_activities']['activity_api_retrieve_fields'] = [
+    $form['user_settings_tab']['group_activities']['activity_api_retrieve_activities'] = [
       '#type' => 'button',
-      '#value' => $this->t('Retrieve from Marketo'),
+      '#value' => $this->t('Fetch from Marketo'),
       '#disabled' => !$this->mma_service->apiClientCanConnect(),
       '#ajax' => [
         'callback' => [$this, 'retrieveApiActivities'],
