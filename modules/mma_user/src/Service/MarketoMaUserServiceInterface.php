@@ -6,11 +6,14 @@ use Drupal\user\UserInterface;
 
 interface MarketoMaUserServiceInterface {
 
+  /** The Marketo MA User module config name. */
+  const MMA_USER_CONFIG_NAME = 'mma_user.settings';
+
   /**
    * Gets the Marketo MA user config object.
    *
    * @return \Drupal\Core\Config\ImmutableConfig|null
-   *   The `marketo_ma_user.settings` config object.
+   *   The `mma_user.settings` config object.
    */
   public function config();
 

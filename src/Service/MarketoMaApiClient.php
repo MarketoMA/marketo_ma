@@ -61,7 +61,7 @@ class MarketoMaApiClient implements MarketoMaApiClientInterface {
    * @return \Drupal\Core\Config\ImmutableConfig
    */
   protected function config() {
-    return $this->configFactory->get('marketo_ma.settings');
+    return $this->configFactory->get(MarketoMaServiceInterface::MARKETO_MA_CONFIG_NAME);
   }
 
   /**

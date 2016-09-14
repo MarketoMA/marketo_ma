@@ -16,8 +16,10 @@ function marketo_ma_requirements($phase) {
 
   if ($phase == 'runtime') {
 
+    $config_name = \Drupal\marketo_ma\Service\MarketoMaServiceInterface::MARKETO_MA_CONFIG_NAME;
+
     // Get the Marketo settings.
-    $config = \Drupal::config('marketo_ma.settings');
+    $config = \Drupal::config($config_name);
 
     // Run Marketo REST tests.
     if ($config->get('tracking_method') == 'api_client') {

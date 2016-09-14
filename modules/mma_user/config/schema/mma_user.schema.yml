@@ -1,4 +1,4 @@
-marketo_ma_user.settings:
+mma_user.settings:
   type: config_object
   label: 'Marketo MA User settings'
   mapping:

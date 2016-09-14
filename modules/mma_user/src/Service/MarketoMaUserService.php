@@ -68,7 +68,7 @@ class MarketoMaUserService implements MarketoMaUserServiceInterface {
     static $config = NULL;
     // Load config if not already loaded.
     if (empty($config)) {
-      $config = $this->config_factory->get('marketo_ma_user.settings');
+      $config = $this->config_factory->get(MarketoMaUserServiceInterface::MMA_USER_CONFIG_NAME);
     }
 
     return $config;

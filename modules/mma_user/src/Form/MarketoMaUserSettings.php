@@ -57,6 +57,9 @@ class MarketoMaUserSettings extends ConfigFormBase {
     $this->mma_service = $mma_service;
     $this->mma_user_service = $mma_user_service;
     $this->entity_field_manager = $entity_field_manager;
+
+    // Set the one and only config item name.
+    $this->config_name = MarketoMaUserServiceInterface::MMA_USER_CONFIG_NAME;
   }
 
   /**
@@ -75,16 +78,14 @@ class MarketoMaUserSettings extends ConfigFormBase {
    * {@inheritdoc}
    */
   protected function getEditableConfigNames() {
-    return [
-      'marketo_ma_user.settings',
-    ];
+    return [MarketoMaUserServiceInterface::MMA_USER_CONFIG_NAME];
   }
 
   /**
    * {@inheritdoc}
    */
   public function getFormId() {
-    return 'marketo_ma_user_settings';
+    return 'mma_user_settings';
   }
 
   /**
@@ -95,7 +96,7 @@ class MarketoMaUserSettings extends ConfigFormBase {
     $form = parent::buildForm($form, $form_state);
 
     // Get the configuration.
-    $config = $this->config('marketo_ma_user.settings');
+    $config = $this->config(MarketoMaUserServiceInterface::MMA_USER_CONFIG_NAME);
 
     //<editor-fold desc="Form layout structure">
     $form['user_settings_tab'] = [
@@ -221,7 +222,7 @@ class MarketoMaUserSettings extends ConfigFormBase {
       return $form_value['mapping'];
     }, $form_state->getValue('mapping'));
 
-    $this->config('marketo_ma_user.settings')
+    $this->config(MarketoMaUserServiceInterface::MMA_USER_CONFIG_NAME)
       ->set('events', array_filter($form_state->getValue('events')))
       ->set('mapping', array_filter($mapping))
       ->set('enabled_activities', array_filter($form_state->getValue('enabled_activities')))

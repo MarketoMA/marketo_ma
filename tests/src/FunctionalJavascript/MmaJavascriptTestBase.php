@@ -3,6 +3,7 @@
 namespace Drupal\Tests\marketo_ma\FunctionalJavascript;
 
 use Drupal\FunctionalJavascriptTests\JavascriptTestBase;
+use Drupal\marketo_ma\Service\MarketoMaServiceInterface;
 
 /**
  * Base for Marketo MA functional javascript tests.
@@ -57,7 +58,7 @@ abstract class MmaJavascriptTestBase extends JavascriptTestBase {
     $encryption_service = \Drupal::service('encryption');
 
     // Get the API settings.
-    $this->config = \Drupal::configFactory()->getEditable('marketo_ma.settings');
+    $this->config = \Drupal::configFactory()->getEditable(MarketoMaServiceInterface::MARKETO_MA_CONFIG_NAME);
 
     // Set up required settings.
     $this->config

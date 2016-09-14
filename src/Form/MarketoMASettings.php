@@ -54,9 +54,7 @@ class MarketoMASettings extends ConfigFormBase {
    * {@inheritdoc}
    */
   protected function getEditableConfigNames() {
-    return [
-      'marketo_ma.settings',
-    ];
+    return [MarketoMaServiceInterface::MARKETO_MA_CONFIG_NAME];
   }
 
   /**
@@ -74,7 +72,7 @@ class MarketoMASettings extends ConfigFormBase {
     $form = parent::buildForm($form, $form_state);
 
     // Get the configuration.
-    $config = $this->config('marketo_ma.settings');
+    $config = $this->config(MarketoMaServiceInterface::MARKETO_MA_CONFIG_NAME);
 
     //<editor-fold desc="Form layout structure">
     $form['marketo_ma_basic'] = [
@@ -338,7 +336,7 @@ class MarketoMASettings extends ConfigFormBase {
   public function submitForm(array &$form, FormStateInterface $form_state) {
     parent::submitForm($form, $form_state);
 
-    $this->config('marketo_ma.settings')
+    $this->config(MarketoMaServiceInterface::MARKETO_MA_CONFIG_NAME)
       ->set('tracking_method', $form_state->getValue('tracking_method'))
       ->set('instance_host', $form_state->getValue('instance_host'))
       ->set('logging', $form_state->getValue('logging'))

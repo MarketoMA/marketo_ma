@@ -13,8 +13,16 @@ namespace Drupal\marketo_ma\Service;
  */
 interface MarketoMaServiceInterface {
 
+  /**
+   * Tracking method IDs.
+   */
   const TRACKING_METHOD_API = 'api_client';
   const TRACKING_METHOD_MUNCHKIN = 'munchkin';
+
+  /**
+   * The Marketo MA config name.
+   */
+  const MARKETO_MA_CONFIG_NAME = 'marketo_ma.settings';
 
   /**
    * Gets the marketo_ma config.

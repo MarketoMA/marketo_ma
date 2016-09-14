@@ -4,6 +4,7 @@ namespace Drupal\Tests\mma_contact\Kernel;
 
 use Drupal\contact\Entity\ContactForm;
 use Drupal\KernelTests\KernelTestBase;
+use Drupal\marketo_ma\Service\MarketoMaServiceInterface;
 
 abstract class MmaContactTestBase extends KernelTestBase {
 
@@ -17,7 +18,7 @@ abstract class MmaContactTestBase extends KernelTestBase {
 
     $this->installConfig('marketo_ma');
     // Enable some mappable fields.
-    \Drupal::configFactory()->getEditable('marketo_ma.settings')
+    \Drupal::configFactory()->getEditable(MarketoMaServiceInterface::MARKETO_MA_CONFIG_NAME)
       ->set('field.enabled_fields', [1=>1, 2=>2, 3=>3])
       ->save();
 

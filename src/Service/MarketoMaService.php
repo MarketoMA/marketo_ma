@@ -167,7 +167,7 @@ class MarketoMaService implements MarketoMaServiceInterface {
     static $config = NULL;
     // Load config if not already loaded.
     if (empty($config)) {
-      $config = $this->config_factory->get('marketo_ma.settings');
+      $config = $this->config_factory->get(MarketoMaServiceInterface::MARKETO_MA_CONFIG_NAME);
     }
 
     return $config;

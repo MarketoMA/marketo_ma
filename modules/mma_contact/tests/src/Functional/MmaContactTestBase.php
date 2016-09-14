@@ -3,6 +3,7 @@
 namespace Drupal\Tests\mma_contact\Functional;
 
 use Drupal\contact\Entity\ContactForm;
+use Drupal\marketo_ma\Service\MarketoMaServiceInterface;
 use Drupal\Tests\BrowserTestBase;
 
 abstract class MmaContactTestBase extends BrowserTestBase {
@@ -19,7 +20,7 @@ abstract class MmaContactTestBase extends BrowserTestBase {
     parent::setUp();
 
     // Enable some mappable fields.
-    \Drupal::configFactory()->getEditable('marketo_ma.settings')
+    \Drupal::configFactory()->getEditable(MarketoMaServiceInterface::MARKETO_MA_CONFIG_NAME)
       ->set('field.enabled_fields', [1=>1, 2=>2, 3=>3, 4=>4])
       ->save();
 

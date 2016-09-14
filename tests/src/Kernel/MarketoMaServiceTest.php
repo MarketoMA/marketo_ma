@@ -54,7 +54,7 @@ class MarketoMaServiceTest extends KernelTestBase {
     $encryption_service = \Drupal::service('encryption');
 
     // Get the API settings.
-    $config = \Drupal::configFactory()->getEditable('marketo_ma.settings');
+    $config = \Drupal::configFactory()->getEditable(MarketoMaServiceInterface::MARKETO_MA_CONFIG_NAME);
 
     // Set up required settings.
     $config->set('tracking_method', 'api_client')
@@ -82,7 +82,7 @@ class MarketoMaServiceTest extends KernelTestBase {
    */
   public function testBatchSync() {
     // Get the API settings.
-    $config = \Drupal::configFactory()->getEditable('marketo_ma.settings');
+    $config = \Drupal::configFactory()->getEditable(MarketoMaServiceInterface::MARKETO_MA_CONFIG_NAME);
 
     // Set up required settings.
     $config->set('rest.batch_requests', 1)

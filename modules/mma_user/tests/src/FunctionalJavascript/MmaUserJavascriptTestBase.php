@@ -2,6 +2,7 @@
 
 namespace Drupal\Tests\mma_user\FunctionalJavascript;
 
+use Drupal\mma_user\Service\MarketoMaUserServiceInterface;
 use Drupal\Tests\marketo_ma\FunctionalJavascript\MmaJavascriptTestBase;
 
 /**
@@ -34,7 +35,7 @@ abstract class MmaUserJavascriptTestBase extends MmaJavascriptTestBase {
   public function setUp() {
     parent::setUp();
 
-    $this->mma_user_config = \Drupal::configFactory()->getEditable('marketo_ma_user.settings');
+    $this->mma_user_config = \Drupal::configFactory()->getEditable(MarketoMaUserServiceInterface::MMA_USER_CONFIG_NAME);
 
     $all_fields = $this->client->getFields();
 

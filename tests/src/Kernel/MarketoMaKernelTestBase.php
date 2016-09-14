@@ -4,6 +4,7 @@ namespace Drupal\Tests\marketo_ma\Kernel;
 
 use Drupal\KernelTests\KernelTestBase;
 use Drupal\Core\Site\Settings;
+use Drupal\marketo_ma\Service\MarketoMaServiceInterface;
 
 /**
  * @group marketo_ma
@@ -47,7 +48,7 @@ abstract class MarketoMaKernelTestBase extends KernelTestBase {
     $encryption_service = \Drupal::service('encryption');
 
     // Get the API settings.
-    $this->config = \Drupal::configFactory()->getEditable('marketo_ma.settings');
+    $this->config = \Drupal::configFactory()->getEditable(MarketoMaServiceInterface::MARKETO_MA_CONFIG_NAME);
 
     // Set up required settings.
     $this->config
