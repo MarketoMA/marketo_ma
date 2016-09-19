@@ -32,9 +32,7 @@ Feature: Module configuration
 
     When I am logged in as an administrator
     And I go to "/admin/config/search/marketo_ma"
-    And I break
     And I click "Advanced Initialization Parameters"
-    And I break
     And I fill in "marketo_ma_munchkin_partition" with "100"
     And I fill in "marketo_ma_munchkin_altIds" with "AAA-AAA-AAA, BBB-BBB-BBB"
     And I fill in "marketo_ma_munchkin_cookieLifeDays" with "200"
