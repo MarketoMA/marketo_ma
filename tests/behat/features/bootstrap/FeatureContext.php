@@ -350,6 +350,17 @@ class FeatureContext extends RawDrupalContext implements SnippetAcceptingContext
   }
 
   /**
+   * @Then Munchkin init parameter :param should be :value
+   */
+  public function assertMunchkinInitParameter($param, $value) {
+    $result = $this->getSession()->evaluateScript("return Drupal.settings.marketo_ma.$param == $value");
+    if (!$result) {
+      $message = sprintf('Field "Drupal.settings.marketo_ma.%s" is not equal to "%s"', $param, $value);
+      throw new \Exception($message);
+    }
+  }
+
+  /**
    * @Given I evaluate script:
    */
   public function iEvaluateScript(PyStringNode $script) {
