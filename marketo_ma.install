@@ -12,7 +12,14 @@ function marketo_ma_uninstall() {
   variable_del('marketo_ma_instance_host');
   variable_del('marketo_ma_logging');
   variable_del('marketo_ma_munchkin_account_id');
+  variable_del('marketo_ma_munchkin_altIds');
   variable_del('marketo_ma_munchkin_api_private_key');
+  variable_del('marketo_ma_munchkin_asyncOnly');
+  variable_del('marketo_ma_munchkin_clickTime');
+  variable_del('marketo_ma_munchkin_cookieAnon');
+  variable_del('marketo_ma_munchkin_cookieLifeDays');
+  variable_del('marketo_ma_munchkin_disableClickDelay');
+  variable_del('marketo_ma_munchkin_domainLevel');
   variable_del('marketo_ma_munchkin_javascript_library');
   variable_del('marketo_ma_munchkin_lead_source');
   variable_del('marketo_ma_munchkin_partition');

@@ -78,12 +78,68 @@ function marketo_ma_admin_settings_form($form, &$form_state) {
     '#required' => TRUE,
     '#description' => t('Value can be found on the Munchkin Admin page at Admin > Integration > Munchkin'),
   );
-  $form['marketo_ma_tabs']['marketo_ma_api']['marketo_ma_munchkin']['marketo_ma_munchkin_partition'] = array(
+  $form['marketo_ma_tabs']['marketo_ma_api']['marketo_ma_munchkin']['marketo_ma_munchkin_advanced'] = array(
+    '#title' => t('Advanced Initialization Parameters'),
+    '#type' => 'fieldset',
+    '#description' => t("Munchkin can accept a variety of additional configuration parameters to customize its behavior.<br />NOTE: Leave the field blank to accept it's default value as defined in munchkin.js"),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+  );
+  $form['marketo_ma_tabs']['marketo_ma_api']['marketo_ma_munchkin']['marketo_ma_munchkin_advanced']['marketo_ma_munchkin_partition'] = array(
     '#type' => 'textfield',
-    '#title' => t('Workspace (Partition)'),
+    '#title' => t('wsInfo - Workspace (Partition)'),
     '#default_value' => variable_get('marketo_ma_munchkin_partition', ''),
     '#required' => FALSE,
-    '#description' => t('Value can be found on the Munchkin Admin page at Admin > Integration > Munchkin'),
+    '#description' => t('Takes a string to target a workspace.  This workspace ID is obtained by selecting the Workspace in the Admin -> Munchkin menu.'),
+  );
+  $form['marketo_ma_tabs']['marketo_ma_api']['marketo_ma_munchkin']['marketo_ma_munchkin_advanced']['marketo_ma_munchkin_altIds'] = array(
+    '#type' => 'textfield',
+    '#title' => t('altIds'),
+    '#default_value' => variable_get('marketo_ma_munchkin_altIds', ''),
+    '#required' => FALSE,
+    '#description' => t('Accepts an array of Munchkin ID strings.  When enabled, this will duplicate all Web Activity to the targeted subscriptions, based on their Munchkin Id.'),
+  );
+  $form['marketo_ma_tabs']['marketo_ma_api']['marketo_ma_munchkin']['marketo_ma_munchkin_advanced']['marketo_ma_munchkin_cookieLifeDays'] = array(
+    '#type' => 'textfield',
+    '#title' => t('cookieLifeDays'),
+    '#default_value' => variable_get('marketo_ma_munchkin_cookieLifeDays', ''),
+    '#required' => FALSE,
+    '#description' => t('Sets the expiry date of any newly created munchkin tracking cookies to this many days in the future. Default is two years.'),
+  );
+  $form['marketo_ma_tabs']['marketo_ma_api']['marketo_ma_munchkin']['marketo_ma_munchkin_advanced']['marketo_ma_munchkin_clickTime'] = array(
+    '#type' => 'textfield',
+    '#title' => t('clickTime'),
+    '#default_value' => variable_get('marketo_ma_munchkin_clickTime', ''),
+    '#required' => FALSE,
+    '#description' => t('Sets the number of miliseconds to block after a click to allow for click tracking request.  Reducing will reduce accuracy of click-tracking.'),
+  );
+  $form['marketo_ma_tabs']['marketo_ma_api']['marketo_ma_munchkin']['marketo_ma_munchkin_advanced']['marketo_ma_munchkin_cookieAnon'] = array(
+    '#type' => 'textfield',
+    '#title' => t('cookieAnon'),
+    '#default_value' => variable_get('marketo_ma_munchkin_cookieAnon', ''),
+    '#required' => FALSE,
+    '#description' => t('Default true. If set to false, will prevent tracking and cookying of new anonymous leads.  Leads are cookied and tracked after filling out a Marketo form, or clicking through from a Marketo Email.'),
+  );
+  $form['marketo_ma_tabs']['marketo_ma_api']['marketo_ma_munchkin']['marketo_ma_munchkin_advanced']['marketo_ma_munchkin_domainLevel'] = array(
+    '#type' => 'textfield',
+    '#title' => t('domainLevel'),
+    '#default_value' => variable_get('marketo_ma_munchkin_domainLevel', ''),
+    '#required' => FALSE,
+    '#description' => t('Default 3.  Setting to 2 allows for proper tracking on two-letter top-level domains.'),
+  );
+  $form['marketo_ma_tabs']['marketo_ma_api']['marketo_ma_munchkin']['marketo_ma_munchkin_advanced']['marketo_ma_munchkin_disableClickDelay'] = array(
+    '#type' => 'textfield',
+    '#title' => t('disableClickDelay'),
+    '#default_value' => variable_get('marketo_ma_munchkin_disableClickDelay', ''),
+    '#required' => FALSE,
+    '#description' => t('Default false.  If set to true, disables click tracking delay entirely.  Will reduce accuracy of click tracking.'),
+  );
+  $form['marketo_ma_tabs']['marketo_ma_api']['marketo_ma_munchkin']['marketo_ma_munchkin_advanced']['marketo_ma_munchkin_asyncOnly'] = array(
+    '#type' => 'textfield',
+    '#title' => t('asyncOnly'),
+    '#default_value' => variable_get('marketo_ma_munchkin_asyncOnly', ''),
+    '#required' => FALSE,
+    '#description' => t('Default false.  If set to true, will send XHRs asynchronously.'),
   );
 
   $form['marketo_ma_tabs']['marketo_ma_api']['marketo_ma_soap'] = array(

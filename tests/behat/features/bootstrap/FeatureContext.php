@@ -199,9 +199,9 @@ class FeatureContext extends RawDrupalContext implements SnippetAcceptingContext
   public function accessNodePath($path, $type, $title) {
     // @todo make this easily extensible.
     $node = (object) array(
-          'title' => $title,
-          'type' => $type,
-          'body' => $this->getRandom()->string(255),
+        'title' => $title,
+        'type' => $type,
+        'body' => $this->getRandom()->string(255),
     );
     $saved = $this->nodeCreate($node);
     // Set internal page on the new node.
@@ -280,6 +280,17 @@ class FeatureContext extends RawDrupalContext implements SnippetAcceptingContext
         $message = sprintf('Field "%s" was expected to be "%s" but was "%s".', $row['field'], $row['value'], $actions[0]['data'][$row['field']]);
         throw new \Exception($message);
       }
+    }
+  }
+
+  /**
+   * @Then Munchkin init parameter :param should be :value
+   */
+  public function assertMunchkinInitParameter($param, $value) {
+    $result = $this->getSession()->evaluateScript("return Drupal.settings.marketo_ma.$param == $value");
+    if (!$result) {
+      $message = sprintf('Field "Drupal.settings.marketo_ma.%s" is not equal to "%s"', $param, $value);
+      throw new \Exception($message);
     }
   }
 

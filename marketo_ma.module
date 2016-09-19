@@ -176,9 +176,55 @@ function _marketo_ma_output_tracking_code() {
       'marketo_ma' => array(
         'track' => TRUE,
         'key' => $marketo_ma_munchkin_account_id,
-        'library' => $marketo_ma_munchkin_javascript_library),
+        'library' => $marketo_ma_munchkin_javascript_library,
+        'initParams' => _marketo_ma_get_munchkin_init_params()),
       ), 'setting');
   }
+}
+
+/**
+ * Returns munchkin initialization parameters
+ *
+ * @return array
+ */
+function _marketo_ma_get_munchkin_init_params() {
+  $marketo_ma_munchkin_partition = trim(variable_get('marketo_ma_munchkin_partition', ''));
+  $marketo_ma_munchkin_altIds = trim(variable_get('marketo_ma_munchkin_altIds', ''));
+  $marketo_ma_munchkin_cookieLifeDays = trim(variable_get('marketo_ma_munchkin_cookieLifeDays', ''));
+  $marketo_ma_munchkin_clickTime = trim(variable_get('marketo_ma_munchkin_clickTime', ''));
+  $marketo_ma_munchkin_cookieAnon = trim(variable_get('marketo_ma_munchkin_cookieAnon', ''));
+  $marketo_ma_munchkin_domainLevel = trim(variable_get('marketo_ma_munchkin_domainLevel', ''));
+  $marketo_ma_munchkin_disableClickDelay = trim(variable_get('marketo_ma_munchkin_disableClickDelay', ''));
+  $marketo_ma_munchkin_asyncOnly = trim(variable_get('marketo_ma_munchkin_asyncOnly', ''));
+
+  $initParams = array();
+  if ($marketo_ma_munchkin_partition != '') {
+    $initParams['wsInfo'] = $marketo_ma_munchkin_partition;
+  }
+  if ($marketo_ma_munchkin_altIds != '') {
+    $altIds = preg_split("/,\s*/", $marketo_ma_munchkin_altIds);
+    $initParams['altIds'] = $altIds;
+  }
+  if ($marketo_ma_munchkin_cookieLifeDays != '') {
+    $initParams['cookieLifeDays'] = $marketo_ma_munchkin_cookieLifeDays;
+  }
+  if ($marketo_ma_munchkin_clickTime != '') {
+    $initParams['clickTime'] = $marketo_ma_munchkin_clickTime;
+  }
+  if ($marketo_ma_munchkin_cookieAnon != '') {
+    $initParams['cookieAnon'] = $marketo_ma_munchkin_cookieAnon;
+  }
+  if ($marketo_ma_munchkin_domainLevel != '') {
+    $initParams['domainLevel'] = $marketo_ma_munchkin_domainLevel;
+  }
+  if ($marketo_ma_munchkin_disableClickDelay != '') {
+    $initParams['disableClickDelay'] = $marketo_ma_munchkin_disableClickDelay;
+  }
+  if ($marketo_ma_munchkin_asyncOnly != '') {
+    $initParams['asyncOnly'] = $marketo_ma_munchkin_asyncOnly;
+  }
+
+  return $initParams;
 }
 
 /**
@@ -286,11 +332,11 @@ function _marketo_ma_associate_lead_forms2($lead, $formid, $scheme = 'https', $p
     }
     else {
       watchdog('marketo', 'Unable to sync lead !email [forms2] <pre>@error</pre> Request: <pre>@request</pre> Response: <pre>@response</pre>', array(
-          '!email' => $lead['email'],
-          '@error' => $response->error,
-          '@request' => $response->request,
-          '@response' => $response->code . ' ' . $response->status_message,
-          ), WATCHDOG_ERROR);
+        '!email' => $lead['email'],
+        '@error' => $response->error,
+        '@request' => $response->request,
+        '@response' => $response->code . ' ' . $response->status_message,
+        ), WATCHDOG_ERROR);
     }
   }
 }

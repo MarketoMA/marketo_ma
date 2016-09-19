@@ -40,7 +40,14 @@ default:
                 marketo_ma_instance_host: ''
                 marketo_ma_logging: 0
                 marketo_ma_munchkin_account_id: ''
+                marketo_ma_munchkin_altIds: ''
                 marketo_ma_munchkin_api_private_key: ''
+                marketo_ma_munchkin_asyncOnly: ''
+                marketo_ma_munchkin_clickTime: ''
+                marketo_ma_munchkin_cookieAnon: ''
+                marketo_ma_munchkin_cookieLifeDays: ''
+                marketo_ma_munchkin_disableClickDelay: ''
+                marketo_ma_munchkin_domainLevel: ''
                 marketo_ma_munchkin_javascript_library: //munchkin.marketo.net/munchkin.js
                 marketo_ma_munchkin_lead_source: ''
                 marketo_ma_munchkin_partition: ''

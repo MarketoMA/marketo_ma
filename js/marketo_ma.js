@@ -10,7 +10,7 @@
             dataType: 'script',
             cache: true,
             success: function() {
-              Munchkin.init(settings.marketo_ma.key);
+              Munchkin.init(settings.marketo_ma.key, settings.marketo_ma.initParams);
               if (typeof settings.marketo_ma.actions !== 'undefined') {
                 jQuery.each(settings.marketo_ma.actions, function() {
                   Drupal.behaviors.marketo_ma.marketoMunchkinFunction(this.action, this.data, this.hash);
