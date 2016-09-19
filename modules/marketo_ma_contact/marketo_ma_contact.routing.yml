@@ -1,0 +1,7 @@
+marketo_ma_contact.contact.configuration:
+  path: /admin/structure/contact/manage/{contact_form}/marketo
+  defaults:
+    _form: \Drupal\marketo_ma_contact\Form\MarketoMaContactConfiguration
+    title: 'Marketo configuration'
+  requirements:
+    _permission: 'administer marketo'

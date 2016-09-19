@@ -1,13 +1,16 @@
 <?php
 
-namespace Drupal\Tests\marketo_ma\FunctionalJavascript;
+namespace Drupal\Tests\marketo_ma_user\FunctionalJavascript;
+
+use Drupal\marketo_ma\Service\MarketoMaMunchkinInterface;
+use Drupal\marketo_ma\Service\MarketoMaServiceInterface;
 
 /**
  * Tests the Marketo MA module in Munchkin mode.
  *
- * @group marketo_ma-js
+ * @group marketo_ma_user-js
  */
-class MarketoMaMunchkinTest extends MarketoMaJavascriptTestBase {
+class MarketoMaUserMunchkinTest extends MarketoMaUserJavascriptTestBase  {
 
   /**
    * {@inheritdoc}
@@ -15,10 +18,19 @@ class MarketoMaMunchkinTest extends MarketoMaJavascriptTestBase {
   public function setUp() {
     parent::setUp();
 
+    // Get the encryption service.
+    $encryption_service = \Drupal::service('encryption');
+
+    // Get the API settings.
+    $config = \Drupal::configFactory()->getEditable(MarketoMaServiceInterface::MARKETO_MA_CONFIG_NAME);
+
     // Set up required settings.
-    $this->config
-      ->set('tracking_method', 'munchkin')
-      ->save();
+    $config->set('tracking_method', 'munchkin');
+    $config->set('instance_host', $encryption_service->encrypt(getenv('marketo_ma_instance_host')));
+    $config->set('munchkin.account_id', $encryption_service->encrypt(getenv('marketo_ma_munchkin_account_id')));
+    $config->set('munchkin.api_private_key', $encryption_service->encrypt(getenv('marketo_ma_munchkin_api_private_key')));
+    $config->save();
+
   }
 
   /**
@@ -52,8 +64,12 @@ class MarketoMaMunchkinTest extends MarketoMaJavascriptTestBase {
 
     // The marketo track settings should be there.
     self::assertTrue(!empty($drupal_settings['marketo_ma']));
-    // There not should be an "associateLead" action.
-    self::assertTrue(empty($drupal_settings['marketo_ma']['actions'][0]['action']), 'A munchkin action exists');
+    // There should be an "associateLead" action.
+    self::assertTrue(!empty($drupal_settings['marketo_ma']['actions'][0]['action']), 'A munchkin action exists');
+    self::assertTrue($drupal_settings['marketo_ma']['actions'][0]['action'] === MarketoMaMunchkinInterface::ACTION_ASSOCIATE_LEAD, 'The first action will associate the lead');
+    self::assertTrue(!empty($drupal_settings['marketo_ma']['actions'][0]['hash']), 'The munchkin hash exists.');
+    self::assertTrue(!empty($drupal_settings['marketo_ma']['actions'][0]['data']['Email']), 'The user email exists.');
+    self::assertTrue($drupal_settings['marketo_ma']['actions'][0]['data']['Email'] === $marketo_user->getEmail(), 'The user email exists.');
     // Make sure the marketo cookie is there.
     self::assertNotEmpty($marketo_cookie, 'The marketo cookie has been set.');
 

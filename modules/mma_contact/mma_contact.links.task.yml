@@ -1,5 +1,0 @@
-mma_contact.contact.configuration:
-  route_name: 'mma_contact.contact.configuration'
-  title: 'Marketo configuration'
-  base_route: entity.contact_form.edit_form
-  weight: 30

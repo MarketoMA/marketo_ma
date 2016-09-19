@@ -1,0 +1,15 @@
+marketo_ma_user:
+  title: Marketo
+  route_name: 'marketo_ma_user.lead.view'
+  base_route: entity.user.canonical
+  weight: 30
+marketo_ma_user.lead.view:
+  title: Lead
+  route_name: 'marketo_ma_user.lead.view'
+  parent_id: marketo_ma_user
+  weight: 30
+marketo_ma_user.activity.view:
+  title: Activity
+  route_name: 'marketo_ma_user.activity.view'
+  parent_id: marketo_ma_user
+  weight: 30

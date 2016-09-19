@@ -1,9 +1,0 @@
-block.settings.mma_contact_block:
-  type: block_settings
-  mapping:
-    contact_form:
-      type: string
-    fields:
-      type: sequence
-      sequence:
-        type: ignore

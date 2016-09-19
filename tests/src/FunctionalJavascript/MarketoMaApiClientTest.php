@@ -7,7 +7,7 @@ namespace Drupal\Tests\marketo_ma\FunctionalJavascript;
  *
  * @group marketo_ma-js
  */
-class MarketoMaApiClientTest extends MmaJavascriptTestBase {
+class MarketoMaApiClientTest extends MarketoMaJavascriptTestBase {
 
   /**
    * {@inheritdoc}

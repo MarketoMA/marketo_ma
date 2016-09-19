@@ -1,0 +1,5 @@
+services:
+  # The Marketo MA User service.
+  marketo_ma.user:
+    class: Drupal\marketo_ma_user\Service\MarketoMaUserService
+    arguments: ['@config.factory', '@marketo_ma', '@marketo_ma.api_client', '@state']

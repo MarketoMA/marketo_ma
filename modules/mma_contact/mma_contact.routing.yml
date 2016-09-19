@@ -1,7 +1,0 @@
-mma_contact.contact.configuration:
-  path: /admin/structure/contact/manage/{contact_form}/marketo
-  defaults:
-    _form: \Drupal\mma_contact\Form\MmaContactConfiguration
-    title: 'Marketo configuration'
-  requirements:
-    _permission: 'administer marketo'

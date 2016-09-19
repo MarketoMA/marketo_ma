@@ -1,0 +1,17 @@
+
+marketo_ma_user.lead.view:
+  path: '/user/{user}/marketo/lead'
+  defaults:
+    _title_callback: '\Drupal\marketo_ma_user\Controller\MarketoMaUserLeadDataController::viewLeadTitle'
+    _controller: '\Drupal\marketo_ma_user\Controller\MarketoMaUserLeadDataController::viewLead'
+  requirements:
+    _permission: 'access all marketo lead data'
+    user: \d+
+marketo_ma_user.activity.view:
+  path: '/user/{user}/marketo/activity'
+  defaults:
+    _title_callback: '\Drupal\marketo_ma_user\Controller\MarketoMaUserLeadDataController::viewActivityTitle'
+    _controller: '\Drupal\marketo_ma_user\Controller\MarketoMaUserLeadDataController::viewActivity'
+  requirements:
+    _permission: 'access all marketo lead data'
+    user: \d+
