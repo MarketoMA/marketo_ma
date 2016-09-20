@@ -2,7 +2,7 @@
 
 namespace Drupal\Tests\marketo_ma_user\Kernel;
 
-use Drupal\marketo_ma\Form\MarketoMaSettings;
+use Drupal\marketo_ma\Form\MarketoMASettings;
 use Drupal\marketo_ma_user\Form\MarketoMaUserSettings;
 
 /**
@@ -12,7 +12,7 @@ class MarketoMaUserSettingsFormKernelTest extends MarketoMaUserKernelTestBase {
 
   public function testLeadSettingsForm() {
 
-    $marketo_settings_form = \Drupal::formBuilder()->getForm(MarketoMaSettings::class);
+    $marketo_settings_form = \Drupal::formBuilder()->getForm(MarketoMASettings::class);
     $marketo_user_settings_form = \Drupal::formBuilder()->getForm(MarketoMaUserSettings::class);
 
     self::assertNotEmpty($marketo_settings_form['user_settings_tab']['group_activities']['enabled_activities']);
