@@ -186,7 +186,7 @@ function _marketo_ma_user_get_user_fields($uid = 0) {
   $account = user_load($uid);
   foreach ($account as $key => $value) {
     if (!is_array($value) && !is_object($value)) {
-      $data[$key] = ["field_name" => $key, "label" => "[account:" . $key . "]"];
+      $data[$key] = array("field_name" => $key, "label" => "[account:" . $key . "]");
     }
   }
   return $data;
