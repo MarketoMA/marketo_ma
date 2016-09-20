@@ -1,6 +1,6 @@
 instance_host: null
 logging: 0
-tracking_method: api_client
+tracking_method: munchkin
 munchkin:
   javascript_library: '//munchkin.marketo.net/munchkin.js'
   api_private_key: null
