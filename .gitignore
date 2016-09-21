@@ -1,6 +1,0 @@
-tests/bin/
-tests/composer.lock
-tests/vendor/
-tests/behat.yml
-*.patch
-

@@ -1,0 +1,9 @@
+name: Marketo Ma
+type: module
+description: Integration with Marketo marketing automation software.
+core: 8.x
+package: Marketo
+configure: marketo_ma.settings
+dependencies:
+ - user
+ - encryption

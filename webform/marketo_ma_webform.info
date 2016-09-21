@@ -1,7 +1,0 @@
-name = Marketo MA Webform
-description = Integrates Marketo with Webforms.
-core = 7.x
-package = Marketo
-
-dependencies[] = marketo_ma
-dependencies[] = webform (>=3.x)

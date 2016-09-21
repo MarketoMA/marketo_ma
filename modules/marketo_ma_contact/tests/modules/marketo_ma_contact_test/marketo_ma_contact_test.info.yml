@@ -1,0 +1,5 @@
+name: marketo_ma_contact_test
+type: module
+core: 8.x
+dependencies:
+  - marketo_ma_contact

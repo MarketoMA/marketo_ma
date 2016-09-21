@@ -1,6 +1,0 @@
-name = Marketo MA User
-description = Integrates Marketo with core User actions.
-core = 7.x
-package = Marketo
-
-dependencies[] = marketo_ma

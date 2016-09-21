@@ -1,0 +1,8 @@
+name: Marketo MA User
+type: module
+description: Integrates Marketo with core user actions.
+core: 8.x
+package: Marketo
+dependencies:
+  - marketo_ma
+  - user

@@ -1,0 +1,12 @@
+contact.form.*.third_party.marketo_ma_contact:
+  type: mapping
+  label: 'Marekto MA contact settings'
+  mapping:
+    mapping:
+      label: 'Contact fields to marketo fields mapping'
+      type: sequence
+      sequence:
+        type: string
+    enabled:
+      label: 'Whether Marketo tracking is enabled for the contact form.'
+      type: integer

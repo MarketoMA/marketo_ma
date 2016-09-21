@@ -1,0 +1,6 @@
+# Permissions file for the Marketo MA user module.
+access all marketo lead data:
+  title: 'View all lead data'
+  description: 'Allows viewing of Marketo lead and activity data for any user.'
+access own marketo lead data:
+  title: 'View own lead data mappings'
