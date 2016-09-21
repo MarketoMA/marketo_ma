@@ -99,7 +99,7 @@ Proxy settings can be set if your server needs to use a proxy for external reque
 
 ### <a id="field-definition"></a> Field Definition
 
-The fields configured here will be available for mapping to User and Webform fields.
+The fields configured here will be available for mapping to User and Contact fields.
 They should match those that are defined in your Marketo admin under
 Admin > Field Management. Additional information regarding Marketo fields can be
 found in the Marketo articles [Field Management](http://community.marketo.com/MarketoDeepDive?id=kA5500000008RWQCA2)
@@ -173,43 +173,35 @@ configuration page found at admin/config/search/marketo_ma.
 
 **It is not necessary to define a mapping for email address as this field is automatically mapped to the Marketo "Email" field.**
 
-### <a id="webform-integration"></a> Webform Integration (Requires Marketo MA Webform)
+### <a id="contact-integration"></a> Contact form integration (Requires Marketo MA Contact)
 
-Marketo settings for a given webform are managed on each individual node. This
-section displays a table of all content on the site that may have a webform
-attached to it and provides an overview of each item's current state.
+Marketo settings for a given contact form are managed on the contact form's
+Marketo tab. The following sections are available in the configuration form.
 
-- **Title**
-  The title of the webform.
+- **Enable tracking**
+  A Yes/No value indicating if tracking is currently enabled for this contact form.
 
-- **Tracking Enabled**
-  A Yes/No value indicating if tracking is currently enabled for this webform.
+- **Field Map**
+  This is a table of contact form fields. Each field has a select list to choose
+  Marketo field that should be updated when a customer submits the contact form.
 
-- **Components Mapped**
-  The number of form components that have been mapped to a Marketo field.
+## Configuring a contact form for tracking
 
-- **Manage**
-  A direct link to the Marketo component mapping page for this webform.
+These steps assume you already have a contact form and fields defined. Instructions for
+creating a contact form can be found here <https://www.drupal.org/documentation/modules/contact>.
 
-## Configuring a Webform for tracking
+1. Ensure the Marketo MA Contact module is enabled.
 
-These steps assume you already have a webform and components defined. Instructions for
-creating a webform can be found here http://drupal.org/documentation/modules/webform.
+2. On the contact form edit page there will be a tab to configure Marketo MA. Click
+   the link or navigate to `admin/structure/contact/{contact_form_id}/marketo`.
 
-1. Ensure the Marketo MA Webform module is enabled.
-
-2. From the Webform Integration section of the Marketo MA module configuration page,
-   click the Edit link for the webform you would like to configure. Alternatively you
-   can view the webform node directly and click the Marketo link found on the Webform
-   tab. The direct path to the setup page will be node/%nodeid/webform/marketo.
-
-3. Enable or disable lead capture for this webform by toggling the "Capture Data"
+3. Enable or disable lead capture for this contact form by toggling the "Capture Data"
    checkbox. When this setting is unchecked, no data will be sent to Marketo.
 
-4. Assuming you have defined components for this webform you will see a table of
-   all components and their associated Marketo mappings. Use the select boxes in
-   the Marketo column to map each field. The options available to you are defined
-   in the "Field Definition" section of the the Marketo MA config screen.
+4. You will see a list of contact form fields with all their associated Marketo
+   mappings. Use the select boxes in the Marketo column to map each field. The
+   options available to you are defined in the "Field Definition" section of the
+   the Marketo MA config page (`admin/config/services/marketo-ma#edit-field-tab`).
    **At a minimum must have a field mapped to the Marketo Email if you want data to be captured.**
 
-5. Save the form
+5. Save the Marketo MA contact configuration form.
