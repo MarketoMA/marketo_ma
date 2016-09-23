@@ -78,7 +78,7 @@ class MarketoMaContactConfiguration extends FormBase {
     $form['enabled'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Capture Data'),
-      '#description' => $this->t('This needs to be checked in order to enable data capture for this contact form.'),
+      '#description' => $this->t('If checked, captured form information will be sent to Marketo.'),
       '#default_value' => $this->contactForm->getThirdPartySetting('marketo_ma_contact', 'enabled'),
     ];
 
