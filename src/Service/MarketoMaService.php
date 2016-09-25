@@ -11,6 +11,7 @@ use Drupal\Core\State\StateInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\marketo_ma\Lead;
 use Drupal\marketo_ma\MarketoFieldDefinition;
+use Drupal\marketo_ma\FieldDefinitionSet;
 use Drupal\user\PrivateTempStoreFactory;
 
 /**
@@ -258,23 +259,14 @@ class MarketoMaService implements MarketoMaServiceInterface {
    * {@inheritdoc}
    */
   public function getMarketoFields($reset = FALSE) {
-    // Reset if requested or fields have never been retrieved.
-    if ($reset || $this->state->get('marketo_ma.field.defined_fields', FALSE) === FALSE) {
-      // Get the fields.
+    $fieldset = new FieldDefinitionSet();
+    if ($reset) {
       $api_fields = $this->api_client->canConnect() ? $this->api_client->getFields() : [];
-
-      // Save the field options in state.
-      if (!empty($api_fields)) {
-        $marketo_ma_fields = [];
-        // Convert response array to an array of MarketoField objects keyed by the marketo field id.
-        foreach ($api_fields as $api_field) {
-          $marketo_ma_fields[$api_field['id']] = new MarketoFieldDefinition($api_field);
-        }
-        $this->state->set('marketo_ma.field.defined_fields', $marketo_ma_fields);
+      foreach ($api_fields as $api_field) {
+        $fieldset->add($api_field);
       }
     }
-
-    return $this->state->get('marketo_ma.field.defined_fields', []);
+    return $fieldset->getAllTableselect();
   }
 
   /**
@@ -283,9 +275,7 @@ class MarketoMaService implements MarketoMaServiceInterface {
   public function getMarketoFieldsAsTableSelectOptions($reset = FALSE) {
     // Convert objects to table-select options.
     return array_map(function ($item) {
-      return $item instanceof MarketoFieldDefinition
-        ? $item->toTableSelectOption()
-        : [];
+      return $item instanceof MarketoFieldDefinition ? $item->toTableSelectOption() : [];
     }, $this->getMarketoFields($reset));
   }
 

@@ -241,19 +241,26 @@ class MarketoMASettings extends ConfigFormBase {
       $this->t('REST key'),
       $this->t('Munchkin key'),
     ];
-    // Get fields options from the marketo ma service.
-    $options = $this->service->getMarketoFieldsAsTableSelectOptions();
 
     // Only show the enabled options unless retrieving from marketo.
     if (!($trigger = $form_state->getTriggeringElement()) || end($trigger['#parents']) !== 'field_api_retrieve_fields') {
-      $options = array_intersect_key($options, $config->get('field.enabled_fields'));
+      $options = $this->service->getMarketoFields(TRUE);
+    }
+    else {
+      // Get fields from cache
+      $options = $this->service->getMarketoFields();
     }
 
     $form['field_tab']['field_enabled_fields'] = [
       '#type' => 'tableselect',
       '#title' => t('Marketo fields'),
       '#description' => $this->t('Pipe "|" delimited strings of [API Name]|[Friendly Label]. Enter one field per line. This information can be found in the Marketo admin page at Admin > Field Management > Export Field Names.<p>Once API client settings have been configured, these fields can be automatically obtained from Marketo using the button below</p>'),
-      '#header' => $header,
+      '#header' => array(
+        'displayName' => t('Display Name'),
+        'id' => t('ID'),
+        'restName' => t('REST Field'),
+        'soapName' => t('SOAP/Munchkin Field'),
+      ),
       '#options' => $options,
       '#empty' => $this->t('No fields, try retrieving from marketo.'),
       '#prefix' => '<div id="marketo-defined-fields-wrapper">',
