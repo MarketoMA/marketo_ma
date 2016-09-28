@@ -48,7 +48,7 @@ class ActivityType {
    *   The activity type description.
    */
   public function getDescription() {
-    return $this->definition['description'];
+    return isset($this->definition['description']) ? $this->definition['description'] : NULL;
   }
 
   /**
