@@ -1,52 +1,67 @@
 language: php
+sudo: false
 
 php:
   - 5.5
   - 5.6
+  - 7
+  - hhvm
 
 env:
   global:
-    - DATABASE='drupal'
-    - DB_USERNAME='root'
-    - DB_ENCODE='utf8'
-    - DOCROOT='/var/www'
+    - marketo_ma_munchkin_account_id=''
+    - marketo_ma_rest_client_id=''
+    - marketo_ma_rest_client_secret=''
+    - marketo_ma_munchkin_api_private_key=''
+  matrix:
+    - DRUPAL_VERSION="~8.1.0"
+
+matrix:
+  allow_failures:
+    # We cannot use hhvm-nightly since that does not work in Travis CI's old
+    # Ubuntu 12.04.
+    - php: hhvm
+
+  # Don't wait for the allowed failures to build.
+  fast_finish: true
 
 mysql:
-  database: $DATABASE
-  username: $DB_USERNAME
-  encoding: $DB_ENCODE
-
-before_install:
-  - sudo apt-get update > /dev/null
-  - composer self-update
-  - pear channel-discover pear.drush.org
-  - export DISPLAY=:99.0
-  - sh -e /etc/init.d/xvfb start
+  database: drupal
+  username: root
+  encoding: utf8
 
 install:
-  - sudo apt-get install -y --force-yes apache2 libapache2-mod-php5 php5-curl php5-mysql php5-intl
-  - sudo a2enmod rewrite
-  - sudo cp -f tests/travis-ci-apache /etc/apache2/sites-available/default
-  - sudo service apache2 restart
-  - pear install drush/drush
-  - phpenv rehash
-  - cd $TRAVIS_BUILD_DIR
-  - export MODULE=$(basename $(pwd))
-  - export MODULE_DIR=$DOCROOT/sites/all/modules/$MODULE
-  - sudo chmod -R 777 /var
-  - drush dl drupal --destination=/var --drupal-project-rename=www --yes
-  - drush si --db-url="mysql://$DB_USERNAME@127.0.0.1/$DATABASE" -r $DOCROOT --yes
-  - ln -s $TRAVIS_BUILD_DIR $MODULE_DIR
-  - cd $TRAVIS_BUILD_DIR/..
-  - wget http://selenium-release.storage.googleapis.com/2.47/selenium-server-standalone-2.47.1.jar
-  - java -jar selenium-server-standalone-2.47.1.jar > /dev/null 2>&1 &
+  # Remove Xdebug.
+  - phpenv config-rm xdebug.ini || true
+  # Create database.
+  - mysql -e 'CREATE DATABASE IF NOT EXISTS drupal CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci'
+  # Export database variable for kernel tests.
+  - export SIMPLETEST_DB=mysql://root:@127.0.0.1/drupal
+  # Export web server URL for browser tests.
+  - export SIMPLETEST_BASE_URL=http://localhost:8888
+
+  # Remember the module folder.
+  - TESTDIR=$(pwd)
+  # Navigate out of module directory to prevent blown stack by recursive module lookup.
+  - cd ..
+
+  # Install drupal and dependent modules with composer.
+  - composer create-project drupal/drupal drupal "$DRUPAL_VERSION" --no-interaction && cd drupal
+  - composer config repositories.drupal composer https://packages.drupal.org/8
+  - composer require drupal/encryption:1.x-dev
+  - composer require drupal/contact_block:1.x-dev
+  - composer require drupal/contact_storage:1.x-dev
+  - php -r 'if ($c = json_decode(file_get_contents("composer.json"))) {$c->repositories[] = ["type"=>"vcs", "url"=>"https://github.com/jaesin/marketo-rest-api"];file_put_contents("composer.json", json_encode($c, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES).chr(10));}'
+  - composer require dchesterton/marketo-rest-api:dev-master
+
+  # Reference module in build site.
+  - ln -s $TESTDIR modules/marketo_ma
 
 before_script:
-  - cd $MODULE_DIR/tests
-  - cp behat.yml.dist behat.yml
-  - composer install
-  - vendor/bin/behat features/travis-ci.feature
+  # Start a web server on port 8888, run in the background; wait for
+  # initialization.
+  - nohup php -S localhost:8888 > /dev/null 2>&1 &
 
 script:
-  - cd $MODULE_DIR/tests
-  - vendor/bin/behat --tags="~travis&&~live"
+  # Run the PHPUnit tests which also include the kernel tests.
+  - ./vendor/phpunit/phpunit/phpunit -c ./core/phpunit.xml.dist --verbose ./modules/marketo_ma
