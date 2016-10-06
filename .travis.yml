@@ -51,7 +51,7 @@ install:
   - composer require drupal/encryption:1.x-dev
   - composer require drupal/contact_block:1.x-dev
   - composer require drupal/contact_storage:1.x-dev
-  - php -r 'if ($c = json_decode(file_get_contents("composer.json"))) {$c->repositories[] = ["type"=>"vcs", "url"=>"https://github.com/jaesin/marketo-rest-api"];file_put_contents("composer.json", json_encode($c, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES).chr(10));}'
+  - php -r 'if ($c = json_decode(file_get_contents("composer.json"))) {$c->repositories = [(object) ["type"=>"vcs", "url"=>"https://github.com/jaesin/marketo-rest-api"]];file_put_contents("composer.json", json_encode($c, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES).chr(10));}'
   - composer require dchesterton/marketo-rest-api:dev-master
 
   # Reference module in build site.
