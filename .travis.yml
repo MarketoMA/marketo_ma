@@ -62,6 +62,8 @@ before_script:
   # Start a web server on port 8888, run in the background; wait for
   # initialization.
   - nohup php -S localhost:8888 > /dev/null 2>&1 &
+  # Start PhantomJS.
+  - phantomjs --ssl-protocol=any --ignore-ssl-errors=true ./vendor/jcalderonzumba/gastonjs/src/Client/main.js 8510 1024 768 > /dev/null 2>&1 &
 
 script:
   # Run the PHPUnit tests which also include the kernel tests.
