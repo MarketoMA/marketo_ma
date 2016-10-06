@@ -9,10 +9,10 @@ php:
 
 env:
   global:
-    - marketo_ma_munchkin_account_id=''
-    - marketo_ma_rest_client_id=''
-    - marketo_ma_rest_client_secret=''
-    - marketo_ma_munchkin_api_private_key=''
+    - marketo_ma_munchkin_account_id='foo'
+    - marketo_ma_rest_client_id='bar'
+    - marketo_ma_rest_client_secret='baz'
+    - marketo_ma_munchkin_api_private_key='qux'
   matrix:
     - DRUPAL_VERSION="~8.1.0"
 
@@ -51,7 +51,7 @@ install:
   - composer require drupal/encryption:1.x-dev
   - composer require drupal/contact_block:1.x-dev
   - composer require drupal/contact_storage:1.x-dev
-  - php -r 'if ($c = json_decode(file_get_contents("composer.json"))) {$c->repositories = [(object) ["type"=>"vcs", "url"=>"https://github.com/jaesin/marketo-rest-api"]];file_put_contents("composer.json", json_encode($c, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES).chr(10));}'
+  - cat composer.json | jq '.repositories |= [{"type": "vcs", "url": "https://github.com/jaesin/marketo-rest-api"}]' | tee composer.json
   - composer require dchesterton/marketo-rest-api:dev-master
 
   # Reference module in build site.
