@@ -15,6 +15,7 @@ env:
     - marketo_ma_munchkin_api_private_key='qux'
   matrix:
     - DRUPAL_VERSION="~8.1.0"
+    - DRUPAL_VERSION="~8.2.0"
 
 matrix:
   allow_failures:
