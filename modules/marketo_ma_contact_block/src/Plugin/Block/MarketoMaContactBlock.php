@@ -2,6 +2,7 @@
 
 namespace Drupal\marketo_ma_contact_block\Plugin\Block;
 
+use Drupal\contact\MessageInterface;
 use Drupal\contact_block\Plugin\Block\ContactBlock;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
