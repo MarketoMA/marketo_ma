@@ -89,19 +89,19 @@ class MarketoMASettings extends ConfigFormBase {
       '#group' => 'marketo_ma_tabs',
     ];
     $form['field_tab'] = [
-      '#title' => t('Field Definition'),
+      '#title' => $this->t('Field Definition'),
       '#type' => 'details',
-      '#description' => $this->t('The fields defined here will be available for mapping.'),
+      '#description' => $this->t('By default, all fields below will be available for mapping to Webform and User Profile fields. It is possible to limit the available fields by selecting them below. Read-only fields are displayed here but are never available for mapping.'),
       '#group' => 'marketo_ma_tabs',
     ];
     $form['page_tracking_tab'] = [
-      '#title' => t('Page tracking'),
+      '#title' => $this->t('Page tracking'),
       '#type' => 'details',
       '#group' => 'marketo_ma_tabs',
       '#description' => $this->t('On which pages should Marketo tracking take place.'),
     ];
     $form['role_tracking_tab'] = [
-      '#title' => t('Role tracking'),
+      '#title' => $this->t('Role tracking'),
       '#type' => 'details',
       '#group' => 'marketo_ma_tabs',
     ];
@@ -185,20 +185,87 @@ class MarketoMASettings extends ConfigFormBase {
         'required' => [':input[name=tracking_method]' => ['value' => 'munchkin']],
       ],
     ];
-    $form['api_tab']['group_munchkin']['munchkin_partition'] = [
+    //<editor-fold desc="Advanced Initialization Parameters">
+    $form['marketo_ma_munchkin_advanced'] = array(
+      '#title' => $this->t('Advanced Initialization Parameters'),
+      '#type' => 'details',
+      '#description' => t("Munchkin can accept a variety of additional configuration parameters to customize its behavior.<br />NOTE: Leave the field blank to accept it's default value as defined in munchkin.js"),
+      '#collapsible' => TRUE,
+      '#collapsed' => TRUE,
+      '#group' => 'group_munchkin',
+    );
+    $form['munchkin_partition'] = array(
       '#type' => 'textfield',
-      '#title' => $this->t('Workspace (Partition)'),
+      '#title' => $this->t('wsInfo - Workspace (Partition)'),
       '#default_value' => $config->get('munchkin.partition'),
       '#required' => FALSE,
-      '#description' => $this->t('Value can be found on the Munchkin Admin page at Admin > Integration > Munchkin'),
-    ];
+      '#description' => t('Takes a string to target a workspace.  This workspace ID is obtained by selecting the Workspace in the Admin -> Munchkin menu.'),
+      '#group' => 'marketo_ma_munchkin_advanced',
+    );
+    $form['munchkin_altIds'] = array(
+      '#type' => 'textfield',
+      '#title' => $this->t('altIds'),
+      '#default_value' => $config->get('munchkin.altIds'),
+      '#required' => FALSE,
+      '#description' => t('Accepts an array of Munchkin ID strings.  When enabled, this will duplicate all Web Activity to the targeted subscriptions, based on their Munchkin Id.'),
+      '#group' => 'marketo_ma_munchkin_advanced',
+    );
+    $form['munchkin_cookieLifeDays'] = array(
+      '#type' => 'textfield',
+      '#title' => $this->t('cookieLifeDays'),
+      '#default_value' => $config->get('munchkin.cookieLifeDays'),
+      '#required' => FALSE,
+      '#description' => t('Sets the expiry date of any newly created munchkin tracking cookies to this many days in the future. Default is two years.'),
+      '#group' => 'marketo_ma_munchkin_advanced',
+    );
+    $form['munchkin_clickTime'] = array(
+      '#type' => 'textfield',
+      '#title' => $this->t('clickTime'),
+      '#default_value' => $config->get('munchkin.clickTime'),
+      '#required' => FALSE,
+      '#description' => t('Sets the number of miliseconds to block after a click to allow for click tracking request.  Reducing will reduce accuracy of click-tracking.'),
+      '#group' => 'marketo_ma_munchkin_advanced',
+    );
+    $form['munchkin_cookieAnon'] = array(
+      '#type' => 'textfield',
+      '#title' => $this->t('cookieAnon'),
+      '#default_value' => $config->get('munchkin.cookieAnon'),
+      '#required' => FALSE,
+      '#description' => t('Default true. If set to false, will prevent tracking and cookying of new anonymous leads.  Leads are cookied and tracked after filling out a Marketo form, or clicking through from a Marketo Email.'),
+      '#group' => 'marketo_ma_munchkin_advanced',
+    );
+    $form['munchkin_domainLevel'] = array(
+      '#type' => 'textfield',
+      '#title' => $this->t('domainLevel'),
+      '#default_value' => $config->get('munchkin.domainLevel'),
+      '#required' => FALSE,
+      '#description' => t('Default 3.  Setting to 2 allows for proper tracking on two-letter top-level domains.'),
+      '#group' => 'marketo_ma_munchkin_advanced',
+    );
+    $form['munchkin_disableClickDelay'] = array(
+      '#type' => 'textfield',
+      '#title' => $this->t('disableClickDelay'),
+      '#default_value' => $config->get('munchkin.disableClickDelay'),
+      '#required' => FALSE,
+      '#description' => t('Default false.  If set to true, disables click tracking delay entirely.  Will reduce accuracy of click tracking.'),
+      '#group' => 'marketo_ma_munchkin_advanced',
+    );
+    $form['munchkin_asyncOnly'] = array(
+      '#type' => 'textfield',
+      '#title' => $this->t('asyncOnly'),
+      '#default_value' => $config->get('munchkin.asyncOnly'),
+      '#required' => FALSE,
+      '#description' => t('Default false.  If set to true, will send XHRs asynchronously.'),
+      '#group' => 'marketo_ma_munchkin_advanced',
+    );
+    //</editor-fold>
     //</editor-fold>
 
     //<editor-fold desc="REST configuration">
     $form['api_tab']['group_rest'] = [
       '#title' => $this->t('REST API config'),
-      '#description' => $this->t('You will need an api user and service configured for this application. See :link for details.', [
-        ':link' => Link::fromTextAndUrl('Quick Start Guide for Marketo REST API', Url::fromUri('http://developers.marketo.com/blog/quick-start-guide-for-marketo-rest-api/'))->toString(),
+      '#description' => $this->t('You will need an api user and service configured for this application. See @link for details.', [
+        '@link' => Link::fromTextAndUrl('Quick Start Guide for Marketo REST API', Url::fromUri('http://developers.marketo.com/blog/quick-start-guide-for-marketo-rest-api/'))->toString(),
       ]),
       '#type' => 'fieldset',
       '#states' => [
@@ -213,6 +280,7 @@ class MarketoMASettings extends ConfigFormBase {
       '#states' => [
         'required' => [':input[name=tracking_method]' => ['value' => 'api_client']],
       ],
+      '#description' => t('Client ID is established as part of a <a href="@url">Custom Service</a>.', array('@url' => 'http://developers.marketo.com/documentation/rest/custom-service/')),
     ];
     $form['api_tab']['group_rest']['rest_client_secret'] = [
       '#type' => 'textfield',
@@ -222,6 +290,7 @@ class MarketoMASettings extends ConfigFormBase {
       '#states' => [
         'required' => [':input[name=tracking_method]' => ['value' => 'api_client']],
       ],
+      '#description' => t('Client Secret is established as part of a <a href="@url">Custom Service</a>.', array('@url' => 'http://developers.marketo.com/documentation/rest/custom-service/')),
     ];
     $form['api_tab']['group_rest']['rest_batch_requests'] = [
       '#type' => 'checkbox',
@@ -241,25 +310,36 @@ class MarketoMASettings extends ConfigFormBase {
       $this->t('REST key'),
       $this->t('Munchkin key'),
     ];
-    // Get fields options from the marketo ma service.
-    $options = $this->service->getMarketoFieldsAsTableSelectOptions();
 
     // Only show the enabled options unless retrieving from marketo.
-    if (!($trigger = $form_state->getTriggeringElement()) || end($trigger['#parents']) !== 'field_api_retrieve_fields') {
-      $options = array_intersect_key($options, $config->get('field.enabled_fields'));
+    $trigger = $form_state->getTriggeringElement();
+    if (!is_null($trigger) && in_array('field_api_retrieve_fields', $trigger['#array_parents'])) {
+      $options = $this->service->resetMarketoFields()->getMarketoFieldsAsTableSelectOptions();
+    }
+    else {
+      // Get fields from cache
+      $options = $this->service->getMarketoFieldsAsTableSelectOptions();
     }
 
     $form['field_tab']['field_enabled_fields'] = [
       '#type' => 'tableselect',
-      '#title' => t('Marketo fields'),
+      '#title' => $this->t('Marketo fields'),
       '#description' => $this->t('Pipe "|" delimited strings of [API Name]|[Friendly Label]. Enter one field per line. This information can be found in the Marketo admin page at Admin > Field Management > Export Field Names.<p>Once API client settings have been configured, these fields can be automatically obtained from Marketo using the button below</p>'),
-      '#header' => $header,
+      '#header' => array(
+        'displayName' => $this->t('Display Name'),
+        'id' => $this->t('ID'),
+        'restName' => $this->t('REST Field'),
+        'soapName' => $this->t('SOAP/Munchkin Field'),
+      ),
       '#options' => $options,
-      '#empty' => $this->t('No fields, try retrieving from marketo.'),
+      '#empty' => $this->t('No fields, try retrieving from Marketo.'),
       '#prefix' => '<div id="marketo-defined-fields-wrapper">',
       '#suffix' => '</div>',
       '#default_value' => $config->get('field.enabled_fields'),
     ];
+    foreach ($this->service->getReadOnly() as $field_key) {
+      $form['field_tab']['field_enabled_fields'][$field_key]['#disabled'] = TRUE;
+    }
 
     // Add the ajax button that get's fields from the marketo API.
     $form['field_tab']['field_api_retrieve_fields'] = [
@@ -279,44 +359,43 @@ class MarketoMASettings extends ConfigFormBase {
     //</editor-fold>
 
     //<editor-fold desc="Page tracking config">
-    $form['page_tracking_tab']['tracking_request_path_pages'] = [
-      '#type' => 'textarea',
-      '#title' => $this->t('Pages'),
-      '#default_value' => $config->get('tracking.request_path.pages'),
-      '#rows' => 10,
-      '#description' => $this->t("Specify pages by using their paths. Enter one path per line. The '*' character is a wildcard. Example paths are %blog for the blog page and %blog-wildcard for every personal blog. %front is the front page.", [
-        '%blog' => '/blog',
-        '%blog-wildcard' => '/blog/*',
-        '%front' => '<front>',
-      ]),
-    ];
-    $form['page_tracking_tab']['tracking_request_path_negate'] = [
+    $visibility_request_path_pages = $config->get('tracking.request_path.pages');
+    $form['page_tracking_tab']['marketo_ma_visibility_pages'] = [
       '#type' => 'radios',
+      '#title' => $this->t('Add tracking to specific pages'),
       '#options' => [
-        0 => $this->t('Track on the listed pages'),
-        1 => $this->t('Do not track on the listed pages'),
+        t('Every page except the listed pages'),
+        t('The listed pages only'),
       ],
-      '#default_value' => $config->get('tracking.request_path.negate'),
-      '#required' => TRUE,
+      '#default_value' => $config->get('tracking.request_path.mode'),
+    ];
+    $form['page_tracking_tab']['marketo_ma_pages'] = [
+      '#type' => 'textarea',
+      '#title' => t('Pages'),
+      '#title_display' => 'invisible',
+      '#default_value' => !empty($visibility_request_path_pages) ? $visibility_request_path_pages : '',
+      '#description' => t("Specify pages by using their paths. Enter one path per line. The '*' character is a wildcard. Example paths are %blog for the blog page and %blog-wildcard for every personal blog. %front is the front page.", ['%blog' => '/blog', '%blog-wildcard' => '/blog/*', '%front' => '<front>']),
+      '#rows' => 10,
     ];
     //</editor-fold>
 
     //<editor-fold desc="Role tracking config">
-    // Get the user roles to use as options.
-    $options = \user_roles();
-    // We don't need the Role entity, just the label.
-    array_walk($options, function (&$item) {
-      $item = $item->label();
-    });
-    // Add the role tracking settings.
+    $visibility_user_role_roles = $config->get('tracking.user_role.roles');
+    $form['role_tracking_tab']['tracking_roles_visibility'] = [
+      '#type' => 'radios',
+      '#title' => $this->t('Add tracking for specific roles'),
+      '#options' => [
+        t('Add to the selected roles only'),
+        t('Add to every role except the selected ones'),
+      ],
+      '#default_value' => $config->get('tracking.user_role.mode'),
+    ];
     $form['role_tracking_tab']['tracking_roles'] = [
       '#type' => 'checkboxes',
-      '#title' => t('Add tracking to specific roles'),
-      '#default_value' => $config->get('tracking.roles'),
-      '#options' => $options,
-      '#description' => $this->t("Specify roles to be tracked, Warning: %warning", [
-        '%warning' => 'If Anonymous user is unchecked, tracking history will not be available once the user logs in.',
-      ]),
+      '#title' => t('Roles'),
+      '#default_value' => !empty($visibility_user_role_roles) ? $visibility_user_role_roles : [],
+      '#options' => array_map('\Drupal\Component\Utility\Html::escape', user_role_names()),
+      '#description' => $this->t('If none of the roles are selected, all users will be tracked. If a user has any of the roles checked, that user will be tracked (or excluded, depending on the setting above).'),
     ];
     //</editor-fold>
 
@@ -345,13 +424,21 @@ class MarketoMASettings extends ConfigFormBase {
       ->set('munchkin.javascript_library', $form_state->getValue('munchkin_javascript_library'))
       ->set('munchkin.partition', $form_state->getValue('munchkin_partition'))
       ->set('munchkin.api_private_key', $this->encrypt($form_state->getValue('munchkin_api_private_key')))
+      ->set('munchkin.altIds', $form_state->getValue('munchkin_altIds'))
+      ->set('munchkin.cookieLifeDays', $form_state->getValue('munchkin_cookieLifeDays'))
+      ->set('munchkin.clickTime', $form_state->getValue('munchkin_clickTime'))
+      ->set('munchkin.cookieAnon', $form_state->getValue('munchkin_cookieAnon'))
+      ->set('munchkin.domainLevel', $form_state->getValue('munchkin_domainLevel'))
+      ->set('munchkin.disableClickDelay', $form_state->getValue('munchkin_disableClickDelay'))
+      ->set('munchkin.asyncOnly', $form_state->getValue('munchkin_asyncOnly'))
       ->set('rest.batch_requests', $form_state->getValue('rest_batch_requests'))
       ->set('rest.client_id', $this->encrypt($form_state->getValue('rest_client_id')))
       ->set('rest.client_secret', $this->encrypt($form_state->getValue('rest_client_secret')))
       ->set('field.enabled_fields', array_filter($form_state->getValue('field_enabled_fields')))
-      ->set('tracking.request_path.pages', $form_state->getValue('tracking_request_path_pages'))
-      ->set('tracking.request_path.negate', $form_state->getValue('tracking_request_path_negate'))
-      ->set('tracking.roles', array_filter($form_state->getValue('tracking_roles')))
+      ->set('tracking.request_path.mode', $form_state->getValue('marketo_ma_visibility_pages'))
+      ->set('tracking.request_path.pages', $form_state->getValue('marketo_ma_pages'))
+      ->set('tracking.user_role.mode', $form_state->getValue('tracking_roles_visibility'))
+      ->set('tracking.user_role.roles', array_filter($form_state->getValue('tracking_roles')))
       ->save();
   }
 
@@ -365,13 +452,6 @@ class MarketoMASettings extends ConfigFormBase {
    *   The form element to replace in the ajax wrapper setting.
    */
   public function retrieveApiFields(array &$form, FormStateInterface $form_state) {
-
-    // Build an options array from the api response.
-    $options = $this->service->getMarketoFieldsAsTableSelectOptions(TRUE);
-
-    // Add the retrieved options.
-    $form['field_tab']['field_enabled_fields']['#options'] = $options;
-
     // Return the form element that will bre replaced in the wrapper element.
     return $form['field_tab']['field_enabled_fields'];
   }

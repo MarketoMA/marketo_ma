@@ -39,6 +39,13 @@ interface MarketoMaMunchkinInterface {
   public function getAccountID();
 
   /**
+   * Gets the Munchkin initialization parameters.
+   *
+   * @return string
+   */
+  public function getInitParams();
+
+  /**
    * Gets the Munchkin account ID.
    *
    * @return string
