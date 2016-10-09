@@ -148,6 +148,7 @@ class MarketoMaService implements MarketoMaServiceInterface {
         $page['#attached']['drupalSettings']['marketo_ma'] = [
           'track' => TRUE,
           'key' => $this->munchkin->getAccountID(),
+          'initParams' => $this->munchkin->getInitParams(),
           'library' => $this->munchkin->getLibrary(),
         ];
       }

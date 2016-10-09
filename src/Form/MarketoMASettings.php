@@ -89,19 +89,19 @@ class MarketoMASettings extends ConfigFormBase {
       '#group' => 'marketo_ma_tabs',
     ];
     $form['field_tab'] = [
-      '#title' => t('Field Definition'),
+      '#title' => $this->t('Field Definition'),
       '#type' => 'details',
-      '#description' => $this->t('The fields defined here will be available for mapping.'),
+      '#description' => $this->t('By default, all fields below will be available for mapping to Webform and User Profile fields. It is possible to limit the available fields by selecting them below. Read-only fields are displayed here but are never available for mapping.'),
       '#group' => 'marketo_ma_tabs',
     ];
     $form['page_tracking_tab'] = [
-      '#title' => t('Page tracking'),
+      '#title' => $this->t('Page tracking'),
       '#type' => 'details',
       '#group' => 'marketo_ma_tabs',
       '#description' => $this->t('On which pages should Marketo tracking take place.'),
     ];
     $form['role_tracking_tab'] = [
-      '#title' => t('Role tracking'),
+      '#title' => $this->t('Role tracking'),
       '#type' => 'details',
       '#group' => 'marketo_ma_tabs',
     ];
@@ -185,20 +185,87 @@ class MarketoMASettings extends ConfigFormBase {
         'required' => [':input[name=tracking_method]' => ['value' => 'munchkin']],
       ],
     ];
-    $form['api_tab']['group_munchkin']['munchkin_partition'] = [
+    //<editor-fold desc="Advanced Initialization Parameters">
+    $form['marketo_ma_munchkin_advanced'] = array(
+      '#title' => $this->t('Advanced Initialization Parameters'),
+      '#type' => 'details',
+      '#description' => t("Munchkin can accept a variety of additional configuration parameters to customize its behavior.<br />NOTE: Leave the field blank to accept it's default value as defined in munchkin.js"),
+      '#collapsible' => TRUE,
+      '#collapsed' => TRUE,
+      '#group' => 'group_munchkin',
+    );
+    $form['munchkin_partition'] = array(
       '#type' => 'textfield',
-      '#title' => $this->t('Workspace (Partition)'),
+      '#title' => $this->t('wsInfo - Workspace (Partition)'),
       '#default_value' => $config->get('munchkin.partition'),
       '#required' => FALSE,
-      '#description' => $this->t('Value can be found on the Munchkin Admin page at Admin > Integration > Munchkin'),
-    ];
+      '#description' => t('Takes a string to target a workspace.  This workspace ID is obtained by selecting the Workspace in the Admin -> Munchkin menu.'),
+      '#group' => 'marketo_ma_munchkin_advanced',
+    );
+    $form['munchkin_altIds'] = array(
+      '#type' => 'textfield',
+      '#title' => $this->t('altIds'),
+      '#default_value' => $config->get('munchkin.altIds'),
+      '#required' => FALSE,
+      '#description' => t('Accepts an array of Munchkin ID strings.  When enabled, this will duplicate all Web Activity to the targeted subscriptions, based on their Munchkin Id.'),
+      '#group' => 'marketo_ma_munchkin_advanced',
+    );
+    $form['munchkin_cookieLifeDays'] = array(
+      '#type' => 'textfield',
+      '#title' => $this->t('cookieLifeDays'),
+      '#default_value' => $config->get('munchkin.cookieLifeDays'),
+      '#required' => FALSE,
+      '#description' => t('Sets the expiry date of any newly created munchkin tracking cookies to this many days in the future. Default is two years.'),
+      '#group' => 'marketo_ma_munchkin_advanced',
+    );
+    $form['munchkin_clickTime'] = array(
+      '#type' => 'textfield',
+      '#title' => $this->t('clickTime'),
+      '#default_value' => $config->get('munchkin.clickTime'),
+      '#required' => FALSE,
+      '#description' => t('Sets the number of miliseconds to block after a click to allow for click tracking request.  Reducing will reduce accuracy of click-tracking.'),
+      '#group' => 'marketo_ma_munchkin_advanced',
+    );
+    $form['munchkin_cookieAnon'] = array(
+      '#type' => 'textfield',
+      '#title' => $this->t('cookieAnon'),
+      '#default_value' => $config->get('munchkin.cookieAnon'),
+      '#required' => FALSE,
+      '#description' => t('Default true. If set to false, will prevent tracking and cookying of new anonymous leads.  Leads are cookied and tracked after filling out a Marketo form, or clicking through from a Marketo Email.'),
+      '#group' => 'marketo_ma_munchkin_advanced',
+    );
+    $form['munchkin_domainLevel'] = array(
+      '#type' => 'textfield',
+      '#title' => $this->t('domainLevel'),
+      '#default_value' => $config->get('munchkin.domainLevel'),
+      '#required' => FALSE,
+      '#description' => t('Default 3.  Setting to 2 allows for proper tracking on two-letter top-level domains.'),
+      '#group' => 'marketo_ma_munchkin_advanced',
+    );
+    $form['munchkin_disableClickDelay'] = array(
+      '#type' => 'textfield',
+      '#title' => $this->t('disableClickDelay'),
+      '#default_value' => $config->get('munchkin.disableClickDelay'),
+      '#required' => FALSE,
+      '#description' => t('Default false.  If set to true, disables click tracking delay entirely.  Will reduce accuracy of click tracking.'),
+      '#group' => 'marketo_ma_munchkin_advanced',
+    );
+    $form['munchkin_asyncOnly'] = array(
+      '#type' => 'textfield',
+      '#title' => $this->t('asyncOnly'),
+      '#default_value' => $config->get('munchkin.asyncOnly'),
+      '#required' => FALSE,
+      '#description' => t('Default false.  If set to true, will send XHRs asynchronously.'),
+      '#group' => 'marketo_ma_munchkin_advanced',
+    );
+    //</editor-fold>
     //</editor-fold>
 
     //<editor-fold desc="REST configuration">
     $form['api_tab']['group_rest'] = [
       '#title' => $this->t('REST API config'),
-      '#description' => $this->t('You will need an api user and service configured for this application. See :link for details.', [
-        ':link' => Link::fromTextAndUrl('Quick Start Guide for Marketo REST API', Url::fromUri('http://developers.marketo.com/blog/quick-start-guide-for-marketo-rest-api/'))->toString(),
+      '#description' => $this->t('You will need an api user and service configured for this application. See @link for details.', [
+        '@link' => Link::fromTextAndUrl('Quick Start Guide for Marketo REST API', Url::fromUri('http://developers.marketo.com/blog/quick-start-guide-for-marketo-rest-api/'))->toString(),
       ]),
       '#type' => 'fieldset',
       '#states' => [
@@ -213,6 +280,7 @@ class MarketoMASettings extends ConfigFormBase {
       '#states' => [
         'required' => [':input[name=tracking_method]' => ['value' => 'api_client']],
       ],
+      '#description' => t('Client ID is established as part of a <a href="@url">Custom Service</a>.', array('@url' => 'http://developers.marketo.com/documentation/rest/custom-service/')),
     ];
     $form['api_tab']['group_rest']['rest_client_secret'] = [
       '#type' => 'textfield',
@@ -222,6 +290,7 @@ class MarketoMASettings extends ConfigFormBase {
       '#states' => [
         'required' => [':input[name=tracking_method]' => ['value' => 'api_client']],
       ],
+      '#description' => t('Client Secret is established as part of a <a href="@url">Custom Service</a>.', array('@url' => 'http://developers.marketo.com/documentation/rest/custom-service/')),
     ];
     $form['api_tab']['group_rest']['rest_batch_requests'] = [
       '#type' => 'checkbox',
@@ -355,6 +424,13 @@ class MarketoMASettings extends ConfigFormBase {
       ->set('munchkin.javascript_library', $form_state->getValue('munchkin_javascript_library'))
       ->set('munchkin.partition', $form_state->getValue('munchkin_partition'))
       ->set('munchkin.api_private_key', $this->encrypt($form_state->getValue('munchkin_api_private_key')))
+      ->set('munchkin.altIds', $form_state->getValue('munchkin_altIds'))
+      ->set('munchkin.cookieLifeDays', $form_state->getValue('munchkin_cookieLifeDays'))
+      ->set('munchkin.clickTime', $form_state->getValue('munchkin_clickTime'))
+      ->set('munchkin.cookieAnon', $form_state->getValue('munchkin_cookieAnon'))
+      ->set('munchkin.domainLevel', $form_state->getValue('munchkin_domainLevel'))
+      ->set('munchkin.disableClickDelay', $form_state->getValue('munchkin_disableClickDelay'))
+      ->set('munchkin.asyncOnly', $form_state->getValue('munchkin_asyncOnly'))
       ->set('rest.batch_requests', $form_state->getValue('rest_batch_requests'))
       ->set('rest.client_id', $this->encrypt($form_state->getValue('rest_client_id')))
       ->set('rest.client_secret', $this->encrypt($form_state->getValue('rest_client_secret')))

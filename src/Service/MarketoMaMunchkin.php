@@ -75,6 +75,49 @@ class MarketoMaMunchkin implements MarketoMaMunchkinInterface {
   /**
    * {@inheritdoc}
    */
+  public function getInitParams() {
+    $marketo_ma_munchkin_partition = trim($this->config()->get('munchkin.partition'));
+    $marketo_ma_munchkin_altIds = trim($this->config()->get('munchkin.altIds'));
+    $marketo_ma_munchkin_cookieLifeDays = trim($this->config()->get('munchkin.cookieLifeDays'));
+    $marketo_ma_munchkin_clickTime = trim($this->config()->get('munchkin.clickTime'));
+    $marketo_ma_munchkin_cookieAnon = trim($this->config()->get('munchkin.cookieAnon'));
+    $marketo_ma_munchkin_domainLevel = trim($this->config()->get('munchkin.domainLevel'));
+    $marketo_ma_munchkin_disableClickDelay = trim($this->config()->get('munchkin.disableClickDelay'));
+    $marketo_ma_munchkin_asyncOnly = trim($this->config()->get('munchkin.asyncOnly'));
+
+    $initParams = array();
+    if ($marketo_ma_munchkin_partition != '') {
+      $initParams['wsInfo'] = $marketo_ma_munchkin_partition;
+    }
+    if ($marketo_ma_munchkin_altIds != '') {
+      $altIds = preg_split("/,\s*/", $marketo_ma_munchkin_altIds);
+      $initParams['altIds'] = $altIds;
+    }
+    if ($marketo_ma_munchkin_cookieLifeDays != '') {
+      $initParams['cookieLifeDays'] = $marketo_ma_munchkin_cookieLifeDays;
+    }
+    if ($marketo_ma_munchkin_clickTime != '') {
+      $initParams['clickTime'] = $marketo_ma_munchkin_clickTime;
+    }
+    if ($marketo_ma_munchkin_cookieAnon != '') {
+      $initParams['cookieAnon'] = $marketo_ma_munchkin_cookieAnon;
+    }
+    if ($marketo_ma_munchkin_domainLevel != '') {
+      $initParams['domainLevel'] = $marketo_ma_munchkin_domainLevel;
+    }
+    if ($marketo_ma_munchkin_disableClickDelay != '') {
+      $initParams['disableClickDelay'] = $marketo_ma_munchkin_disableClickDelay;
+    }
+    if ($marketo_ma_munchkin_asyncOnly != '') {
+      $initParams['asyncOnly'] = $marketo_ma_munchkin_asyncOnly;
+    }
+
+    return $initParams;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function getLibrary() {
     return $this->config()->get('munchkin.javascript_library');
   }

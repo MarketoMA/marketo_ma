@@ -24,6 +24,20 @@ marketo_ma.settings:
           type: string
         account_id:
           type: string
+        altIds:
+          type: string
+        cookieLifeDays:
+          type: string
+        clickTime:
+          type: string
+        cookieAnon:
+          type: string
+        domainLevel:
+          type: string
+        disableClickDelay:
+          type: string
+        asyncOnly:
+          type: string
     rest:
       type: config_object
       label: 'REST API config'

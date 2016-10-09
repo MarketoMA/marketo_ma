@@ -7,6 +7,13 @@ munchkin:
   partition: Default
   lead_source: null
   account_id: null
+  altIds: null
+  cookieLifeDays: null
+  clickTime: null
+  cookieAnon: null
+  domainLevel: null
+  disableClickDelay: null
+  asyncOnly: null
 rest:
   batch_requests: 0
   client_id: ''
