@@ -63,14 +63,6 @@ function marketo_ma_schema() {
         'not null' => TRUE,
         'default' => 0,
       ),
-      'enabled' => array(
-        'description' => 'TRUE (1) if enabled in Marketo MA configuration.',
-        'type' => 'int',
-        'size' => 'small',
-        'unsigned' => TRUE,
-        'not null' => TRUE,
-        'default' => 0,
-      ),
     ),
   );
   return $schema;

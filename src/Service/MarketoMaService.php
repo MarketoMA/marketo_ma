@@ -84,6 +84,13 @@ class MarketoMaService implements MarketoMaServiceInterface {
    * @var \Drupal\Core\State\StateInterface
    */
   protected $state;
+  
+  /**
+   * Marketo lead fields.
+   *
+   * @var Drupal\marketo_ma\FieldDefinitionSet 
+   */
+  protected $fieldset;
 
   /**
    * Creates the Marketo MA core service..
@@ -117,6 +124,7 @@ class MarketoMaService implements MarketoMaServiceInterface {
     $this->queue_factory = $queue_factory;
     $this->temp_store_factory = $temp_store_factory;
     $this->state = $state;
+    $this->fieldset = new FieldDefinitionSet;
   }
 
   /**
@@ -258,25 +266,31 @@ class MarketoMaService implements MarketoMaServiceInterface {
   /**
    * {@inheritdoc}
    */
-  public function getMarketoFields($reset = FALSE) {
-    $fieldset = new FieldDefinitionSet();
-    if ($reset) {
-      $api_fields = $this->api_client->canConnect() ? $this->api_client->getFields() : [];
-      foreach ($api_fields as $api_field) {
-        $fieldset->add($api_field);
-      }
-    }
-    return $fieldset->getAllTableselect();
+  public function getMarketoFields() {
+    return $this->fieldset->getAll();
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getMarketoFieldsAsTableSelectOptions($reset = FALSE) {
-    // Convert objects to table-select options.
-    return array_map(function ($item) {
-      return $item instanceof MarketoFieldDefinition ? $item->toTableSelectOption() : [];
-    }, $this->getMarketoFields($reset));
+  public function getMarketoFieldsAsTableSelectOptions() {
+    return $this->fieldset->getAllTableselect();
+  }
+  
+  /**
+   * {@inheritdoc}
+   */
+  public function getReadOnly() {
+    return $this->fieldset->getReadOnly();
+  }
+
+  public function resetMarketoFields() {
+    $api_fields = $this->api_client->canConnect() ? $this->api_client->getFields() : [];
+    foreach ($api_fields as $api_field) {
+      $this->fieldset->add($api_field);
+    }
+    $this->fieldset = new FieldDefinitionSet;
+    return $this;
   }
 
   /**
