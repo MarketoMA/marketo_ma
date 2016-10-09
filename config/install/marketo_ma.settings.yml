@@ -15,8 +15,8 @@ field:
   enabled_fields: {}
 tracking:
   request_path:
-    negate: 1
-    pages: "/admin\r\n/admin/*\r\n/batch\r\n/node/add*\r\n/node/*/*\r\n/user/*/*"
-  roles:
-    authenticated: authenticated
-    anonymous: anonymous
+    mode: 0
+    pages: "/admin\n/admin/*\n/batch\n/node/add*\n/node/*/*\n/user/*/*"
+  user_role:
+    mode: 0
+    roles: {  }

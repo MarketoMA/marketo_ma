@@ -2,6 +2,7 @@
 
 namespace Drupal\marketo_ma\Service;
 
+use Drupal\Component\Utility\Unicode;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Path\PathMatcherInterface;
 use Drupal\Core\Queue\QueueFactory;
@@ -186,21 +187,85 @@ class MarketoMaService implements MarketoMaServiceInterface {
    * {@inheritdoc}
    */
   public function shouldTrackCurrentRequest() {
-    // Get track-able roles.
-    $trackable_roles = array_filter($this->config()->get('tracking.roles'));
-    // Get the current user's roles.
-    $user_roles = $this->current_user->getRoles();
-    // Checks if the current user has any trackable roles.
-    if (empty(array_intersect(array_keys($trackable_roles), $user_roles))) {
-      return FALSE;
+    $user = \Drupal::currentUser();
+    return ($this->_marketo_ma_visibility_pages() && $this->_marketo_ma_visibility_roles($user));
+  }
+  
+  /**
+   * Tracking visibility check for pages.
+   *
+   * Based on visibility setting this function returns TRUE if JS code should
+   * be added to the current page and otherwise FALSE.
+   */
+  private function _marketo_ma_visibility_pages() {
+    static $page_match;
+
+    // Cache visibility result if function is called more than once.
+    if (!isset($page_match)) {
+      $visibility_request_path_mode = $this->config()->get('tracking.request_path.mode');
+      $visibility_request_path_pages = $this->config()->get('tracking.request_path.pages');
+
+      // Match path if necessary.
+      if (!empty($visibility_request_path_pages)) {
+        // Convert path to lowercase. This allows comparison of the same path
+        // with different case. Ex: /Page, /page, /PAGE.
+        $pages = Unicode::strtolower($visibility_request_path_pages);
+        if ($visibility_request_path_mode < 2) {
+          // Compare the lowercase path alias (if any) and internal path.
+          $path = \Drupal::service('path.current')->getPath();
+          $path_alias = Unicode::strtolower(\Drupal::service('path.alias_manager')->getAliasByPath($path));
+          $page_match = $this->path_matcher->matchPath($path_alias, $pages) || (($path != $path_alias) && $this->path_matcher->matchPath($path, $pages));
+          // When $visibility_request_path_mode has a value of 0, the tracking
+          // code is displayed on all pages except those listed in $pages. When
+          // set to 1, it is displayed only on those pages listed in $pages.
+          $page_match = !($visibility_request_path_mode xor $page_match);
+        }
+        else {
+          $page_match = FALSE;
+        }
+      }
+      else {
+        $page_match = TRUE;
+      }
+
+    }
+    return $page_match;
+  }
+
+  /**
+   * Tracking visibility check for user roles.
+   *
+   * Based on visibility setting this function returns TRUE if JS code should
+   * be added for the current role and otherwise FALSE.
+   *
+   * @param object $account
+   *   A user object containing an array of roles to check.
+   *
+   * @return bool
+   *   TRUE if JS code should be added for the current role and otherwise FALSE.
+   */
+  private function _marketo_ma_visibility_roles($account) {
+    $enabled = $visibility_user_role_mode = $this->config()->get('tracking.user_role.mode');
+    $visibility_user_role_roles = $this->config()->get('tracking.user_role.roles');
+
+    if (count($visibility_user_role_roles) > 0) {
+      // One or more roles are selected.
+      foreach (array_values($account->getRoles()) as $user_role) {
+        // Is the current user a member of one of these roles?
+        if (in_array($user_role, $visibility_user_role_roles)) {
+          // Current user is a member of a role that should be tracked/excluded
+          // from tracking.
+          $enabled = !$visibility_user_role_mode;
+          break;
+        }
+      }
+    }
+    else {
+      // No role is selected for tracking, therefore all roles should be tracked.
+      $enabled = TRUE;
     }
 
-    // Get whether we are looking for a page match or a lack thereof.
-    $negate_page_match = $this->config()->get('tracking.request_path.negate');
-    // Use the patch matcher service to test whether the current path matches.
-    $path_has_match = $this->path_matcher->matchPath($this->route_match->getRouteObject()->getPath() , $this->config()->get('tracking.request_path.pages'));
-
-    return (($path_has_match && !$negate_page_match) || (!$path_has_match && $negate_page_match));
+    return $enabled;
   }
 
   /**

@@ -290,44 +290,43 @@ class MarketoMASettings extends ConfigFormBase {
     //</editor-fold>
 
     //<editor-fold desc="Page tracking config">
-    $form['page_tracking_tab']['tracking_request_path_pages'] = [
-      '#type' => 'textarea',
-      '#title' => $this->t('Pages'),
-      '#default_value' => $config->get('tracking.request_path.pages'),
-      '#rows' => 10,
-      '#description' => $this->t("Specify pages by using their paths. Enter one path per line. The '*' character is a wildcard. Example paths are %blog for the blog page and %blog-wildcard for every personal blog. %front is the front page.", [
-        '%blog' => '/blog',
-        '%blog-wildcard' => '/blog/*',
-        '%front' => '<front>',
-      ]),
-    ];
-    $form['page_tracking_tab']['tracking_request_path_negate'] = [
+    $visibility_request_path_pages = $config->get('tracking.request_path.pages');
+    $form['page_tracking_tab']['marketo_ma_visibility_pages'] = [
       '#type' => 'radios',
+      '#title' => $this->t('Add tracking to specific pages'),
       '#options' => [
-        0 => $this->t('Track on the listed pages'),
-        1 => $this->t('Do not track on the listed pages'),
+        t('Every page except the listed pages'),
+        t('The listed pages only'),
       ],
-      '#default_value' => $config->get('tracking.request_path.negate'),
-      '#required' => TRUE,
+      '#default_value' => $config->get('tracking.request_path.mode'),
+    ];
+    $form['page_tracking_tab']['marketo_ma_pages'] = [
+      '#type' => 'textarea',
+      '#title' => t('Pages'),
+      '#title_display' => 'invisible',
+      '#default_value' => !empty($visibility_request_path_pages) ? $visibility_request_path_pages : '',
+      '#description' => t("Specify pages by using their paths. Enter one path per line. The '*' character is a wildcard. Example paths are %blog for the blog page and %blog-wildcard for every personal blog. %front is the front page.", ['%blog' => '/blog', '%blog-wildcard' => '/blog/*', '%front' => '<front>']),
+      '#rows' => 10,
     ];
     //</editor-fold>
 
     //<editor-fold desc="Role tracking config">
-    // Get the user roles to use as options.
-    $options = \user_roles();
-    // We don't need the Role entity, just the label.
-    array_walk($options, function (&$item) {
-      $item = $item->label();
-    });
-    // Add the role tracking settings.
+    $visibility_user_role_roles = $config->get('tracking.user_role.roles');
+    $form['role_tracking_tab']['tracking_roles_visibility'] = [
+      '#type' => 'radios',
+      '#title' => $this->t('Add tracking for specific roles'),
+      '#options' => [
+        t('Add to the selected roles only'),
+        t('Add to every role except the selected ones'),
+      ],
+      '#default_value' => $config->get('tracking.user_role.mode'),
+    ];
     $form['role_tracking_tab']['tracking_roles'] = [
       '#type' => 'checkboxes',
-      '#title' => t('Add tracking to specific roles'),
-      '#default_value' => $config->get('tracking.roles'),
-      '#options' => $options,
-      '#description' => $this->t("Specify roles to be tracked, Warning: %warning", [
-        '%warning' => 'If Anonymous user is unchecked, tracking history will not be available once the user logs in.',
-      ]),
+      '#title' => t('Roles'),
+      '#default_value' => !empty($visibility_user_role_roles) ? $visibility_user_role_roles : [],
+      '#options' => array_map('\Drupal\Component\Utility\Html::escape', user_role_names()),
+      '#description' => $this->t('If none of the roles are selected, all users will be tracked. If a user has any of the roles checked, that user will be tracked (or excluded, depending on the setting above).'),
     ];
     //</editor-fold>
 
@@ -360,9 +359,10 @@ class MarketoMASettings extends ConfigFormBase {
       ->set('rest.client_id', $this->encrypt($form_state->getValue('rest_client_id')))
       ->set('rest.client_secret', $this->encrypt($form_state->getValue('rest_client_secret')))
       ->set('field.enabled_fields', array_filter($form_state->getValue('field_enabled_fields')))
-      ->set('tracking.request_path.pages', $form_state->getValue('tracking_request_path_pages'))
-      ->set('tracking.request_path.negate', $form_state->getValue('tracking_request_path_negate'))
-      ->set('tracking.roles', array_filter($form_state->getValue('tracking_roles')))
+      ->set('tracking.request_path.mode', $form_state->getValue('marketo_ma_visibility_pages'))
+      ->set('tracking.request_path.pages', $form_state->getValue('marketo_ma_pages'))
+      ->set('tracking.user_role.mode', $form_state->getValue('tracking_roles_visibility'))
+      ->set('tracking.user_role.roles', array_filter($form_state->getValue('tracking_roles')))
       ->save();
   }
 
