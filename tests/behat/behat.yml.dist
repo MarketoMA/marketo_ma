@@ -7,9 +7,7 @@ default:
                 marketo_test_settings:
                     instance_host: 'app-sjqe.marketo.com'
                     logging: 1
-                    tracking_method: munchkin
                     munchkin:
-                      javascript_library: //munchkin.marketo.net/munchkin.js
                       api_private_key: oPnATJMGpjHA7A_-2_FDOPhMUmaE3ktM1G1Ps9tSfMcwMxVOORiTz372rnReJXDj1o7WUFWwVujs3m3kBxlooruyf0js4wHdNjRubg
                       account_id: EUpSvLCRraM8LcP-v5xJj9cLEIymsTwbONkM6JiY4mQwM3Id9zv0ElJTAGyl4nGlhHKbDpFUk9FcbWDQDg
                 
