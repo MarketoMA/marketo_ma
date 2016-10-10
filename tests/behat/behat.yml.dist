@@ -1,0 +1,74 @@
+default:
+  suites:
+    default:
+      contexts:
+        - FeatureContext:
+            parameters:
+                marketo_test_settings:
+                    instance_host: 'app-sjqe.marketo.com'
+                    logging: 1
+                    tracking_method: munchkin
+                    munchkin:
+                      javascript_library: //munchkin.marketo.net/munchkin.js
+                      api_private_key: oPnATJMGpjHA7A_-2_FDOPhMUmaE3ktM1G1Ps9tSfMcwMxVOORiTz372rnReJXDj1o7WUFWwVujs3m3kBxlooruyf0js4wHdNjRubg
+                      account_id: EUpSvLCRraM8LcP-v5xJj9cLEIymsTwbONkM6JiY4mQwM3Id9zv0ElJTAGyl4nGlhHKbDpFUk9FcbWDQDg
+                
+                marketo_default_settings:
+                    instance_host: ''
+                    logging: 0
+                    tracking_method: munchkin
+                    munchkin:
+                      javascript_library: //munchkin.marketo.net/munchkin.js
+                      api_private_key: ''
+                      partition: ''
+                      lead_source: ''
+                      account_id: ''
+                      altIds: ''
+                      cookieLifeDays: ''
+                      clickTime: ''
+                      cookieAnon: ''
+                      domainLevel: ''
+                      disableClickDelay: ''
+                      asyncOnly: ''
+                    rest:
+                      batch_requests: 0
+                      client_id: ''
+                      client_secret: ''
+                    field:
+                      enabled_fields: {  }
+                    tracking:
+                      request_path:
+                        mode: 0
+                        pages: "/admin\n/admin/*\n/batch\n/node/add*\n/node/*/*\n/user/*/*"
+                      user_role:
+                        mode: 0
+                        roles: {  }
+
+        - Drupal\DrupalExtension\Context\DrupalContext
+        - Drupal\DrupalExtension\Context\MinkContext
+        - Drupal\DrupalExtension\Context\MessageContext
+        - Drupal\DrupalExtension\Context\DrushContext
+  extensions:
+    Behat\MinkExtension:
+      base_url: "$DRUPAL_TI_WEBSERVER_URL:$DRUPAL_TI_WEBSERVER_PORT/"
+      goutte: ~
+      selenium2:
+        capabilities:
+          browser: "$DRUPAL_TI_BEHAT_BROWSER"
+          browserVersion: ANY
+          version: ANY
+          deviceType: ANY
+      browser_name: "$DRUPAL_TI_BEHAT_BROWSER"
+    Drupal\DrupalExtension:
+      blackbox: ~
+      api_driver: "drupal"
+      drush_driver: "drush"
+      drupal:
+        drupal_root: "$DRUPAL_TI_DRUPAL_DIR"
+      drush:
+        root: "$DRUPAL_TI_DRUPAL_DIR"
+      region_map:
+        left sidebar: "#sidebar-first"
+        content: "#content"
+      selectors:
+        error_message_selector: '.messages--error'
