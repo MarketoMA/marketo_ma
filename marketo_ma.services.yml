@@ -8,8 +8,12 @@ services:
   #   example the field mapping along the way.
   marketo_ma.api_client:
     class: Drupal\marketo_ma\Service\MarketoMaApiClient
-    arguments: ['@config.factory']
+    arguments: ['@config.factory', '@logger.channel.marketo_ma']
   # The Marketo MA munchkin service
   marketo_ma.munchkin:
     class: Drupal\marketo_ma\Service\MarketoMaMunchkin
     arguments: ['@config.factory', '@current_user', '@current_route_match']
+  # The Marketo MA logger.
+  logger.channel.marketo_ma:
+    parent: logger.channel_base
+    arguments: ['marketo_ma']

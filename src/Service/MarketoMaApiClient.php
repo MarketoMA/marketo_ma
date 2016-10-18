@@ -6,6 +6,7 @@ use CSD\Marketo\Client;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\encryption\EncryptionTrait;
 use Drupal\marketo_ma\Lead;
+use Psr\Log\LoggerInterface;
 
 /**
  * This is a wrapper for the default API client library. It could be switched
@@ -39,12 +40,22 @@ class MarketoMaApiClient implements MarketoMaApiClientInterface {
   private $client_config;
 
   /**
+   * A logger instance.
+   *
+   * @var \Psr\Log\LoggerInterface
+   */
+  protected $logger;
+
+  /**
    * Creates the Marketo API client wrapper service.
    *
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
+   * @param \Psr\Log\LoggerInterface $logger
+   *   A logger instance.
    */
-  public function __construct(ConfigFactoryInterface $config_factory) {
+  public function __construct(ConfigFactoryInterface $config_factory, LoggerInterface $logger) {
     $this->configFactory = $config_factory;
+    $this->logger = $logger;
 
     $config = $this->config();
 
@@ -98,7 +109,13 @@ class MarketoMaApiClient implements MarketoMaApiClientInterface {
    */
   protected function getClient() {
     if (!isset($this->client)) {
-      $this->client = Client::factory($this->client_config);
+      $config = $this->client_config;
+      // Validate config so we don't generate an invalid argument exception.
+      if (!empty($config['client_id']) && (!empty($config['url']) || !empty($config['munchkin_id']))) {
+        $this->client = Client::factory($config);
+      } else {
+        $this->logger->warning('MarketoMaApiClient::getClient called but rest-api-client is missing some configuration.', $config);
+      }
     }
     return $this->client;
   }
