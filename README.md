@@ -13,8 +13,19 @@ This module adds Marketo tracking capability to your Drupal site.
 1. Copy the entire `marketo_ma` directory the Drupal `modules` directory. You
    can optionally user drush to download with `drush dl marketo_ma`.
 
-2. Add the SOAP API library to drupal using `composer require
+2. Add the REST API library to drupal using `composer require
    dchesterton/marketo-rest-api:dev-master`.
+
+   Note: There is a [pull request](https://github.com/dchesterton/marketo-rest-api/pull/34)
+   for adding a couple commands we need to the library. Untill this pull request
+   is merged, a repositories entry must be added to composer.json.
+
+        "repositories": [
+          {
+            "type": "vcs",
+            "url": "https://github.com/Jaesin/marketo-rest-api"
+          }
+        ],
 
 3. Login as an administrator. Enable the Marketo MA module in
    "Administer" -> "Modules"
@@ -66,13 +77,11 @@ Multiple options are available for how captured data is submitted to Marketo.
   Lead updates will be sent to Marketo as pages are viewed using the
   client-side Munchkin API.
 
-- **SOAP API (Synchronous)**
+- **REST API**
   Lead data will be sent to Marketo immediately but may increase page
-  load time.
-
-- **SOAP API (Asynchronous)**
-  Lead updates are added to a queue when captured and data is sent to
-  Marketo each time cron runs. Ensure you are running cron regularly.
+  load timeunless the `Batch API transactions` option is checked. In that 
+  case lead updates are added to a queue when captured and data is sent to
+  Marketo when cron runs.
 
 **Munchkin Javascript API - API Private Key**
 Your Munchkin API Private key. This can be set/retrieved on your Marketo
@@ -83,35 +92,19 @@ Additional information can be found in the Marketo article
 **Munchkin Javascript API - Partition**
 This currently does nothing and is ignored.
 
-**SOAP API**
+**REST API**
 Values for these fields can be set/retrieved on your Marketo admin site under
-Admin > Integration > SOAP API. Additional information can be found in the
-Marketo article [Configuring Your SOAP API Settings](http://community.marketo.com/MarketoArticle?id=kA050000000KyoyCAC).
+Admin > Integration > LaunchPoint. Additional information can be found in the
+Marketo article [Create a Custom Service for Use with ReST API](http://docs.marketo.com/display/public/DOCS/Create+a+Custom+Service+for+Use+with+ReST+API).
 
-- SOAP endpoint
-- User ID
-- Encryption Key
+- Client Id
+- Client Secret
+- Batch API transactions
 
-SOAP configuration will be validated upon save.
-
-**SOAP API - SoapClient Proxy Settings**
-Proxy settings can be set if your server needs to use a proxy for external requests.
-
-### <a id="field-definition"></a> Field Definition
-
-The fields configured here will be available for mapping to User and Webform fields.
-They should match those that are defined in your Marketo admin under
-Admin > Field Management. Additional information regarding Marketo fields can be
-found in the Marketo articles [Field Management](http://community.marketo.com/MarketoDeepDive?id=kA5500000008RWQCA2)
-and [Export a List of All Marketo API Field Names](http://community.marketo.com/MarketoArticle?id=kA050000000KytHCAS).
-
-**Marketo Fields**
-This section should contain a pipe "|" delimited list of the fields in the format
-"[Field API Name]|[Friendly Label]". Example:
-
-    FirstName|First Name
-    LastName|Last Name
-    Email|Email Address
+**Field Definition**
+This section will contain a list of fields that should be enabled for mapping. Field 
+details include Marketo ID, Display name, REST key and Munchkin key. Check any fields that should be available for mapping. If the list is empty, click the `Retrieve from Marketo` button to fetch the fields from marketo. If the button is grayed out, the REST
+API hasn't been configured and field retrieval is unavailable.
 
 ### <a id="page-visibility"></a> Page Visiblity
 
@@ -126,12 +119,12 @@ This option defines the default rule for tracking pages
 Specify pages by entering their paths, one path per line, and optionally using
 a \* as a wildcard. The default setting is:
 
-    admin
-    admin/*
-    batch
-    node/add*
-    node/*/*
-    user/*/*
+    /admin
+    /admin/*
+    /batch
+    /node/add*
+    /node/*/*
+    /user/*/*
 
 ### <a id="role-visibility"></a> Role Visibility
 
@@ -156,8 +149,8 @@ configuration page found at admin/config/search/marketo_ma.
 
 1. Enable the Marketo MA User module.
 
-2. Ensure that SOAP API settings are configured in the API Configuration section.
-   User integration is dependant on the SOAP API and will leverage it regardless
+2. Ensure that REST API settings are configured in the API Configuration section.
+   User integration is dependant on the REST API and will leverage it regardless
    of which tracking method you have selected.
 
 3. In the User Integration section you will find options for activity triggers
@@ -173,43 +166,35 @@ configuration page found at admin/config/search/marketo_ma.
 
 **It is not necessary to define a mapping for email address as this field is automatically mapped to the Marketo "Email" field.**
 
-### <a id="webform-integration"></a> Webform Integration (Requires Marketo MA Webform)
+### <a id="contact-integration"></a> Contact form integration (Requires Marketo MA Contact)
 
-Marketo settings for a given webform are managed on each individual node. This
-section displays a table of all content on the site that may have a webform
-attached to it and provides an overview of each item's current state.
+Marketo settings for a given contact form are managed on the contact form's
+Marketo tab. The following sections are available in the configuration form.
 
-- **Title**
-  The title of the webform.
+- **Enable tracking**
+  A Yes/No value indicating if tracking is currently enabled for this contact form.
 
-- **Tracking Enabled**
-  A Yes/No value indicating if tracking is currently enabled for this webform.
+- **Field Map**
+  This is a table of contact form fields. Each field has a select list to choose
+  Marketo field that should be updated when a customer submits the contact form.
 
-- **Components Mapped**
-  The number of form components that have been mapped to a Marketo field.
+## Configuring a contact form for tracking
 
-- **Manage**
-  A direct link to the Marketo component mapping page for this webform.
+These steps assume you already have a contact form and fields defined. Instructions for
+creating a contact form can be found here <https://www.drupal.org/documentation/modules/contact>.
 
-## Configuring a Webform for tracking
+1. Ensure the Marketo MA Contact module is enabled.
 
-These steps assume you already have a webform and components defined. Instructions for
-creating a webform can be found here http://drupal.org/documentation/modules/webform.
+2. On the contact form edit page there will be a tab to configure Marketo MA. Click
+   the link or navigate to `admin/structure/contact/{contact_form_id}/marketo`.
 
-1. Ensure the Marketo MA Webform module is enabled.
-
-2. From the Webform Integration section of the Marketo MA module configuration page,
-   click the Edit link for the webform you would like to configure. Alternatively you
-   can view the webform node directly and click the Marketo link found on the Webform
-   tab. The direct path to the setup page will be node/%nodeid/webform/marketo.
-
-3. Enable or disable lead capture for this webform by toggling the "Capture Data"
+3. Enable or disable lead capture for this contact form by toggling the "Capture Data"
    checkbox. When this setting is unchecked, no data will be sent to Marketo.
 
-4. Assuming you have defined components for this webform you will see a table of
-   all components and their associated Marketo mappings. Use the select boxes in
-   the Marketo column to map each field. The options available to you are defined
-   in the "Field Definition" section of the the Marketo MA config screen.
+4. You will see a list of contact form fields with all their associated Marketo
+   mappings. Use the select boxes in the Marketo column to map each field. The
+   options available to you are defined in the "Field Definition" section of the
+   the Marketo MA config page (`admin/config/services/marketo-ma#edit-field-tab`).
    **At a minimum must have a field mapped to the Marketo Email if you want data to be captured.**
 
-5. Save the form
+5. Save the Marketo MA contact configuration form.

@@ -77,8 +77,8 @@ class MarketoMaContactConfiguration extends FormBase {
 
     $form['enabled'] = [
       '#type' => 'checkbox',
-      '#title' => $this->t('Enable tracking'),
-      '#description' => $this->t('Set to "Enable tracking" to turn on tracking for this contact form.'),
+      '#title' => $this->t('Capture Data'),
+      '#description' => $this->t('If checked, captured form information will be sent to Marketo.'),
       '#default_value' => $this->contactForm->getThirdPartySetting('marketo_ma_contact', 'enabled'),
     ];
 
