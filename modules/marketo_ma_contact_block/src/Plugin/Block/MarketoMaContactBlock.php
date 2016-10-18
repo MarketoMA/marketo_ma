@@ -2,6 +2,7 @@
 
 namespace Drupal\marketo_ma_contact_block\Plugin\Block;
 
+use Drupal\contact\MessageInterface;
 use Drupal\contact_block\Plugin\Block\ContactBlock;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
@@ -123,9 +124,14 @@ class MarketoMaContactBlock extends ContactBlock {
    */
   protected function createContactMessage() {
     if ($contact_message = parent::createContactMessage()) {
+      // Loop through the fields.
       foreach ($this->configuration['fields'] as $field_name => $field_value) {
-        $main_property = $contact_message->getFieldDefinition($field_name)->getFieldStorageDefinition()->getMainPropertyName();
-        $contact_message->get($field_name)->{$main_property} = $field_value;
+        // make sure the field is currently available.
+        if ($contact_message instanceof MessageInterface && ($field = $contact_message->getFieldDefinition($field_name))) {
+          // Set the field value.
+          $main_property = $field->getFieldStorageDefinition()->getMainPropertyName();
+          $contact_message->get($field_name)->{$main_property} = $field_value;
+        }
       }
     }
     return $contact_message;
