@@ -79,7 +79,7 @@ class MarketoMaApiClient implements MarketoMaApiClientInterface {
    * {@inheritdoc}
    */
   public function getFields() {
-    $fields_result = $this->getClient()->getFields()->getResult();
+    $fields_result = $this->getClient()->describeLeads()->getResult();
 
     array_walk($fields_result, function (&$field_item) {
       $field_item['default_name'] = $field_item['rest']['name'];
@@ -144,7 +144,7 @@ class MarketoMaApiClient implements MarketoMaApiClientInterface {
     // A paging token is required by the activities.json call.
     $paging_token = $this->getClient()->getPagingToken(date('c'))->getNextPageToken();
     // Calls get lead activities on the API client.
-    return $this->getClient()->getLeadActivity($paging_token, $lead->id(), $activity_type_ids)->getLeadActivity();
+    return $this->getClient()->getLeadActivity($paging_token, $lead->id(), $activity_type_ids)->getResult();
   }
 
   /**

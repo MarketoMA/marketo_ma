@@ -14,18 +14,7 @@ This module adds Marketo tracking capability to your Drupal site.
    can optionally user drush to download with `drush dl marketo_ma`.
 
 2. Add the REST API library to drupal using `composer require
-   dchesterton/marketo-rest-api:dev-master`.
-
-   Note: There is a [pull request](https://github.com/dchesterton/marketo-rest-api/pull/34)
-   for adding a couple commands we need to the library. Untill this pull request
-   is merged, a repositories entry must be added to composer.json.
-
-        "repositories": [
-          {
-            "type": "vcs",
-            "url": "https://github.com/Jaesin/marketo-rest-api"
-          }
-        ],
+   marketo-api/marketo-rest-client:dev-master`.
 
 3. Login as an administrator. Enable the Marketo MA module in
    "Administer" -> "Modules"
@@ -79,7 +68,7 @@ Multiple options are available for how captured data is submitted to Marketo.
 
 - **REST API**
   Lead data will be sent to Marketo immediately but may increase page
-  load timeunless the `Batch API transactions` option is checked. In that 
+  load timeunless the `Batch API transactions` option is checked. In that
   case lead updates are added to a queue when captured and data is sent to
   Marketo when cron runs.
 
@@ -102,7 +91,7 @@ Marketo article [Create a Custom Service for Use with ReST API](http://docs.mark
 - Batch API transactions
 
 **Field Definition**
-This section will contain a list of fields that should be enabled for mapping. Field 
+This section will contain a list of fields that should be enabled for mapping. Field
 details include Marketo ID, Display name, REST key and Munchkin key. Check any fields that should be available for mapping. If the list is empty, click the `Retrieve from Marketo` button to fetch the fields from marketo. If the button is grayed out, the REST
 API hasn't been configured and field retrieval is unavailable.
 

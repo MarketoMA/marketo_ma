@@ -52,8 +52,7 @@ install:
   - composer require drupal/encryption:1.x-dev
   - composer require drupal/contact_block:1.x-dev
   - composer require drupal/contact_storage:1.x-dev
-  - "cat composer.json | jq '.repositories |= [{\"type\": \"vcs\", \"url\": \"https://github.com/jaesin/marketo-rest-api\"}]' | tee composer.json"
-  - composer require dchesterton/marketo-rest-api:dev-master
+  - composer require marketo-api/marketo-rest-client:dev-master
 
   # Reference module in build site.
   - ln -s $TESTDIR modules/marketo_ma
