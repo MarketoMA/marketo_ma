@@ -131,7 +131,7 @@ interface MarketoMaServiceInterface {
    *   All fields available for mapping keyed by marketo field ID.
    */
   public function getReadOnly();
-  
+
   /**
    * Get's fields that have been enabled.
    *

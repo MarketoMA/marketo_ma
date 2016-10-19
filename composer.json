@@ -10,14 +10,8 @@
     "issues": "https://www.drupal.org/project/issues/marketo_ma",
     "source": "http://cgit.drupalcode.org/marketo_ma"
   },
-  "repositories": [
-    {
-      "type": "vcs",
-      "url": "https://github.com/Jaesin/marketo-rest-api"
-    }
-  ],
   "require": {
     "php": ">=5.5.9",
-    "dchesterton/marketo-rest-api" : "dev-master"
+    "marketo-api/marketo-rest-client" : "dev-master"
   }
 }

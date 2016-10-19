@@ -85,11 +85,11 @@ class MarketoMaService implements MarketoMaServiceInterface {
    * @var \Drupal\Core\State\StateInterface
    */
   protected $state;
-  
+
   /**
    * Marketo lead fields.
    *
-   * @var Drupal\marketo_ma\FieldDefinitionSet 
+   * @var \Drupal\marketo_ma\FieldDefinitionSet
    */
   protected $fieldset;
 
@@ -191,7 +191,7 @@ class MarketoMaService implements MarketoMaServiceInterface {
     $user = \Drupal::currentUser();
     return ($this->_marketo_ma_visibility_pages() && $this->_marketo_ma_visibility_roles($user));
   }
-  
+
   /**
    * Tracking visibility check for pages.
    *
@@ -342,7 +342,7 @@ class MarketoMaService implements MarketoMaServiceInterface {
   public function getMarketoFieldsAsTableSelectOptions() {
     return $this->fieldset->getAllTableselect();
   }
-  
+
   /**
    * {@inheritdoc}
    */
