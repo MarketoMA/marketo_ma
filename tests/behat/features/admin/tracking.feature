@@ -55,7 +55,7 @@ Feature: Browser tests
     When I visit "/node/add/article"
     Then Munchkin tracking should be enabled
     
-  @role_visibility
+  @role_visibility @wip
   Scenario: Role visibilty when using default "Add to every role except the selected ones"
     Given I set the configuration item marketo_ma.settings with key tracking with values:
       | key   | value  |
