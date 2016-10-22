@@ -5,11 +5,16 @@ default:
         - FeatureContext:
             parameters:
                 marketo_test_settings:
-                    instance_host: 'app-sjqe.marketo.com'
+                    instance_host: app-sjqe.marketo.com
                     logging: 1
+                    tracking_method: munchkin
                     munchkin:
-                      api_private_key: oPnATJMGpjHA7A_-2_FDOPhMUmaE3ktM1G1Ps9tSfMcwMxVOORiTz372rnReJXDj1o7WUFWwVujs3m3kBxlooruyf0js4wHdNjRubg
-                      account_id: EUpSvLCRraM8LcP-v5xJj9cLEIymsTwbONkM6JiY4mQwM3Id9zv0ElJTAGyl4nGlhHKbDpFUk9FcbWDQDg
+                      api_private_key: svroR4g_o6sZmHweVx5RVPd0CIycBfnZh7jLoPB9hTkwM2D48QrJFOkdBumh-X0NNyuQ096aYFDbM1MRagxte_s_i8nprS5H5Ipz7Q
+                      account_id: ozofkOCvE9lpdNQ9KQWLRzf3AksvgtO93Ma_JzaxLFgwM5c7NLF-zuNpZGwgji5xnipqkf0TtvplWQr1cA
+                    rest:
+                      batch_requests: 0
+                      client_id: u37HTV6pnknneym29lEeeB7CBkbbBvIKqnTlllqconwwM44qeNrSsuOJMBAYKkUwm6ai5G2r5QWRFjOa1IBFnlwf034SLciQeQR0sQWK6Q
+                      client_secret: Zb0ogPx0O9dwEDvz44KMTQazzLjMro06ZqZ_WHnjvpswM6gaXxH5RZQnvkXbsaB-mO9a_1_bzwD8vxAFG0tMdO2LxLqp44hVlfqCPZdzxA
                 
                 marketo_default_settings:
                     instance_host: ''
@@ -42,10 +47,12 @@ default:
                         mode: 0
                         roles: {  }
 
+        - Drupal\DrupalExtension\Context\ConfigContext
         - Drupal\DrupalExtension\Context\DrupalContext
-        - Drupal\DrupalExtension\Context\MinkContext
-        - Drupal\DrupalExtension\Context\MessageContext
         - Drupal\DrupalExtension\Context\DrushContext
+        - Drupal\DrupalExtension\Context\MinkContext
+        - Drupal\DrupalExtension\Context\MarkupContext
+        - Drupal\DrupalExtension\Context\MessageContext
   extensions:
     Behat\MinkExtension:
       base_url: "$DRUPAL_TI_WEBSERVER_URL:$DRUPAL_TI_WEBSERVER_PORT/"

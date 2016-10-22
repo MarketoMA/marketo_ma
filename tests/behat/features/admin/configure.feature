@@ -57,7 +57,6 @@ Feature: Module configuration
 
     When I am logged in as an administrator
     And I go to "/admin/config/services/marketo-ma"
-    And I select the radio button "Munchkin Javascript API" with the id "edit-tracking-method-munchkin"
     And I click "Advanced Initialization Parameters"
     And I fill in "munchkin_partition" with "100"
     And I fill in "munchkin_altIds" with "AAA-AAA-AAA, BBB-BBB-BBB"

@@ -1,5 +1,11 @@
 {
   "require-dev": {
     "phpunit/phpunit": "3.7.*"
+  },
+  "autoload": {
+    "psr-4": {
+      "Drupal\\marketo_ma\\": "../src/",
+      "Drupal\\Tests\\marketo_ma\\": "src/"
+    }
   }
 }
