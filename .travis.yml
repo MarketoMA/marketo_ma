@@ -21,6 +21,7 @@ matrix:
   fast_finish: true
   allow_failures:
     - php: hhvm
+    - env: DRUPAL_TI_RUNNERS="phpunit-core"
 
 env:
   global:
@@ -40,7 +41,6 @@ env:
 
     # The environment to use, supported are: drupal-7, drupal-8
     - DRUPAL_TI_ENVIRONMENT="drupal-8"
-    - DRUPAL_TI_CORE_BRANCH="8.2.x"
 
     # The installation profile to use:
     - DRUPAL_TI_INSTALL_PROFILE="standard"
@@ -96,7 +96,9 @@ env:
     #- DRUPAL_TI_RUNNERS="phpunit simpletest behat"
     # Use phpunit-core to test modules with phpunit with Drupal 8 core.
     - DRUPAL_TI_RUNNERS="phpunit-core"
-    #- DRUPAL_TI_RUNNERS="behat-mma"
+
+    - DRUPAL_TI_CORE_BRANCH="8.1.x"
+    - DRUPAL_TI_CORE_BRANCH="8.2.x"
 
 mysql:
   database: drupal_travis_db
