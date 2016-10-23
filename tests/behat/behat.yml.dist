@@ -1,0 +1,81 @@
+default:
+  suites:
+    default:
+      contexts:
+        - FeatureContext:
+            parameters:
+                marketo_test_settings:
+                    instance_host: app-sjqe.marketo.com
+                    logging: 1
+                    tracking_method: munchkin
+                    munchkin:
+                      api_private_key: svroR4g_o6sZmHweVx5RVPd0CIycBfnZh7jLoPB9hTkwM2D48QrJFOkdBumh-X0NNyuQ096aYFDbM1MRagxte_s_i8nprS5H5Ipz7Q
+                      account_id: ozofkOCvE9lpdNQ9KQWLRzf3AksvgtO93Ma_JzaxLFgwM5c7NLF-zuNpZGwgji5xnipqkf0TtvplWQr1cA
+                    rest:
+                      batch_requests: 0
+                      client_id: u37HTV6pnknneym29lEeeB7CBkbbBvIKqnTlllqconwwM44qeNrSsuOJMBAYKkUwm6ai5G2r5QWRFjOa1IBFnlwf034SLciQeQR0sQWK6Q
+                      client_secret: Zb0ogPx0O9dwEDvz44KMTQazzLjMro06ZqZ_WHnjvpswM6gaXxH5RZQnvkXbsaB-mO9a_1_bzwD8vxAFG0tMdO2LxLqp44hVlfqCPZdzxA
+                
+                marketo_default_settings:
+                    instance_host: ''
+                    logging: 0
+                    tracking_method: munchkin
+                    munchkin:
+                      javascript_library: //munchkin.marketo.net/munchkin.js
+                      api_private_key: ''
+                      partition: ''
+                      lead_source: ''
+                      account_id: ''
+                      altIds: ''
+                      cookieLifeDays: ''
+                      clickTime: ''
+                      cookieAnon: ''
+                      domainLevel: ''
+                      disableClickDelay: ''
+                      asyncOnly: ''
+                    rest:
+                      batch_requests: 0
+                      client_id: ''
+                      client_secret: ''
+                    field:
+                      enabled_fields: {  }
+                    tracking:
+                      request_path:
+                        mode: 0
+                        pages: "/admin\n/admin/*\n/batch\n/node/add*\n/node/*/*\n/user/*/*"
+                      user_role:
+                        mode: 0
+                        roles: {  }
+
+        - Drupal\DrupalExtension\Context\ConfigContext
+        - Drupal\DrupalExtension\Context\DrupalContext
+        - Drupal\DrupalExtension\Context\DrushContext
+        - Drupal\DrupalExtension\Context\MinkContext
+        - Drupal\DrupalExtension\Context\MarkupContext
+        - Drupal\DrupalExtension\Context\MessageContext
+      filters:
+        tags: "~@wip"
+  extensions:
+    Behat\MinkExtension:
+      base_url: "$DRUPAL_TI_WEBSERVER_URL:$DRUPAL_TI_WEBSERVER_PORT/"
+      goutte: ~
+      selenium2:
+        capabilities:
+          browser: "$DRUPAL_TI_BEHAT_BROWSER"
+          browserVersion: ANY
+          version: ANY
+          deviceType: ANY
+      browser_name: "$DRUPAL_TI_BEHAT_BROWSER"
+    Drupal\DrupalExtension:
+      blackbox: ~
+      api_driver: "drupal"
+      drush_driver: "drush"
+      drupal:
+        drupal_root: "$DRUPAL_TI_DRUPAL_DIR"
+      drush:
+        root: "$DRUPAL_TI_DRUPAL_DIR"
+      region_map:
+        left sidebar: "#sidebar-first"
+        content: "#content"
+      selectors:
+        error_message_selector: '.messages--error'
