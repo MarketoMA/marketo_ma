@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Add an optional statement to see that this is running in Travis CI.
-echo "running drupal_ti/before/before_script.sh"
+echo "running drupal_ti/before/runners/phpunit-core/before_script.sh"
 
 set -e $DRUPAL_TI_DEBUG
 
