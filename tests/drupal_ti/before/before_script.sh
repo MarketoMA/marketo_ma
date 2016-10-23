@@ -28,8 +28,11 @@ drush pm-enable encryption --yes
 drush dl contact_block --yes
 drush pm-enable contact_block --yes
 
-drush dl contact_storage --yes
-drush pm-enable contact_storage --yes
+if [ "$DRUPAL_TI_CORE_BRANCH" = "8.2.x" ]
+then
+    drush dl contact_storage --yes
+    drush pm-enable contact_storage --yes
+fi
 
 chmod +w $DRUPAL_TI_DRUPAL_DIR/sites/default/settings.php
 echo "\$settings['encryption_key'] = 'IPMj1A1H5w+EMrN5a+w3Y8MUv0CsAAPM5OfaGwMOou4=';" >> $DRUPAL_TI_DRUPAL_DIR/sites/default/settings.php
