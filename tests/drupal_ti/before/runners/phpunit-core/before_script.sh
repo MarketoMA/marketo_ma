@@ -24,3 +24,6 @@ drush pm-enable contact_storage --yes
 
 chmod +w $DRUPAL_TI_DRUPAL_DIR/sites/default/settings.php
 echo "\$settings['encryption_key'] = 'IPMj1A1H5w+EMrN5a+w3Y8MUv0CsAAPM5OfaGwMOou4=';" >> $DRUPAL_TI_DRUPAL_DIR/sites/default/settings.php
+
+# Ensure the module is linked into the code base and enabled.
+drupal_ti_ensure_module
