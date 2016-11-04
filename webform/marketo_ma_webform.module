@@ -104,7 +104,7 @@ function marketo_ma_webform_webform_submission_insert($node, $submission) {
     $data = array();
     $fieldmap = _marketo_ma_webform_get_mapped_fields($node->nid);
     foreach ($fieldmap as $cid => $key) {
-      if ($key != MARKETO_MA_WEBFORM_COMPONENT_NONE) {
+      if (!empty($key) && $key != MARKETO_MA_WEBFORM_COMPONENT_NONE) {
         // https://drupal.org/node/1609324#submission-structure
         if (isset($submission->data[$cid]['value'][0])) {
           $data[$key] = $submission->data[$cid]['value'][0];
