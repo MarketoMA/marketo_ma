@@ -95,10 +95,14 @@ Proxy settings can be set if your server needs to use a proxy for external reque
 
 ### <a id="field-definition"></a> Field Definition
 
-The fields configured here will be available for mapping to User and Webform fields.
-They should match those that are defined in your Marketo admin under
-Admin > Field Management. Additional information regarding Marketo fields can be
-found in the Marketo articles [Field Management](http://docs.marketo.com/display/public/DOCS/Field+Management)
+Firstly obtain all fields defined in Marketo by selecting 
+"Retrieve from Marketo". By default, all fields retrieved will be available for 
+mapping to Webform and User Profile fields. It is possible to limit the 
+available fields by selecting them via the Field Definition form table. 
+Read-only fields are displayed but are never available for mapping. See all 
+fields that are defined in your Marketo admin under 
+Admin > Database Management > Field Management. Additional information regarding 
+Marketo fields can be found in the Marketo articles [Field Management](http://docs.marketo.com/display/public/DOCS/Field+Management)
 and [Export a List of All Marketo API Field Names](http://docs.marketo.com/display/public/DOCS/Export+a+List+of+All+Marketo+API+Field+Names).
 
 **Marketo Fields**
