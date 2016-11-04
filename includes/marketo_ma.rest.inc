@@ -442,7 +442,6 @@ class MarketoClient implements MarketoInterface {
   /**
    * {@inheritdoc}
    */
-//  public function syncLead(array $input, $action = NULL, $lookupField = NULL, $asyncProcessing = NULL, $partitionName = NULL) {
   public function syncLead($input, $key = NULL, $cookie = NULL, $options = array ()) {
     // http://developers.marketo.com/documentation/rest/createupdate-leads/
     $url = $this->endpoint . MarketoClient::LEADS_API;
@@ -461,16 +460,16 @@ class MarketoClient implements MarketoInterface {
     $optionset += $options;
     // Options which are NULL are excluded to pickup Marketo default behavior
     if (!is_null($optionset['action'])) {
-      $params['action'] = $action;
+      $params['action'] = $optionset['action'];
     }
     if (!is_null($optionset['lookupField'])) {
-      $params['lookupField'] = $lookupField;
+      $params['lookupField'] = $optionset['lookupField'];
     }
     if (!is_null($optionset['asyncProcessing'])) {
-      $params['asyncProcessing'] = $asyncProcessing;
+      $params['asyncProcessing'] = $optionset['asyncProcessing'];
     }
     if (!is_null($optionset['partitionName'])) {
-      $params['partitionName'] = $partitionName;
+      $params['partitionName'] = $optionset['partitionName'];
     }
 
     $response = array(
@@ -485,7 +484,7 @@ class MarketoClient implements MarketoInterface {
       // TODO: This could return multiple leads but assuming only one, needs better handling
       if ($response->success) {
         if (!is_null($cookie) && isset($response->result[0]->id)) {
-          $associate = $this->associateLead($response->result[0]->id, $cookie);
+          $this->associateLead($response->result[0]->id, $cookie);
         }
       }
       else {
