@@ -82,7 +82,7 @@ function marketo_ma_webform_settings_form($form, &$form_state, $node) {
       '#title_display' => 'invisible',
       '#type' => 'select',
       '#options' => $options,
-      '#default_value' => 'none'
+      '#default_value' => MARKETO_MA_WEBFORM_COMPONENT_NONE
     );
     if (array_key_exists($cid, $fieldmap)) {
       if (!array_key_exists($fieldmap[$cid], $options)) {
