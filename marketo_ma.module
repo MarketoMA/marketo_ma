@@ -544,7 +544,7 @@ function _marketo_ma_get_lead_fields_database() {
 }
 
 /**
- * Retrieves a lead from Marketo using SOAP API.
+ * Retrieves a lead from Marketo using REST API.
  *
  * @return array
  *   Marketo lead
@@ -606,8 +606,8 @@ function _marketo_ma_is_configured() {
     $track = variable_get('marketo_ma_tracking_method');
     if (
       ($track == 'munchkin' & _marketo_ma_munchkin_is_configured()) ||
-      ($track == 'rest' & _marketo_ma_soap_is_configured()) ||
-      ($track == 'rest_async' & _marketo_ma_soap_is_configured())
+      ($track == 'rest' & _marketo_ma_rest_is_configured()) ||
+      ($track == 'rest_async' & _marketo_ma_rest_is_configured())
     ) {
       $configured = TRUE;
     }
@@ -772,20 +772,20 @@ function _marketo_ma_visibility_roles($account) {
 }
 
 /**
- * Returns SoapClient proxy settings if configured.
+ * Returns REST API proxy settings if configured.
  * 
  * @return array
  *   Proxy settings
  */
-function _marketo_ma_soap_proxy_settings() {
+function _marketo_ma_rest_proxy_settings() {
   static $proxy;
 
   if (!isset($proxy)) {
     $proxy = array();
-    $proxy['proxy_host'] = variable_get('marketo_ma_soap_proxy_host', '');
-    $proxy['proxy_port'] = variable_get('marketo_ma_soap_proxy_port', '');
-    $proxy['proxy_login'] = variable_get('marketo_ma_soap_proxy_login', '');
-    $proxy['proxy_password'] = variable_get('marketo_ma_soap_proxy_password', '');
+    $proxy['proxy_host'] = variable_get('marketo_ma_rest_proxy_host', '');
+    $proxy['proxy_port'] = variable_get('marketo_ma_rest_proxy_port', '');
+    $proxy['proxy_login'] = variable_get('marketo_ma_rest_proxy_login', '');
+    $proxy['proxy_password'] = variable_get('marketo_ma_rest_proxy_password', '');
 
     if (empty($proxy['proxy_host'])) {
       unset($proxy['proxy_host']);

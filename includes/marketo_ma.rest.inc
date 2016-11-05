@@ -83,15 +83,18 @@ class MarketoClient implements MarketoInterface {
 
   /**
    * Constructor for MarketoClient class.
-   * 
-   * @param string $user_id
-   *   A User ID (aka Access Key) defined in Marketo admin
-   * @param string $encryption_key
-   *   A shared secret-key (aka Encryption Key) defined in Marketo admin
-   * @param string $endpoint
-   *   SOAP endpoint URL
-   * @param array $options
-   *   Optional array of SoapClient options 
+   *
+   * @param $client_id
+   *   REST Client Id defined in Marketo admin
+   * @param $client_secret
+   *   REST Client Secret defined in Marketo admin
+   * @param $endpoint
+   *   REST endpoint URL
+   * @param $identity
+   *   REST identity URL
+   * @param array $token
+   *   Optional REST token
+   * @throws Exception
    */
   public function __construct($client_id, $client_secret, $endpoint, $identity, $token = array()) {
     // When any of our required params are empty, throw exception.
@@ -115,18 +118,22 @@ class MarketoClient implements MarketoInterface {
 
   /**
    * Perform a GET call to server
-   * 
-   * Additionaly in $response_object and $response_info are the 
-   * response from server and the response info as it is returned 
+   *
+   * Additionally in $response_object and $response_info are the
+   * response from server and the response info as it is returned
    * by curl_exec() and curl_getinfo() respectively.
-   * 
-   * @param string $url The url to make the call to.
-   * @param array $http_options Extra option to pass to curl handle.
-   * @return string The response from curl if any
+   *
+   * @param $url
+   *   The url to make the call to.
+   * @param array $params
+   * @param array $http_options
+   *   Extra option to pass to curl handle.
+   * @return string
+   *   The response from curl if any
+   * @throws RestClientException
    */
   protected function curlGet($url, $params = array(), $http_options = array()) {
     $http_options += $this->http_options;
-//    $this->http_options[CURLOPT_HTTPHEADER][] = 'Content-Type: application/json';
     if (!empty($params)) {
       $url .= '?' . http_build_query($params);
     }
@@ -142,15 +149,20 @@ class MarketoClient implements MarketoInterface {
 
   /**
    * Perform a POST call to the server
-   * 
-   * Additionaly in $response_object and $response_info are the 
-   * response from server and the response info as it is returned 
+   *
+   * Additionally in $response_object and $response_info are the
+   * response from server and the response info as it is returned
    * by curl_exec() and curl_getinfo() respectively.
-   * 
-   * @param string $url The url to make the call to.
-   * @param string|array The data to post. Pass an array to make a http form post.
-   * @param array $http_options Extra option to pass to curl handle.
-   * @return string The response from curl if any
+   *
+   * @param $url
+   *   The url to make the call to.
+   * @param string|array $fields
+   *   The data to post. Pass an array to make a http form post.
+   * @param array $http_options
+   *   Extra option to pass to curl handle.
+   * @return mixed
+   *   The response from curl if any
+   * @throws RestClientException
    */
   protected function curlPost($url, $fields = array(), $http_options = array()) {
     $http_options += $this->http_options;
@@ -174,15 +186,20 @@ class MarketoClient implements MarketoInterface {
 
   /**
    * Perform a PUT call to the server
-   * 
-   * Additionaly in $response_object and $response_info are the 
-   * response from server and the response info as it is returned 
+   *
+   * Additionally in $response_object and $response_info are the
+   * response from server and the response info as it is returned
    * by curl_exec() and curl_getinfo() respectively.
-   * 
-   * @param string $url The url to make the call to.
-   * @param string|array The data to post.
-   * @param array $http_options Extra option to pass to curl handle.
-   * @return string The response from curl if any
+   *
+   * @param $url
+   *   The url to make the call to.
+   * @param string $data
+   *   The data to post.
+   * @param array $http_options
+   *   Extra option to pass to curl handle.
+   * @return string
+   *   The response from curl if any
+   * @throws RestClientException
    */
   protected function curlPut($url, $data = '', $http_options = array()) {
     $http_options = $http_options + $this->http_options;
@@ -197,17 +214,21 @@ class MarketoClient implements MarketoInterface {
     curl_close($this->handle);
     return $this->response_object;
   }
-
+  
   /**
    * Perform a DELETE call to server
-   * 
-   * Additionaly in $response_object and $response_info are the 
-   * response from server and the response info as it is returned 
+   *
+   * Additionally in $response_object and $response_info are the
+   * response from server and the response info as it is returned
    * by curl_exec() and curl_getinfo() respectively.
-   * 
-   * @param string $url The url to make the call to.
-   * @param array $http_options Extra option to pass to curl handle.
-   * @return string The response from curl if any
+   *
+   * @param $url
+   *   The url to make the call to.
+   * @param array $http_options
+   *   Extra option to pass to curl handle.
+   * @return string
+   *   The response from curl if any
+   * @throws RestClientException
    */
   protected function curlDelete($url, $http_options = array()) {
     $http_options = $http_options + $this->http_options;
