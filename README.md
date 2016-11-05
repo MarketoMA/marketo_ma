@@ -26,6 +26,7 @@ This module adds Marketo tracking capability to your Drupal site.
 The Marketo MA configuration page can be found under Configuration > Search and
 metadata > Marketo MA. The direct path is admin/config/search/marketo_ma.
 
+- [Basic Settings](#basic-settings)
 - [API Configuration](#api-configuration)
 - [Field Definition](#field-definition)
 - [Page Visibility](#page-visibility)
@@ -33,7 +34,7 @@ metadata > Marketo MA. The direct path is admin/config/search/marketo_ma.
 - [User Integration](#user-integration)
 - [Webform Integration](#webform-integration)
 
-### <a id="api-configuration"></a> Basic Settings and API Configuration
+### <a id="basic-settings"></a> Basic Settings
 
 At a minimum, you need to provide your Marketo Account ID and Munchkin API
 Private Key. The Munchking API Private key can be set/retrieved on your Marketo
@@ -54,6 +55,8 @@ perhaps as a webform component, it will take precedence over this setting.
 **Verbose Logging**
 If checked, additional data will be added to watchdog.
 
+### <a id="api-configuration"></a> API Configuration
+
 **Tracking Method**
 Multiple options are available for how captured data is submitted to Marketo.
 
@@ -69,16 +72,17 @@ Multiple options are available for how captured data is submitted to Marketo.
   Lead updates are added to a queue when captured and data is sent to
   Marketo each time cron runs. Ensure you are running cron regularly.
 
-**Munchkin Javascript API - API Private Key**
+#### Munchkin Javascript API
+**API Private Key**
 Your Munchkin API Private key. This can be set/retrieved on your Marketo
 admin site under Admin > Integration > Munchkin > API Configuration.
 Additional information can be found in the Marketo article
 [Enable Munchkin API Use](http://developers.marketo.com/documentation/websites/munchkin-api/).
 
-**Munchkin Javascript API - Partition**
-This currently does nothing and is ignored.
+##### Advancded Initialization Parameters
+Additional configuration options which control Munchkin behavior. Details can be found in the Marketo [Javascript API documentation](http://developers.marketo.com/javascript-api/lead-tracking/configuration/).
 
-**REST API**
+#### REST API (Synchronous & Asynchronous)
 Values for these fields can be set/retrieved on your Marketo admin site under
 Admin > Integration > REST API. Additional information can be found in the
 Marketo article [Configuring Your REST API Settings](http://developers.marketo.com/documentation/rest/).
@@ -90,7 +94,7 @@ Marketo article [Configuring Your REST API Settings](http://developers.marketo.c
 
 REST configuration will be validated upon save.
 
-**REST API - Proxy Settings**
+**Proxy Settings**
 Proxy settings can be set if your server needs to use a proxy for external requests.
 
 ### <a id="field-definition"></a> Field Definition
