@@ -61,11 +61,11 @@ Multiple options are available for how captured data is submitted to Marketo.
   Lead updates will be sent to Marketo as pages are viewed using the
   client-side Munchkin API.
 
-- **SOAP API (Synchronous)**
-  Lead data will be sent to Marketo immediately but may increase page
-  load time.
+- **REST API (Synchronous)**
+  Lead data will be sent to Marketo immediately as part of a page request but 
+  may increase page load time.
 
-- **SOAP API (Asynchronous)**
+- **REST API (Asynchronous)**
   Lead updates are added to a queue when captured and data is sent to
   Marketo each time cron runs. Ensure you are running cron regularly.
 
@@ -73,42 +73,39 @@ Multiple options are available for how captured data is submitted to Marketo.
 Your Munchkin API Private key. This can be set/retrieved on your Marketo
 admin site under Admin > Integration > Munchkin > API Configuration.
 Additional information can be found in the Marketo article
-[Enable Munchkin API Use](http://community.marketo.com/MarketoTutorial?id=kA250000000Kz4eCAC).
+[Enable Munchkin API Use](http://developers.marketo.com/documentation/websites/munchkin-api/).
 
 **Munchkin Javascript API - Partition**
 This currently does nothing and is ignored.
 
-**SOAP API**
+**REST API**
 Values for these fields can be set/retrieved on your Marketo admin site under
-Admin > Integration > SOAP API. Additional information can be found in the
-Marketo article [Configuring Your SOAP API Settings](http://community.marketo.com/MarketoArticle?id=kA050000000KyoyCAC).
+Admin > Integration > REST API. Additional information can be found in the
+Marketo article [Configuring Your REST API Settings](http://developers.marketo.com/documentation/rest/).
 
-- SOAP endpoint
-- User ID
-- Encryption Key
+- REST endpoint
+- REST identity
+- Client ID
+- Client Secret
 
-SOAP configuration will be validated upon save.
+REST configuration will be validated upon save.
 
-**SOAP API - SoapClient Proxy Settings**
+**REST API - Proxy Settings**
 Proxy settings can be set if your server needs to use a proxy for external requests.
 
 ### <a id="field-definition"></a> Field Definition
 
-The fields configured here will be available for mapping to User and Webform fields.
-They should match those that are defined in your Marketo admin under
-Admin > Field Management. Additional information regarding Marketo fields can be
-found in the Marketo articles [Field Management](http://community.marketo.com/MarketoDeepDive?id=kA5500000008RWQCA2)
-and [Export a List of All Marketo API Field Names](http://community.marketo.com/MarketoArticle?id=kA050000000KytHCAS).
+Firstly obtain all fields defined in Marketo by selecting 
+"Retrieve from Marketo". By default, all fields retrieved will be available for 
+mapping to Webform and User Profile fields. It is possible to limit the 
+available fields by selecting them via the Field Definition form table. 
+Read-only fields are displayed but are never available for mapping. See all 
+fields that are defined in your Marketo admin under 
+Admin > Database Management > Field Management. Additional information regarding 
+Marketo fields can be found in the Marketo articles [Field Management](http://docs.marketo.com/display/public/DOCS/Field+Management)
+and [Export a List of All Marketo API Field Names](http://docs.marketo.com/display/public/DOCS/Export+a+List+of+All+Marketo+API+Field+Names).
 
-**Marketo Fields**
-This section should contain a pipe "|" delimited list of the fields in the format
-"[Field API Name]|[Friendly Label]". Example:
-    
-    FirstName|First Name
-    LastName|Last Name
-    Email|Email Address
-
-### <a id="page-visibility"></a> Page Visiblity
+### <a id="page-visibility"></a> Page Visibility
 
 Configure options for which pages should be tracked or excluded from tracking.
 
@@ -151,9 +148,9 @@ configuration page found at admin/config/search/marketo_ma.
 
 1. Enable the Marketo MA User module.
 
-2. Ensure that SOAP API settings are configured in the API Configuration section.
-   User integration is dependant on the SOAP API and will leverage it regardless
-   of which tracking method you have selected.
+2. Ensure that REST API settings are configured in the API Configuration 
+   section. User integration is dependant on the REST API and will leverage it 
+   regardless of which tracking method you have selected.
 
 3. In the User Integration section you will find options for activity triggers
    as well as field mappings. It is recommended that you select all of the
