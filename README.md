@@ -105,14 +105,6 @@ Admin > Database Management > Field Management. Additional information regarding
 Marketo fields can be found in the Marketo articles [Field Management](http://docs.marketo.com/display/public/DOCS/Field+Management)
 and [Export a List of All Marketo API Field Names](http://docs.marketo.com/display/public/DOCS/Export+a+List+of+All+Marketo+API+Field+Names).
 
-**Marketo Fields**
-This section should contain a pipe "|" delimited list of the fields in the format
-"[Field API Name]|[Friendly Label]". Example:
-    
-    firstName|First Name
-    lastName|Last Name
-    email|Email Address
-
 ### <a id="page-visibility"></a> Page Visibility
 
 Configure options for which pages should be tracked or excluded from tracking.
