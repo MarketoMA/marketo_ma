@@ -96,7 +96,7 @@ class MarketoClient implements MarketoInterface {
    *   Optional REST token
    * @throws Exception
    */
-  public function __construct($client_id, $client_secret, $endpoint, $identity, $token = array()) {
+  public function __construct($client_id, $client_secret, $endpoint, $identity, $proxy = array(), $token = array()) {
     // When any of our required params are empty, throw exception.
     if (empty($client_id) || empty($client_secret) || empty($endpoint) || empty($identity)) {
       throw new Exception(t('One of the fields were empty: Client Id, Client Secret, Endpoint, Identity'));
@@ -112,6 +112,9 @@ class MarketoClient implements MarketoInterface {
     );
     $this->http_options[CURLOPT_RETURNTRANSFER] = TRUE;
     $this->http_options[CURLOPT_FOLLOWLOCATION] = FALSE;
+    foreach ($proxy as $key => $value) {
+      $this->http_options[$key] = $value;
+    }
 
     $this->setAccessToken($token);
   }
@@ -214,7 +217,7 @@ class MarketoClient implements MarketoInterface {
     curl_close($this->handle);
     return $this->response_object;
   }
-  
+
   /**
    * Perform a DELETE call to server
    *
@@ -245,7 +248,9 @@ class MarketoClient implements MarketoInterface {
 
   protected function http_parse_message($res) {
     if (!$res) {
-      throw new HttpServerException(curl_error($this->handle), -1);
+      $err = curl_error($this->handle);
+      $num = curl_errno($this->handle);
+      throw new HttpServerException($err, $num);
     }
     $this->response_info = curl_getinfo($this->handle);
     $code = $this->response_info['http_code'];
@@ -262,6 +267,10 @@ class MarketoClient implements MarketoInterface {
     }
   }
 
+  public function setCurlOption($option, $value) {
+    $this->http_options[$option] = $value;
+  }
+
   public function getResponseObject() {
     return $this->response_object;
   }
@@ -273,7 +282,7 @@ class MarketoClient implements MarketoInterface {
   public function getAccessToken() {
     return $this->token;
   }
-  
+
   public function hasFreshToken() {
     return $this->isFreshToken;
   }
@@ -328,7 +337,7 @@ class MarketoClient implements MarketoInterface {
       $fields = $this->prepareFields($response);
     }
     catch (Exception $e) {
-      $fields = array();
+      throw new Exception($e->getMessage(), $e->getCode());
     }
     return $fields;
   }
@@ -463,7 +472,7 @@ class MarketoClient implements MarketoInterface {
   /**
    * {@inheritdoc}
    */
-  public function syncLead($input, $key = NULL, $cookie = NULL, $options = array ()) {
+  public function syncLead($input, $key = NULL, $cookie = NULL, $options = array()) {
     // http://developers.marketo.com/documentation/rest/createupdate-leads/
     $url = $this->endpoint . MarketoClient::LEADS_API;
     $params = array(
@@ -574,7 +583,7 @@ class MarketoClient implements MarketoInterface {
     usort($fields, array($this, 'sortLeadFields')); // TODO: is this sorting necessary and useful?
     return $fields;
   }
-  
+
   private function sortLeadFields($a, $b) {
     return strcmp($a['displayName'], $b['displayName']);
   }

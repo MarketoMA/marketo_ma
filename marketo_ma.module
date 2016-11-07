@@ -141,11 +141,15 @@ function _marketo_ma_client($endpoint = NULL, $identity = NULL, $client_id = NUL
   $identity = is_null($identity) ? variable_get('marketo_ma_rest_identity') : $identity;
   $client_id = is_null($client_id) ? variable_get('marketo_ma_rest_client_id') : $client_id;
   $client_secret = is_null($client_secret) ? variable_get('marketo_ma_rest_client_secret') : $client_secret;
-  
+
   module_load_include('inc', 'marketo_ma', 'includes/marketo_ma.rest');
   // Get the token from cache if one exists
   $cachedToken = variable_get('marketo_ma_rest_token', array());
-  $client = new MarketoClient($client_id, $client_secret, $endpoint, $identity, $cachedToken);
+  // Get proxy settings if not passed in
+  if (is_null($proxy)) {
+    $proxy = _marketo_ma_rest_proxy_settings();
+  }
+  $client = new MarketoClient($client_id, $client_secret, $endpoint, $identity, $proxy, $cachedToken);
   // Update cache if this is a fresh token
   if ($client->hasFreshToken()) {
     variable_set('marketo_ma_rest_token', $client->getAccessToken());
@@ -296,7 +300,7 @@ function _marketo_ma_associate_lead($lead) {
 function _marketo_ma_associate_lead_munchkin($lead) {
   if (_marketo_ma_munchkin_is_configured()) {
     $key = variable_get('marketo_ma_munchkin_api_private_key', NULL);
-    
+
     // Marketo MA uses REST field names by default and Munchkin uses SOAP names.
     // Update field names to their SOAP equivalent and exclude fields which have
     // no associated SOAP equivalent.
@@ -777,29 +781,15 @@ function _marketo_ma_visibility_roles($account) {
  * @return array
  *   Proxy settings
  */
-function _marketo_ma_rest_proxy_settings() {
-  static $proxy;
-
-  if (!isset($proxy)) {
-    $proxy = array();
-    $proxy['proxy_host'] = variable_get('marketo_ma_rest_proxy_host', '');
-    $proxy['proxy_port'] = variable_get('marketo_ma_rest_proxy_port', '');
-    $proxy['proxy_login'] = variable_get('marketo_ma_rest_proxy_login', '');
-    $proxy['proxy_password'] = variable_get('marketo_ma_rest_proxy_password', '');
-
-    if (empty($proxy['proxy_host'])) {
-      unset($proxy['proxy_host']);
-    }
-    if (empty($proxy['proxy_port'])) {
-      unset($proxy['proxy_port']);
-    }
-    if (empty($proxy['proxy_login'])) {
-      unset($proxy['proxy_login']);
-    }
-    if (empty($proxy['proxy_password'])) {
-      unset($proxy['proxy_password']);
-    }
-  }
+function _marketo_ma_rest_proxy_settings($host = NULL, $port = NULL, $user = NULL, $pass = NULL, $httpauth = CURLAUTH_BASIC, $proxytype = CURLPROXY_HTTP) {
+  $proxy = array();
+  $proxy[CURLOPT_PROXY] = is_null($host) ? variable_get('marketo_ma_rest_proxy_host', '') : $host;
+  $proxy[CURLOPT_PROXYPORT] = is_null($port) ? variable_get('marketo_ma_rest_proxy_port', '') : $port;
+  $user = is_null($user) ? variable_get('marketo_ma_rest_proxy_login', '') : $user;
+  $pass = is_null($pass) ? variable_get('marketo_ma_rest_proxy_password', '') : $pass;
+  $proxy[CURLOPT_PROXYUSERPWD] = "$user:$pass";
+  $proxy[CURLOPT_HTTPAUTH] = $httpauth;
+  $proxy[CURLOPT_PROXYTYPE] = $proxytype;
 
   return $proxy;
 }

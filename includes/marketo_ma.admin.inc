@@ -328,6 +328,9 @@ function marketo_ma_webform_fields_submit($form, &$form_state) {
  * Implements hook_form_validate().
  */
 function marketo_ma_admin_settings_form_validate($form, &$form_state) {
+  if (isset($form_state['triggering_element']['#array_parents']) && in_array('marketo_ma_lead_fields_button', $form_state['triggering_element']['#array_parents'])) {
+    return;
+  }
   // If using an API option attempt validation.
   if (
     $form_state['values']['marketo_ma_tracking_method'] == 'rest' ||
@@ -338,24 +341,12 @@ function marketo_ma_admin_settings_form_validate($form, &$form_state) {
     $form_state['values']['marketo_ma_rest_client_id'] = trim($form_state['values']['marketo_ma_rest_client_id']);
     $form_state['values']['marketo_ma_rest_client_secret'] = trim($form_state['values']['marketo_ma_rest_client_secret']);
 
-    $proxy = array();
-    $proxy['proxy_host'] = trim($form_state['values']['marketo_ma_rest_proxy_host']);
-    $proxy['proxy_port'] = trim($form_state['values']['marketo_ma_rest_proxy_port']);
-    $proxy['proxy_login'] = trim($form_state['values']['marketo_ma_rest_proxy_login']);
-    $proxy['proxy_password'] = trim($form_state['values']['marketo_ma_rest_proxy_password']);
-
-    if (empty($proxy['proxy_host'])) {
-      unset($proxy['proxy_host']);
-    }
-    if (empty($proxy['proxy_port'])) {
-      unset($proxy['proxy_port']);
-    }
-    if (empty($proxy['proxy_login'])) {
-      unset($proxy['proxy_login']);
-    }
-    if (empty($proxy['proxy_password'])) {
-      unset($proxy['proxy_password']);
-    }
+    $proxy = _marketo_ma_rest_proxy_settings(
+      $form_state['values']['marketo_ma_rest_proxy_host'],
+      $form_state['values']['marketo_ma_rest_proxy_port'],
+      $form_state['values']['marketo_ma_rest_proxy_login'],
+      $form_state['values']['marketo_ma_rest_proxy_password']
+    );
 
     $config_is_valid = _marketo_ma_validate_rest_configuration(
       $form_state['values']['marketo_ma_rest_endpoint'],
@@ -394,11 +385,12 @@ function _marketo_ma_validate_rest_configuration($endpoint, $identity, $client_i
   $result = FALSE;
   try {
     variable_del('marketo_ma_rest_token');
-    $client = _marketo_ma_client($endpoint, $identity, $client_id, $client_secret);
+    $client = _marketo_ma_client($endpoint, $identity, $client_id, $client_secret, $proxy);
     variable_set('marketo_ma_rest_token', $client->getAccessToken());
     $result = TRUE;
   }
   catch (Exception $e) {
+    watchdog('marketo', 'Unable to validate REST API settings. <pre>@error</pre>', array('@error' => $e->getMessage()), WATCHDOG_ERROR);
     $result = FALSE;
   }
   return $result;

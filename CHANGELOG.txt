@@ -4,9 +4,10 @@ Marketo MA Changelog
 Marketo MA 7.x-2.x, 2016-11-05
 ------------------------------
 - #2744087: Replace SOAP API with REST API.
-- #2550517 by jyokum, benjy: Added Munchkin JS API init parameters.
+- #2550517 Added Munchkin JS API init parameters.
 - #2798985: Cached REST token is now deleted when module configuration is saved.
-- #2794419 by mccrodp: README updates to reflect REST API.
+- #2794419 README updates to reflect REST API.
+- #2825159 REST API client now honors proxy settings
 
 Marketo MA 7.x-1.x, 2016-08-13
 ------------------------------
