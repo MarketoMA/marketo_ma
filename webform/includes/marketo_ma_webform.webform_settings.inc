@@ -145,7 +145,9 @@ function _marketo_ma_webform_save_webform($form, &$form_state) {
     ->execute();
 
   if (isset($form_state['values']['components'])) {
-    foreach ($form_state['values']['components'] as $cid => $marketo) {
+    // Ensure we remove null keys before saving to db.
+    $components = array_diff($form_state['values']['components'], array(''));
+    foreach ($components as $cid => $marketo) {
       db_merge(MARKETO_MA_SCHEMA_WEBFORM_COMPONENT)
         ->key(array(
           'nid' => $nid,

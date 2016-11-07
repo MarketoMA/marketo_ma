@@ -59,6 +59,7 @@ function marketo_ma_webform_schema() {
         'description' => 'The Marketo form field.',
         'type' => 'varchar',
         'length' => 128,
+        'not null' => TRUE,
       ),
     ),
   );
