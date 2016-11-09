@@ -16,6 +16,7 @@ define('MARKETO_MA_WEBFORM_OPTIONS', 'options');
 
 define('MARKETO_MA_SCHEMA_WEBFORM_COMPONENT', 'marketo_ma_webform_component');
 define('MARKETO_MA_WEBFORM_COMPONENT_KEY', 'marketo_ma_key');
+define('MARKETO_MA_LEAD_FIELD_ID', 'marketo_id');
 define('MARKETO_MA_WEBFORM_COMPONENT_NONE', 'none');
 
 /**
@@ -463,10 +464,10 @@ function _marketo_ma_get_field_options($labels = TRUE, $sort = TRUE) {
     // if no mapped fields return everything else filter down to only those selected.
     if (count($mapped_fields) == 0 || array_key_exists($value['id'], $mapped_fields)) {
       if ($labels) {
-        $options[$value['restName']] = $value['displayName'] . ' (' . $value['restName'] . ')';
+        $options[$value['id']] = $value['displayName'] . ' (' . $value['restName'] . ')';
       }
       else {
-        $options[$value['restName']] = $value['displayName'];
+        $options[$value['id']] = $value['displayName'];
       }
     }
   }

@@ -104,7 +104,7 @@ function marketo_ma_webform_webform_submission_insert($node, $submission) {
     $data = array();
     $fieldmap = _marketo_ma_webform_get_mapped_fields($node->nid);
     foreach ($fieldmap as $cid => $key) {
-      if ($key != MARKETO_MA_WEBFORM_COMPONENT_NONE) {
+      if (!empty($key) && $key != MARKETO_MA_WEBFORM_COMPONENT_NONE) {
         // https://drupal.org/node/1609324#submission-structure
         if (isset($submission->data[$cid]['value'][0])) {
           $data[$key] = $submission->data[$cid]['value'][0];
@@ -153,7 +153,7 @@ function _marketo_ma_webform_get_mapped_fields($nid) {
     ->execute()
     ->fetchAll();
   foreach ($result as $field) {
-    $data[$field->cid] = $field->marketo_ma_key;
+    $data[$field->cid] = $field->marketo_id;
   }
   return $data;
 }
@@ -210,12 +210,11 @@ function _marketo_ma_webform_details($nid) {
 function marketo_ma_webform_list() {
   $webform_types = webform_variable_get('webform_node_types');
 
-  $nodes = array();
   if ($webform_types) {
     $components = db_select(MARKETO_MA_SCHEMA_WEBFORM_COMPONENT, 'mmwc');
     $components->addField('mmwc', 'nid');
-    $components->addExpression('count(' . MARKETO_MA_WEBFORM_COMPONENT_KEY . ')', 'components');
-    $components->condition('marketo_ma_key', 'none', '<>');
+    $components->addExpression('count(' . MARKETO_MA_LEAD_FIELD_ID . ')', 'components');
+    $components->condition('marketo_id', 'none', '<>');
     $components->groupBy('nid');
 
     $nodes = db_select('node', 'n');

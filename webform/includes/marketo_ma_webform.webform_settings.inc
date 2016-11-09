@@ -146,16 +146,19 @@ function _marketo_ma_webform_save_webform($form, &$form_state) {
     ->execute();
 
   if (isset($form_state['values']['components'])) {
-    foreach ($form_state['values']['components'] as $cid => $marketo) {
-      db_merge(MARKETO_MA_SCHEMA_WEBFORM_COMPONENT)
-        ->key(array(
-          'nid' => $nid,
-          'cid' => $cid,
-        ))
-        ->fields(array(
-          MARKETO_MA_WEBFORM_COMPONENT_KEY => $marketo,
-        ))
-        ->execute();
+    foreach ($form_state['values']['components'] as $cid => $marketo_id) {
+      // Ignore non numeric values.
+      if (is_numeric($marketo_id) || $marketo_id == MARKETO_MA_WEBFORM_COMPONENT_NONE) {
+        db_merge(MARKETO_MA_SCHEMA_WEBFORM_COMPONENT)
+          ->key(array(
+            'nid' => $nid,
+            'cid' => $cid,
+          ))
+          ->fields(array(
+            MARKETO_MA_LEAD_FIELD_ID => $marketo_id,
+          ))
+          ->execute();
+      }
     }
   }
 

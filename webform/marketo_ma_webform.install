@@ -55,8 +55,8 @@ function marketo_ma_webform_schema() {
         'not null' => TRUE,
         'default' => 0,
       ),
-      MARKETO_MA_WEBFORM_COMPONENT_KEY => array(
-        'description' => 'The Marketo form field.',
+      MARKETO_MA_LEAD_FIELD_ID => array(
+        'description' => 'The Marketo form field id.',
         'type' => 'varchar',
         'length' => 128,
       ),
@@ -123,4 +123,18 @@ function marketo_ma_webform_update_7200(&$sandbox) {
   }
   if ($message == '') $message = t('No webform updates required');
   return $message;
+}
+
+/**
+ * Change Webform component mapping to marketo_id.
+ */
+function marketo_ma_webform_update_7201(&$sandbox) {
+  db_change_field(MARKETO_MA_SCHEMA_WEBFORM_COMPONENT, MARKETO_MA_WEBFORM_COMPONENT_KEY, MARKETO_MA_LEAD_FIELD_ID,
+    array(
+      'description' => 'The Marketo form field id.',
+      'type' => 'varchar',
+      'length' => 128,
+    )
+  );
+  return t('Updated Webform component mapping to use marketo field id `marketo_id`.');
 }
