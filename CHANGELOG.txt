@@ -1,6 +1,11 @@
 Marketo MA Changelog
 ---------------------
 
+Marketo MA 7.x-1.x, 2016-11-09
+------------------------------
+- #2822934, #2823375: Addressed undefined property and unsupported operand
+  errors which could occur on existing webforms after 1.6 update.
+
 Marketo MA 7.x-1.6, 2016-09-24
 ------------------------------
 - drush mma-fields now requires drush 6 or higher and allows display of
