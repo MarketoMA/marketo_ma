@@ -193,7 +193,8 @@ function _marketo_ma_webform_details($nid) {
     ->execute()
     ->fetchObject();
   if ($result) {
-    $result->options = unserialize($result->options);
+    $result->options = isset($result->options) ? unserialize($result->options) : array();
+    if (!is_array($result->options)) $result->options = array();
     return $result;
   }
   else {
