@@ -119,19 +119,22 @@ function marketo_ma_webform_webform_submission_insert($node, $submission) {
       }
     }
 
+    // Use the data helper to format data based on tracking method.
+    $marketo_data = new MarketoMaData($data, variable_get('marketo_ma_tracking_method', MARKETO_MA_TRACKING_METHOD_DEFAULT));
+
     /*
      * Check to see if an Email field has been provided. If not, we will try
-     * to use the current logged in user info
+     * to use the currently logged in user's info.
      */
-    if (!isset($data['email']) || $data['email'] == '') {
+    if (!$marketo_data->getEmailAddress()) {
       global $user;
       if (isset($user->mail)) {
-        $data['email'] = $user->mail;
+        $marketo_data->setEmailAddress($user->mail);
       }
     }
 
-    if (array_key_exists('email', $data)) {
-      marketo_ma_add_lead($data['email'], $data, FALSE, $webform->options);
+    if ($email = $marketo_data->getEmailAddress()) {
+      marketo_ma_add_lead($email, $marketo_data, FALSE, $webform->options);
     }
   }
 }

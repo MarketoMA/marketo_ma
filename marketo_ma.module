@@ -16,8 +16,10 @@ define('MARKETO_MA_WEBFORM_OPTIONS', 'options');
 
 define('MARKETO_MA_SCHEMA_WEBFORM_COMPONENT', 'marketo_ma_webform_component');
 define('MARKETO_MA_WEBFORM_COMPONENT_KEY', 'marketo_ma_key');
-define('MARKETO_MA_LEAD_FIELD_ID', 'marketo_id');
 define('MARKETO_MA_WEBFORM_COMPONENT_NONE', 'none');
+define('MARKETO_MA_LEAD_FIELD_ID', 'marketo_id');
+define('MARKETO_MA_LEAD_FIELD_REST_KEY', 'restName');
+define('MARKETO_MA_LEAD_FIELD_MUNCHKIN_KEY', 'soapName');
 
 /**
  * Implements hook_menu().
@@ -302,18 +304,6 @@ function _marketo_ma_associate_lead_munchkin($lead) {
   if (_marketo_ma_munchkin_is_configured()) {
     $key = variable_get('marketo_ma_munchkin_api_private_key', NULL);
 
-    // Marketo MA uses REST field names by default and Munchkin uses SOAP names.
-    // Update field names to their SOAP equivalent and exclude fields which have
-    // no associated SOAP equivalent.
-    $fields = _marketo_ma_get_fields(TRUE); // get fields as defined in db.
-    $newLeadData = array();
-    foreach ($lead['data'] as $marketoKey => $marketoValue) {
-      if (array_key_exists($marketoKey, $fields)) {
-        $newLeadData[$fields[$marketoKey]['soapName']] = $marketoValue;
-      }
-    }
-    $lead['data'] = $newLeadData;
-
     if (variable_get('marketo_ma_logging', FALSE)) {
       watchdog('marketo', 'Associating lead !email [@method] <pre>@data</pre>', array(
         '!email' => $lead['email'],
@@ -397,8 +387,10 @@ function _marketo_ma_associate_lead_rest($lead) {
 
     try {
       $client = _marketo_ma_client();
+
+      // @todo: address usage of array('extendedResponse' => TRUE) option.
       $sync = $client->syncLead(array($lead['data']), NULL, $mkto_trk);
-//      $sync = $client->syncLead($lead['data'], $lead['email'], $mkto_trk, array('extendedResponse' => TRUE));
+
       if ($sync->success) {
         if (variable_get('marketo_ma_logging', FALSE)) {
           watchdog('marketo', 'Associating lead !email [rest] <pre>@data @result</pre>', array(
@@ -518,7 +510,7 @@ function _marketo_ma_get_fields($cache = FALSE, $update_cache = FALSE) {
 function _marketo_ma_save_lead_fields_database($fields) {
   foreach ($fields as $key => $value) {
     // TODO: field validation and error checking
-    $execute = db_merge('marketo_ma_lead_fields')
+    db_merge('marketo_ma_lead_fields')
       ->key(array('id' => $value['id']))
       ->fields(array(
         'displayName' => $value['displayName'],
@@ -600,7 +592,7 @@ function marketo_ma_get_lead_activity($key) {
 /**
  * Tests to see if Marketo MA has a valid configuration.
  * 
- * @staticvar bool $configured
+ * @static bool $configured
  * @return bool
  *   Returns TRUE if Munchkin settings are configured
  */
@@ -747,6 +739,8 @@ function _marketo_ma_visibility_pages() {
  */
 function _marketo_ma_visibility_roles($account) {
   static $role_match;
+
+  $enabled = NULL;
 
   // Cache visibility result if function is called more than once.
   if (!isset($role_match)) {
