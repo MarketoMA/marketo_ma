@@ -31,8 +31,8 @@ Feature: Marketo MA User features
     And I select "lastName" from "field_company123 (field_company123)"
     And I press "Save configuration"
     Then I should see "The configuration options have been saved."
-    And the "[account:name] (name)" field should contain "lastName"
-    And the "field_company123 (field_company123)" field should contain "lastName"
+    And the "[account:name] (name)" field should contain "50"
+    And the "field_company123 (field_company123)" field should contain "50"
 
     When I go to "/user"
     And I click "Edit"

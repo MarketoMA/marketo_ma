@@ -103,9 +103,8 @@ function marketo_ma_user_form_marketo_ma_admin_settings_form_alter(&$form, &$for
   $user_fields = _marketo_ma_user_get_user_fields();
   $user_fields += field_info_instances('user', 'user');
   $fieldmap = variable_get('marketo_ma_user_fieldmap', array());
-  $default_options = array(MARKETO_MA_WEBFORM_COMPONENT_NONE => '- None -');
-  $marketo_options = _marketo_ma_get_field_options();
-  $options = array_merge($default_options, $marketo_options);
+  $options = array(MARKETO_MA_WEBFORM_COMPONENT_NONE => '- None -');
+  $options += _marketo_ma_get_field_options();
 
   foreach ($user_fields as $key => $value) {
     $form['marketo_ma_tabs']['marketo_ma_user']['marketo_ma_user_fieldmap'][$key] = array(
@@ -113,6 +112,7 @@ function marketo_ma_user_form_marketo_ma_admin_settings_form_alter(&$form, &$for
       '#title_display' => 'invisible',
       '#type' => 'select',
       '#options' => $options,
+      '#default_value' => MARKETO_MA_WEBFORM_COMPONENT_NONE,
     );
     if (array_key_exists($key, $fieldmap)) {
       if (!array_key_exists($fieldmap[$key], $options)) {

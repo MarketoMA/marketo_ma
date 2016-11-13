@@ -72,9 +72,8 @@ function marketo_ma_webform_settings_form($form, &$form_state, $node) {
     '#theme' => 'marketo_ma_webform_fieldmap',
   );
 
-  $default_options = array(MARKETO_MA_WEBFORM_COMPONENT_NONE => '- None -');
-  $marketo_options = _marketo_ma_get_field_options();
-  $options = array_merge($default_options, $marketo_options);
+  $options = array(MARKETO_MA_WEBFORM_COMPONENT_NONE => '- None -');
+  $options += _marketo_ma_get_field_options();
   $fieldmap = _marketo_ma_webform_get_mapped_fields($node->nid);
   foreach ($node->webform['components'] as $cid => $component) {
     $form['components'][$cid] = array(

@@ -85,7 +85,7 @@ function marketo_ma_add_lead($email, $data = array(), $merge = FALSE, $options =
   }
 
   if ($merge && array_key_exists($email, $marketo_ma_data)) {
-    $marketo_ma_data[$email]['data'] = array_merge($marketo_ma_data[$email]['data'], $data);
+    $marketo_ma_data[$email]['data'] += $data;
   }
   else {
     $marketo_ma_data[$email]['data'] = $data;
@@ -94,9 +94,9 @@ function marketo_ma_add_lead($email, $data = array(), $merge = FALSE, $options =
   $marketo_ma_data[$email]['options'] = $options;
 
   // Check to see if there is a default lead source we should apply.
-  $source = variable_get('marketo_ma_munchkin_lead_source');
-  if (!array_key_exists('LeadSource', $marketo_ma_data[$email]['data']) && $source !== '') {
-    $marketo_ma_data[$email]['data']['LeadSource'] = $source;
+  $source = variable_get('marketo_ma_munchkin_lead_source', '');
+  if ($source !== '') {
+    $marketo_ma_data[$email]['data']['leadSource'] = $source;
   }
 
   // If the user executing this method is anonymous or is actually the lead
@@ -269,6 +269,7 @@ function _marketo_ma_associate_lead($lead) {
   if (isset($lead['options']['tracking_method']) && $lead['options']['tracking_method'] != 'default') {
     $track = $lead['options']['tracking_method'];
   }
+  _marketo_ma_resolve_field_names($lead, $track);
   switch ($track) {
     case 'munchkin':
       _marketo_ma_associate_lead_munchkin($lead);
@@ -300,18 +301,6 @@ function _marketo_ma_associate_lead($lead) {
 function _marketo_ma_associate_lead_munchkin($lead) {
   if (_marketo_ma_munchkin_is_configured()) {
     $key = variable_get('marketo_ma_munchkin_api_private_key', NULL);
-
-    // Marketo MA uses REST field names by default and Munchkin uses SOAP names.
-    // Update field names to their SOAP equivalent and exclude fields which have
-    // no associated SOAP equivalent.
-    $fields = _marketo_ma_get_fields(TRUE); // get fields as defined in db.
-    $newLeadData = array();
-    foreach ($lead['data'] as $marketoKey => $marketoValue) {
-      if (array_key_exists($marketoKey, $fields)) {
-        $newLeadData[$fields[$marketoKey]['soapName']] = $marketoValue;
-      }
-    }
-    $lead['data'] = $newLeadData;
 
     if (variable_get('marketo_ma_logging', FALSE)) {
       watchdog('marketo', 'Associating lead !email [@method] <pre>@data</pre>', array(
@@ -463,10 +452,10 @@ function _marketo_ma_get_field_options($labels = TRUE, $sort = TRUE) {
     // if no mapped fields return everything else filter down to only those selected.
     if (count($mapped_fields) == 0 || array_key_exists($value['id'], $mapped_fields)) {
       if ($labels) {
-        $options[$value['restName']] = $value['displayName'] . ' (' . $value['restName'] . ')';
+        $options[$value['id']] = $value['displayName'] . ' (' . $value['restName'] . ')';
       }
       else {
-        $options[$value['restName']] = $value['displayName'];
+        $options[$value['id']] = $value['displayName'];
       }
     }
   }
@@ -538,13 +527,62 @@ function _marketo_ma_save_lead_fields_database($fields) {
  * @return array
  *   Associative array of lead fields keyed by their REST API name
  */
-function _marketo_ma_get_lead_fields_database() {
+function _marketo_ma_get_lead_fields_database($key = 'id') {
   $result = db_select('marketo_ma_lead_fields', 'f')
     ->fields('f')
     ->orderBy('displayName')
     ->execute()
-    ->fetchAllAssoc('restName', PDO::FETCH_ASSOC);
+    ->fetchAllAssoc($key, PDO::FETCH_ASSOC);
   return $result;
+}
+
+/*
+ * Ensures fields are mapped to the proper key based on tracking method.
+ *
+ * @param array $lead
+ *   Lead
+ * @param string $tracking_method
+ *   Marketo tracking method
+ */
+function _marketo_ma_resolve_field_names(&$lead, $tracking_method) {
+  if ($tracking_method == 'rest' || $tracking_method == 'rest_async') {
+    $key = 'restName';
+  }
+  else {
+    $key = 'soapName';
+  }
+  $fields = _marketo_ma_get_lead_fields_database();
+  $lead_data = array();
+  // Sort data so text keys are first. Text keys were likely set manually rather
+  // than by mapped fields and we'll let them be overwritten by mappings.
+  ksort($lead['data']);
+  foreach ($lead['data'] as $label => $value) {
+    if (is_numeric($label) && array_key_exists($label, $fields)) {
+      // Change the numeric ID to the field key
+      $lead_data[$fields[$label][$key]] = $value;
+    }
+    else if (is_null($label) || trim($label) == '') {
+      // Shouldn't happen but ignore anything with a blank key
+      watchdog('marketo', 'A blank lead key was found, data will not be submitted. !label = !value ', array('!label' => $label, '!value' => $value), WATCHDOG_WARNING);
+    }
+    else {
+      // Check the DB to see if we can match on other fields
+      $result = db_select('marketo_ma_lead_fields', 'f')
+        ->fields('f')
+        ->condition(db_or()->condition('restName', $label)->condition('soapName', $label))
+        ->execute()
+        ->fetchAll();
+      if ($result) {
+        // TODO: Handle case where multiple results are returned
+        $lead_data[$result[0]->{$key}] = $value;
+      }
+      else {
+        // Ignore unknown key. It wasn't numeric, blank, or found in restName/soapName.
+        watchdog('marketo', 'An unknown lead key was found, data will not be submitted. !label = !value ', array('!label' => $label, '!value' => $value), WATCHDOG_WARNING);
+      }
+    }
+  }
+  $lead['data'] = $lead_data;
 }
 
 /**
