@@ -80,7 +80,7 @@ default:
 
               marketo_default_lead_fields:
                 1:
-                  id: 1
+                  id: 48
                   displayName: First Name
                   dataType: string
                   length: 255
@@ -90,7 +90,7 @@ default:
                   soapReadOnly: 0
                   enabled: 0
                 2:
-                  id: 2
+                  id: 50
                   displayName: Last Name
                   dataType: string
                   length: 255
@@ -100,7 +100,7 @@ default:
                   soapReadOnly: 0
                   enabled: 0
                 3:
-                  id: 3
+                  id: 51
                   displayName: Email Address
                   dataType: string
                   length: 255
