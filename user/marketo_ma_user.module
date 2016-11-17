@@ -116,9 +116,8 @@ function marketo_ma_user_form_marketo_ma_admin_settings_form_alter(&$form, &$for
     );
     if (array_key_exists($key, $fieldmap)) {
       if (!array_key_exists($fieldmap[$key], $options)) {
-        $form['marketo_ma_tabs']['marketo_ma_user']['marketo_ma_user_fieldmap'][$key]['#options'] = array_merge(
-          array($fieldmap[$key] => "Undefined Field ($fieldmap[$key])"), $options
-        );
+        $form['marketo_ma_tabs']['marketo_ma_user']['marketo_ma_user_fieldmap'][$key]['#options'] +=
+          array($fieldmap[$key] => "Undefined Field ($fieldmap[$key])");
         drupal_set_message(t('An undefined field [@field] is currently used in User Integration settings and should be updated.', array('@field' => $fieldmap[$key])), 'warning');
       }
 
