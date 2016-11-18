@@ -104,7 +104,7 @@ function marketo_ma_webform_webform_submission_insert($node, $submission) {
     $data = array();
     $fieldmap = _marketo_ma_webform_get_mapped_fields($node->nid);
     foreach ($fieldmap as $cid => $key) {
-      if ($key != MARKETO_MA_WEBFORM_COMPONENT_NONE) {
+      if (!empty($key) && $key != MARKETO_MA_WEBFORM_COMPONENT_NONE) {
         // https://drupal.org/node/1609324#submission-structure
         if (isset($submission->data[$cid]['value'][0])) {
           $data[$key] = $submission->data[$cid]['value'][0];
@@ -119,19 +119,22 @@ function marketo_ma_webform_webform_submission_insert($node, $submission) {
       }
     }
 
+    // Use the data helper to format data based on tracking method.
+    $marketo_data = new MarketoMaData($data, variable_get('marketo_ma_tracking_method', MARKETO_MA_TRACKING_METHOD_DEFAULT));
+
     /*
      * Check to see if an Email field has been provided. If not, we will try
-     * to use the current logged in user info
+     * to use the currently logged in user's info.
      */
-    if (!isset($data['email']) || $data['email'] == '') {
+    if (!$marketo_data->getEmailAddress()) {
       global $user;
       if (isset($user->mail)) {
-        $data['email'] = $user->mail;
+        $marketo_data->setEmailAddress($user->mail);
       }
     }
 
-    if (array_key_exists('email', $data)) {
-      marketo_ma_add_lead($data['email'], $data, FALSE, $webform->options);
+    if ($email = $marketo_data->getEmailAddress()) {
+      marketo_ma_add_lead($email, $marketo_data, FALSE, $webform->options);
     }
   }
 }
@@ -153,7 +156,7 @@ function _marketo_ma_webform_get_mapped_fields($nid) {
     ->execute()
     ->fetchAll();
   foreach ($result as $field) {
-    $data[$field->cid] = $field->marketo_ma_key;
+    $data[$field->cid] = $field->marketo_id;
   }
   return $data;
 }
@@ -211,12 +214,11 @@ function _marketo_ma_webform_details($nid) {
 function marketo_ma_webform_list() {
   $webform_types = webform_variable_get('webform_node_types');
 
-  $nodes = array();
   if ($webform_types) {
     $components = db_select(MARKETO_MA_SCHEMA_WEBFORM_COMPONENT, 'mmwc');
     $components->addField('mmwc', 'nid');
-    $components->addExpression('count(' . MARKETO_MA_WEBFORM_COMPONENT_KEY . ')', 'components');
-    $components->condition('marketo_ma_key', 'none', '<>');
+    $components->addExpression('count(' . MARKETO_MA_LEAD_FIELD_ID . ')', 'components');
+    $components->condition('marketo_id', 'none', '<>');
     $components->groupBy('nid');
 
     $nodes = db_select('node', 'n');
