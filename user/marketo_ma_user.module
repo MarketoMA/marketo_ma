@@ -20,6 +20,7 @@ function marketo_ma_user_admin_paths() {
  * Implements hook_menu().
  */
 function marketo_ma_user_menu() {
+  $items = array();
   $items['user/%user/marketo'] = array(
     'title' => 'Marketo',
     'page callback' => '_marketo_ma_user_display_lead',
@@ -231,7 +232,7 @@ function _marketo_ma_user_display_lead($account) {
   return theme('marketo_ma_user_lead', array(
     'lead' => $leads,
     'email' => $account->mail,
-    'fields' => _marketo_ma_get_field_options(FALSE, FALSE),
+    'fields' => _marketo_ma_get_lead_fields_database('restName'),
   ));
 }
 
@@ -363,7 +364,7 @@ function theme_marketo_ma_user_lead($vars) {
         ),
       );
       foreach ($lead as $key => $value) {
-        $label = (array_key_exists($key, $fields)) ? $fields[$key] : $key;
+        $label = (array_key_exists($key, $fields)) ? $fields[$key]['displayName'] : $key;
         $table['rows'][] = array($label, $value);
       }
     }

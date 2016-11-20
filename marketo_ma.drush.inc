@@ -91,8 +91,6 @@ function drush_marketo_ma_mma_get_lead($key = NULL) {
   $info = (bool) drush_get_option('info', TRUE);
   $activity = (bool) drush_get_option('activity', FALSE);
 
-  $finds = array();
-
   switch ($scope) {
     case 'all':
       $finds = _marketo_ma_search_drupal_lead($key, $activity) + _marketo_ma_search_marketo_lead($key, $activity);
@@ -144,6 +142,9 @@ function drush_marketo_ma_mma_get_lead($key = NULL) {
 function drush_marketo_ma_mma_fields() {
   $fields = _marketo_ma_get_fields(FALSE, FALSE);
   $rows = array();
+  if (!is_array($fields)) {
+    throw new \RuntimeException('$fields must be an array.');
+  }
   foreach ($fields as $key => $value) {
     $rows[$value['id']] = $value;
   }
@@ -260,7 +261,7 @@ function _marketo_ma_print_lead($find) {
 /**
  * Displays lead activity.
  *
- * @param array $activity
+ * @param array $find
  */
 function _marketo_ma_print_activity($find) {
   if (!empty($find['activity'])) {

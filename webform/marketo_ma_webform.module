@@ -9,6 +9,7 @@
  * Implements hook_menu().
  */
 function marketo_ma_webform_menu() {
+  $items = array();
   $items['node/%webform_menu/webform/marketo'] = array(
     'title' => 'Marketo',
     'page callback' => 'drupal_get_form',

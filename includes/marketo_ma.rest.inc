@@ -485,27 +485,11 @@ class MarketoClient implements MarketoInterface {
       'input' => $input,
     );
 
-    // default options
-    $optionset = array(
-      'action' => NULL,
-      'lookupField' => NULL,
-      'asyncProcessing' => NULL,
-      'partitionName' => NULL
-    );
-    // merge any provided options
-    $optionset += $options;
-    // Options which are NULL are excluded to pickup Marketo default behavior
-    if (!is_null($optionset['action'])) {
-      $params['action'] = $optionset['action'];
-    }
-    if (!is_null($optionset['lookupField'])) {
-      $params['lookupField'] = $optionset['lookupField'];
-    }
-    if (!is_null($optionset['asyncProcessing'])) {
-      $params['asyncProcessing'] = $optionset['asyncProcessing'];
-    }
-    if (!is_null($optionset['partitionName'])) {
-      $params['partitionName'] = $optionset['partitionName'];
+    $extras = array('action', 'asyncProcessing', 'lookupField', 'partitionCode', 'partitionName');
+    foreach ($extras as $value) {
+      if (array_key_exists($value, $options) && $options[$value] != '') {
+        $params[$value] = $options[$value];
+      }
     }
 
     $response = array(
