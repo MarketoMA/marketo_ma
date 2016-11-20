@@ -120,18 +120,26 @@ function marketo_ma_webform_webform_submission_insert($node, $submission) {
     }
 
     /*
-     * Check to see if an Email field has been provided. If not, we will try
-     * to use the current logged in user info
+     * Check to see if an Email field has been provided (REST or SOAP). If not,
+     * we will try to use the current logged in user info
      */
-    if (!isset($data['email']) || $data['email'] == '') {
-      global $user;
-      if (isset($user->mail)) {
-        $data['email'] = $user->mail;
-      }
+    global $user;
+    if (isset($data['email']) && $data['email'] != '')  {
+      $email = $data['email'];
+    }
+    elseif (isset($data['Email']) && $data['Email'] != '')  {
+      $email = $data['Email'];
+    }
+    elseif (isset($user->mail)) {
+      $email = $user->mail;
+      $data['email'] = $user->mail;
+    }
+    else {
+      $email = '';
     }
 
-    if (array_key_exists('email', $data)) {
-      marketo_ma_add_lead($data['email'], $data, FALSE, $webform->options);
+    if ($email != '') {
+      marketo_ma_add_lead($email, $data, FALSE, $webform->options);
     }
   }
 }
