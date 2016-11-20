@@ -40,16 +40,16 @@ function marketo_ma_drush_command() {
       'default' => 'table',
       'pipe-format' => 'list',
       'field-labels' => array(
-        'restName' => 'name',
         'displayName' => 'displayName',
         'dataType' => 'dataType',
         'length' => 'length',
-        'restReadOnly' => 'readOnly',
         'id' => 'id',
+        'restName' => 'restName',
+        'restReadOnly' => 'restReadOnly',
         'soapName' => 'soapName',
         'soapReadOnly' => 'soapReadOnly',
       ),
-      'fields-default' => array('name', 'displayName'),
+      'fields-default' => array('restName', 'displayName'),
       'output-data-type' => 'format-table',
     ),
   );
@@ -127,29 +127,11 @@ function drush_marketo_ma_mma_get_lead($key = NULL) {
 
   foreach ($finds as $leadid => $find) {
     if ($info) {
-      drush_print('Marketo lead ID ' . $find['marketo']->id);
-      $rows = array();
-      $rows[] = array(dt('Group'), dt('Key'), dt('Value'));
-      if ($find['drupal']->uid) {
-        $rows[] = array(dt('Account'), 'uid', $find['drupal']->uid);
-        $rows[] = array(dt('Account'), 'name', $find['drupal']->name);
-        $rows[] = array(dt('Account'), 'mail', $find['drupal']->mail);
-      }
-      // Process Marketo attributes.
-      foreach ($find['marketo'] as $attr => $value) {
-        $rows[] = array(dt('Marketo'), $attr, $value);
-      }
-      drush_print_table($rows, TRUE);
+      _marketo_ma_print_lead($find);
     }
 
-    if ($activity && array_key_exists('activity', $find)) {
-      if (count($find['activity'])) {
-        drush_print('Activity for lead ID ' . $find['marketo']->id);
-        _marketo_ma_print_activity_($find['activity']);
-      }
-      else {
-        drush_print('No activity found for lead ID ' . $find['marketo']->id);
-      }
+    if ($activity && array_key_exists('activity', $find)) {;
+      _marketo_ma_print_activity($find['activity']);
     }
   }
 
@@ -161,8 +143,9 @@ function drush_marketo_ma_mma_get_lead($key = NULL) {
  */
 function drush_marketo_ma_mma_fields() {
   $fields = _marketo_ma_get_fields(FALSE, FALSE);
+  $rows = array();
   foreach ($fields as $key => $value) {
-    $rows[$value['restName']] = $value;
+    $rows[$value['id']] = $value;
   }
   return $rows;
 }
@@ -191,7 +174,6 @@ function drush_marketo_ma_mma_verify() {
  */
 function _marketo_ma_get_uid($search) {
   // We use a DB query while looking for the uid to keep things speedy.
-  $uids = array();
   if (is_numeric($search)) {
     $query = db_query("SELECT uid, name, mail FROM {users} WHERE uid = :uid OR name = :name", array(':uid' => $search, ':name' => $search));
   }
@@ -201,6 +183,15 @@ function _marketo_ma_get_uid($search) {
   return $query->fetchAllAssoc('uid');
 }
 
+/**
+ * Returns a lead based on a Marketo identifier.
+ *
+ * @param string $key
+ *   Marketo identifier
+ * @param bool $activity
+ *   Set to TRUE to return lead activity
+ * @return array
+ */
 function _marketo_ma_search_marketo_lead($key, $activity = FALSE) {
   $result = array();
   $marketo = marketo_ma_get_lead($key); // Can return multiple.
@@ -220,6 +211,15 @@ function _marketo_ma_search_marketo_lead($key, $activity = FALSE) {
   return $result;
 }
 
+/**
+ * Returns a lead based on a Drupal identifier.
+ *
+ * @param string $key
+ *   Drupal identifier
+ * @param bool $activity
+ *   Set to TRUE to return lead activity
+ * @return array
+ */
 function _marketo_ma_search_drupal_lead($key, $activity = FALSE) {
   $result = array();
   $uids = _marketo_ma_get_uid($key); // Can return multiple.
@@ -241,17 +241,44 @@ function _marketo_ma_search_drupal_lead($key, $activity = FALSE) {
   return $result;
 }
 
-function _marketo_ma_print_activity_($activity) {
-  $fields = array('id', 'activityDate', 'activityType', 'primaryAttributeValue');
+function _marketo_ma_print_lead($find) {
+  drush_print('Marketo lead ID ' . $find['marketo']->id);
   $rows = array();
-  $rows[] = array(dt('ID'), dt('Date/Time'), dt('Activity Type'), dt('Detail'));
-  foreach ($activity as $event) {
-    $row = array();
-    foreach ($fields as $field) {
-      $row[] = $event->$field;
-    }
-    $rows[] = $row;
+  $rows[] = array(dt('Group'), dt('Key'), dt('Value'));
+  if ($find['drupal']->uid) {
+    $rows[] = array(dt('Account'), 'uid', $find['drupal']->uid);
+    $rows[] = array(dt('Account'), 'name', $find['drupal']->name);
+    $rows[] = array(dt('Account'), 'mail', $find['drupal']->mail);
   }
-
+  // Process Marketo attributes.
+  foreach ($find['marketo'] as $attr => $value) {
+    $rows[] = array(dt('Marketo'), $attr, $value);
+  }
   drush_print_table($rows, TRUE);
+}
+
+/**
+ * Displays lead activity.
+ *
+ * @param array $activity
+ */
+function _marketo_ma_print_activity($activity) {
+  if (! empty($activity)) {
+    drush_print('Activity for lead ID ' . $find['marketo']->id);
+    $fields = array('id', 'activityDate', 'activityType', 'primaryAttributeValue');
+    $rows = array();
+    $rows[] = array(dt('ID'), dt('Date/Time'), dt('Activity Type'), dt('Detail'));
+    foreach ($activity as $event) {
+      $row = array();
+      foreach ($fields as $field) {
+        $row[] = $event->$field;
+      }
+      $rows[] = $row;
+    }
+
+    drush_print_table($rows, TRUE);
+  }
+  else {
+    drush_print('No activity found for lead ID ' . $find['marketo']->id);
+  }
 }

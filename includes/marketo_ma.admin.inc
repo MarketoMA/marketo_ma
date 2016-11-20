@@ -382,7 +382,6 @@ function marketo_ma_admin_settings_form_validate($form, &$form_state) {
  *   Returns TRUE if REST settings are validated successfully
  */
 function _marketo_ma_validate_rest_configuration($endpoint, $identity, $client_id, $client_secret, $proxy) {
-  $result = FALSE;
   try {
     variable_del('marketo_ma_rest_token');
     $client = _marketo_ma_client($endpoint, $identity, $client_id, $client_secret, $proxy);

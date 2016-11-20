@@ -14,7 +14,7 @@ function marketo_ma_webform_settings_form($form, &$form_state, $node) {
   $tracking_method = 'default';
 
   $webform = _marketo_ma_webform_details($node->nid);
-  if ($webform) {
+  if (is_object($webform)) {
     $is_active = $webform->is_active;
     if (isset($webform->options['tracking_method'])) {
       $tracking_method = $webform->options['tracking_method'];
@@ -34,17 +34,7 @@ function marketo_ma_webform_settings_form($form, &$form_state, $node) {
     '#collapsed' => ($tracking_method == 'default'),
   );
 
-  $methods = array('default' => t('Default (As defined in Marketo MA config)'));
-  if (_marketo_ma_munchkin_is_configured()) {
-    $methods['munchkin'] = t('Munchkin');
-  }
-  if (_marketo_ma_forms2_is_configured()) {
-    $methods['forms2'] = t('Forms 2.0');
-  }
-  if (_marketo_ma_rest_is_configured()) {
-    $methods['rest'] = t('REST API (Synchronous)');
-    $methods['rest_async'] = t('REST API (Asynchronous)');
-  }
+  $methods = _marketo_ma_webform_tracking_method_options();
   $form['marketo_ma_advanced']['marketo_ma_webform_capture_method'] = array(
     '#title' => t('Capture Method'),
     '#type' => 'select',
@@ -103,6 +93,26 @@ function marketo_ma_webform_settings_form($form, &$form_state, $node) {
   );
 
   return $form;
+}
+
+/**
+ * Returns valid tracking methods.
+ *
+ * @return array
+ */
+function _marketo_ma_webform_tracking_method_options() {
+  $methods = array('default' => t('Default (As defined in Marketo MA config)'));
+  if (_marketo_ma_munchkin_is_configured()) {
+    $methods['munchkin'] = t('Munchkin');
+  }
+  if (_marketo_ma_forms2_is_configured()) {
+    $methods['forms2'] = t('Forms 2.0');
+  }
+  if (_marketo_ma_rest_is_configured()) {
+    $methods['rest'] = t('REST API (Synchronous)');
+    $methods['rest_async'] = t('REST API (Asynchronous)');
+  }
+  return $methods;
 }
 
 /**

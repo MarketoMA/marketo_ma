@@ -126,7 +126,7 @@ class MarketoClient implements MarketoInterface {
    * response from server and the response info as it is returned
    * by curl_exec() and curl_getinfo() respectively.
    *
-   * @param $url
+   * @param string $url
    *   The url to make the call to.
    * @param array $params
    * @param array $http_options
@@ -157,7 +157,7 @@ class MarketoClient implements MarketoInterface {
    * response from server and the response info as it is returned
    * by curl_exec() and curl_getinfo() respectively.
    *
-   * @param $url
+   * @param string $url
    *   The url to make the call to.
    * @param string|array $fields
    *   The data to post. Pass an array to make a http form post.
@@ -194,7 +194,7 @@ class MarketoClient implements MarketoInterface {
    * response from server and the response info as it is returned
    * by curl_exec() and curl_getinfo() respectively.
    *
-   * @param $url
+   * @param string $url
    *   The url to make the call to.
    * @param string $data
    *   The data to post.
@@ -225,7 +225,7 @@ class MarketoClient implements MarketoInterface {
    * response from server and the response info as it is returned
    * by curl_exec() and curl_getinfo() respectively.
    *
-   * @param $url
+   * @param string $url
    *   The url to make the call to.
    * @param array $http_options
    *   Extra option to pass to curl handle.
@@ -380,24 +380,30 @@ class MarketoClient implements MarketoInterface {
       do {
         $batch = $this->getLeadActivityBatch($key, implode(',', $activitySet), $nextPageToken);
         if (isset($batch->result)) {
-          foreach ($batch->result as $a) {
-            $act = new stdClass();
-            $act->id = $a->id;
-            $act->activityDate = $a->activityDate;
-            $act->activityType = $this->getActivityTypes()[$a->activityTypeId]['name'];
-            $act->primaryAttributeValue = isset($a->primaryAttributeValue) ? $a->primaryAttributeValue : '';
-            $act->attributes = array();
-            foreach ($a->attributes as $attr) {
-              $act->attributes[$attr->name] = $attr->value;
-            }
-            $activity[$act->id] = $act;
-          }
+          $activity += $this->prepareActivityBatch($batch->result);
+          $nextPageToken = $batch->nextPageToken;
         }
-        $nextPageToken = $batch->nextPageToken;
       } while (isset($batch->moreResult) && $batch->moreResult);
     }
     ksort($activity);
     return $activity;
+  }
+
+  private function prepareActivityBatch($batch) {
+    $activities = array();
+    foreach ($batch as $a) {
+      $act = new stdClass();
+      $act->id = $a->id;
+      $act->activityDate = $a->activityDate;
+      $act->activityType = $this->getActivityTypes()[$a->activityTypeId]['name'];
+      $act->primaryAttributeValue = isset($a->primaryAttributeValue) ? $a->primaryAttributeValue : '';
+      $act->attributes = array();
+      foreach ($a->attributes as $attr) {
+        $act->attributes[$attr->name] = $attr->value;
+      }
+      $activities[$act->id] = $act;
+    }
+    return $activities;
   }
 
   private function getLeadActivityBatch($leadIds, $activityTypeIds, $nextPageToken, $batchSize = 300) {
@@ -416,7 +422,7 @@ class MarketoClient implements MarketoInterface {
       }
     }
     catch (Exception $e) {
-      
+      throw new Exception($e->getMessage(), $e->getCode());
     }
     return $response;
   }
@@ -436,7 +442,7 @@ class MarketoClient implements MarketoInterface {
       }
     }
     catch (Exception $e) {
-      
+      throw new Exception($e->getMessage(), $e->getCode());
     }
     return $this->activity_nextPageToken;
   }

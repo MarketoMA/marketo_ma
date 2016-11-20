@@ -136,6 +136,16 @@ function _marketo_ma_cleanup() {
   }
 }
 
+/**
+ * Creates a MarketoClient.
+ *
+ * @param string $endpoint
+ * @param string $identity
+ * @param string $client_id
+ * @param string $client_secret
+ * @param array $proxy
+ * @return \MarketoClient
+ */
 function _marketo_ma_client($endpoint = NULL, $identity = NULL, $client_id = NULL, $client_secret = NULL, $proxy = NULL) {
   $endpoint = is_null($endpoint) ? variable_get('marketo_ma_rest_endpoint') : $endpoint;
   $identity = is_null($identity) ? variable_get('marketo_ma_rest_identity') : $identity;
@@ -211,40 +221,21 @@ function _marketo_ma_output_tracking_code() {
  * @return array
  */
 function _marketo_ma_get_munchkin_init_params() {
-  $marketo_ma_munchkin_partition = trim(variable_get('marketo_ma_munchkin_partition', ''));
-  $marketo_ma_munchkin_altIds = trim(variable_get('marketo_ma_munchkin_altIds', ''));
-  $marketo_ma_munchkin_cookieLifeDays = trim(variable_get('marketo_ma_munchkin_cookieLifeDays', ''));
-  $marketo_ma_munchkin_clickTime = trim(variable_get('marketo_ma_munchkin_clickTime', ''));
-  $marketo_ma_munchkin_cookieAnon = trim(variable_get('marketo_ma_munchkin_cookieAnon', ''));
-  $marketo_ma_munchkin_domainLevel = trim(variable_get('marketo_ma_munchkin_domainLevel', ''));
-  $marketo_ma_munchkin_disableClickDelay = trim(variable_get('marketo_ma_munchkin_disableClickDelay', ''));
-  $marketo_ma_munchkin_asyncOnly = trim(variable_get('marketo_ma_munchkin_asyncOnly', ''));
-
-  $initParams = array();
-  if ($marketo_ma_munchkin_partition != '') {
-    $initParams['wsInfo'] = $marketo_ma_munchkin_partition;
-  }
-  if ($marketo_ma_munchkin_altIds != '') {
-    $altIds = preg_split("/,\s*/", $marketo_ma_munchkin_altIds);
-    $initParams['altIds'] = $altIds;
-  }
-  if ($marketo_ma_munchkin_cookieLifeDays != '') {
-    $initParams['cookieLifeDays'] = $marketo_ma_munchkin_cookieLifeDays;
-  }
-  if ($marketo_ma_munchkin_clickTime != '') {
-    $initParams['clickTime'] = $marketo_ma_munchkin_clickTime;
-  }
-  if ($marketo_ma_munchkin_cookieAnon != '') {
-    $initParams['cookieAnon'] = $marketo_ma_munchkin_cookieAnon;
-  }
-  if ($marketo_ma_munchkin_domainLevel != '') {
-    $initParams['domainLevel'] = $marketo_ma_munchkin_domainLevel;
-  }
-  if ($marketo_ma_munchkin_disableClickDelay != '') {
-    $initParams['disableClickDelay'] = $marketo_ma_munchkin_disableClickDelay;
-  }
-  if ($marketo_ma_munchkin_asyncOnly != '') {
-    $initParams['asyncOnly'] = $marketo_ma_munchkin_asyncOnly;
+  $initParams = array(
+    'wsInfo' => variable_get('marketo_ma_munchkin_partition', ''),
+    'altIds' => variable_get('marketo_ma_munchkin_altIds', ''),
+    'cookieLifeDays' => variable_get('marketo_ma_munchkin_cookieLifeDays', ''),
+    'clickTime' => variable_get('marketo_ma_munchkin_clickTime', ''),
+    'cookieAnon' => variable_get('marketo_ma_munchkin_cookieAnon', ''),
+    'domainLevel' => variable_get('marketo_ma_munchkin_domainLevel', ''),
+    'disableClickDelay' => variable_get('marketo_ma_munchkin_disableClickDelay', ''),
+    'asyncOnly' => variable_get('marketo_ma_munchkin_asyncOnly', ''),
+  );
+  foreach ($initParams as $key => $value) {
+    if ($value ==  '') {
+      // Remove any blank values from the parameters
+      unset($initParams[$key]);
+    }
   }
 
   return $initParams;

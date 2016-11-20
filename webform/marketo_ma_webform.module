@@ -211,7 +211,7 @@ function _marketo_ma_webform_details($nid) {
 function marketo_ma_webform_list() {
   $webform_types = webform_variable_get('webform_node_types');
 
-  $nodes = array();
+  $result = array();
   if ($webform_types) {
     $components = db_select(MARKETO_MA_SCHEMA_WEBFORM_COMPONENT, 'mmwc');
     $components->addField('mmwc', 'nid');
