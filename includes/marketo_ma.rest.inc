@@ -453,7 +453,7 @@ class MarketoClient implements MarketoInterface {
             $a = array(
               'id' => $activity->id,
               'name' => $activity->name,
-              'description' => $activity->description,
+              'description' => isset($activity->description) ? $activity->description : $activity->name,
             );
             $this->activity_types[$activity->id] = $a;
           }
