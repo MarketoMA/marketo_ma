@@ -232,9 +232,12 @@ function _marketo_ma_get_munchkin_init_params() {
     'asyncOnly' => variable_get('marketo_ma_munchkin_asyncOnly', ''),
   );
   foreach ($initParams as $key => $value) {
-    if ($value ==  '') {
+    if ($value == '') {
       // Remove any blank values from the parameters
       unset($initParams[$key]);
+    }
+    elseif ($key == 'altIds') {
+      $initParams['altIds'] = preg_split("/,\s*/", $initParams['altIds']);
     }
   }
 
@@ -497,7 +500,7 @@ function _marketo_ma_get_fields($cache = FALSE, $update_cache = FALSE) {
 function _marketo_ma_save_lead_fields_database($fields) {
   foreach ($fields as $key => $value) {
     // TODO: field validation and error checking
-    $execute = db_merge('marketo_ma_lead_fields')
+    db_merge('marketo_ma_lead_fields')
       ->key(array('id' => $value['id']))
       ->fields(array(
         'displayName' => $value['displayName'],
@@ -774,10 +777,10 @@ function _marketo_ma_visibility_pages() {
  * Based on role visibility setting determines if marketo should be included.
  */
 function _marketo_ma_visibility_roles($account) {
-  static $role_match;
+  static $enabled;
 
   // Cache visibility result if function is called more than once.
-  if (!isset($role_match)) {
+  if (!isset($enabled)) {
     $visibility = variable_get('marketo_ma_visibility_roles', 0);
     $enabled = $visibility;
     $roles = variable_get('marketo_ma_roles', array());

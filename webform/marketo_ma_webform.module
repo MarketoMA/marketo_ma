@@ -99,7 +99,7 @@ function marketo_ma_webform_webform_component_delete($component) {
  */
 function marketo_ma_webform_webform_submission_insert($node, $submission) {
   $webform = _marketo_ma_webform_details($node->nid);
-  if ($webform && $webform->is_active) {
+  if (is_object($webform) && $webform->is_active) {
 
     $data = array();
     $fieldmap = _marketo_ma_webform_get_mapped_fields($node->nid);

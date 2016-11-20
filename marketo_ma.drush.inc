@@ -131,7 +131,7 @@ function drush_marketo_ma_mma_get_lead($key = NULL) {
     }
 
     if ($activity && array_key_exists('activity', $find)) {;
-      _marketo_ma_print_activity($find['activity']);
+      _marketo_ma_print_activity($find);
     }
   }
 
@@ -262,13 +262,13 @@ function _marketo_ma_print_lead($find) {
  *
  * @param array $activity
  */
-function _marketo_ma_print_activity($activity) {
-  if (! empty($activity)) {
+function _marketo_ma_print_activity($find) {
+  if (!empty($find['activity'])) {
     drush_print('Activity for lead ID ' . $find['marketo']->id);
     $fields = array('id', 'activityDate', 'activityType', 'primaryAttributeValue');
     $rows = array();
     $rows[] = array(dt('ID'), dt('Date/Time'), dt('Activity Type'), dt('Detail'));
-    foreach ($activity as $event) {
+    foreach ($find['activity'] as $event) {
       $row = array();
       foreach ($fields as $field) {
         $row[] = $event->$field;

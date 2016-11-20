@@ -223,6 +223,10 @@ function marketo_ma_admin_settings_form($form, &$form_state) {
   $field_defaults = variable_get('marketo_ma_webform_fields', array());
   $options = array();
   $disabled_options = array();
+
+  if (!is_array($field_data)) {
+    throw new \RuntimeException('$field_data must be an array.');
+  }
   foreach ($field_data as $field_key => $field_value) {
     $options[$field_value['id']] = array(
       'displayName' => $field_value['displayName'],
