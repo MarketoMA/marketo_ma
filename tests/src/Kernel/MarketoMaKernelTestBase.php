@@ -47,8 +47,6 @@ abstract class MarketoMaKernelTestBase extends KernelTestBase {
 
     // Install config for this module.
     $this->installConfig('marketo_ma');
-    // Install module schema.
-    $this->installSchema('marketo_ma', 'marketo_ma_lead_fields');
 
     // Get the settings object.
     $settings = Settings::getAll();
