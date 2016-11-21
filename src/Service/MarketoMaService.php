@@ -12,7 +12,6 @@ use Drupal\Core\State\StateInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\marketo_ma\Lead;
 use Drupal\marketo_ma\MarketoFieldDefinition;
-use Drupal\marketo_ma\FieldDefinitionSet;
 use Drupal\user\PrivateTempStoreFactory;
 
 /**
@@ -80,16 +79,9 @@ class MarketoMaService implements MarketoMaServiceInterface {
   protected $temp_store_factory;
 
   /**
-   * The state storage service.
-   *
-   * @var \Drupal\Core\State\StateInterface
-   */
-  protected $state;
-
-  /**
    * Marketo lead fields.
    *
-   * @var \Drupal\marketo_ma\FieldDefinitionSet
+   * @var \Drupal\marketo_ma\Service\MarketoFieldSetInterface
    */
   protected $fieldset;
 
@@ -112,10 +104,10 @@ class MarketoMaService implements MarketoMaServiceInterface {
    *   The queue service.
    * @param \Drupal\user\PrivateTempStoreFactory $temp_store_factory
    *   The factory for the temp store object.
-   * @param \Drupal\Core\State\StateInterface $state
-   *   The state key value store.
+   * @param \Drupal\marketo_ma\Service\MarketoFieldSetInterface $fieldset
+   *   The field set key value store.
    */
-  public function __construct(ConfigFactoryInterface $config_factory, MarketoMaApiClientInterface $api_client, AccountInterface $current_user, RouteMatchInterface $route_match, PathMatcherInterface $path_matcher, MarketoMaMunchkinInterface $munchkin, QueueFactory $queue_factory, PrivateTempStoreFactory $temp_store_factory, StateInterface $state) {
+  public function __construct(ConfigFactoryInterface $config_factory, MarketoMaApiClientInterface $api_client, AccountInterface $current_user, RouteMatchInterface $route_match, PathMatcherInterface $path_matcher, MarketoMaMunchkinInterface $munchkin, QueueFactory $queue_factory, PrivateTempStoreFactory $temp_store_factory, MarketoFieldSetInterface $fieldset) {
     $this->config_factory = $config_factory;
     $this->api_client = $api_client;
     $this->current_user = $current_user;
@@ -124,8 +116,7 @@ class MarketoMaService implements MarketoMaServiceInterface {
     $this->munchkin = $munchkin;
     $this->queue_factory = $queue_factory;
     $this->temp_store_factory = $temp_store_factory;
-    $this->state = $state;
-    $this->fieldset = new FieldDefinitionSet;
+    $this->fieldset = $fieldset;
   }
 
   /**
@@ -332,31 +323,36 @@ class MarketoMaService implements MarketoMaServiceInterface {
   /**
    * {@inheritdoc}
    */
-  public function getMarketoFields() {
+  public function getMarketoFields($reset = FALSE) {
+    // Reset if requested or fields have never been retrieved.
+    if ($reset || empty($this->fieldset->getAll())) {
+      // Get the fields.
+      $api_fields = $this->api_client->canConnect() ? $this->api_client->getFields() : [];
+
+      // Save the field options in state.
+      if (!empty($api_fields)) {
+        $marketo_ma_fields = [];
+        // Convert response array to an array of MarketoField objects keyed by the marketo field id.
+        foreach ($api_fields as $api_field) {
+          $marketo_ma_fields[$api_field['id']] = new MarketoFieldDefinition($api_field);
+        }
+        $this->fieldset->setMultiple($marketo_ma_fields);
+      }
+    }
+
     return $this->fieldset->getAll();
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getMarketoFieldsAsTableSelectOptions() {
-    return $this->fieldset->getAllTableselect();
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getReadOnly() {
-    return $this->fieldset->getReadOnly();
-  }
-
-  public function resetMarketoFields() {
-    $api_fields = $this->api_client->canConnect() ? $this->api_client->getFields() : [];
-    foreach ($api_fields as $api_field) {
-      $this->fieldset->add($api_field);
-    }
-    $this->fieldset = new FieldDefinitionSet;
-    return $this;
+  public function getMarketoFieldsAsTableSelectOptions($reset = FALSE) {
+    // Convert objects to table-select options.
+    return array_map(function ($item) {
+      return $item instanceof MarketoFieldDefinition
+        ? $item->toTableSelectOption()
+        : [];
+    }, $this->getMarketoFields($reset));
   }
 
   /**

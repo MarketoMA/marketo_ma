@@ -31,3 +31,11 @@ function marketo_ma_page_attachments(array &$page) {
   // Hand off to the marketo_ma service.
   \Drupal::service('marketo_ma')->pageAttachments($page);
 }
+
+/**
+ * Implements hook_uninstall().
+ */
+function marketo_ma_uninstall() {
+  // Delete all field definitions from the key/value store.
+  \Drupal::service('marketo_ma.fieldset')->deleteAll();
+}

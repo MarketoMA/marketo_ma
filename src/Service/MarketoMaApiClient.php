@@ -14,7 +14,6 @@ use Psr\Log\LoggerInterface;
  */
 class MarketoMaApiClient implements MarketoMaApiClientInterface {
 
-
   // Adds ability to encrypt/decrypt configuration.
   use EncryptionTrait;
 
@@ -28,7 +27,7 @@ class MarketoMaApiClient implements MarketoMaApiClientInterface {
   /**
    * The API client library. @see: https://github.com/dchesterton/marketo-rest-api.
    *
-   * @var \CSD\Marketo\ClientInterface
+   * @var \CSD\Marketo\Client
    */
   private $client;
 
@@ -78,9 +77,21 @@ class MarketoMaApiClient implements MarketoMaApiClientInterface {
   /**
    * {@inheritdoc}
    */
+  public function canConnect() {
+    return !empty($this->client_config['munchkin_id'])
+    && !empty($this->client_config['client_id'])
+    && !empty($this->client_config['munchkin_id']
+      && class_exists(Client::class));
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function getFields() {
     $fields_result = $this->getClient()->describeLeads()->getResult();
-
+    // Log that we are retrieving fields from marketo.
+    $this->logger->info('Retrieving fields from Marketo.');
+    // Set the default name to the rest name.
     array_walk($fields_result, function (&$field_item) {
       $field_item['default_name'] = $field_item['rest']['name'];
     });
@@ -93,15 +104,6 @@ class MarketoMaApiClient implements MarketoMaApiClientInterface {
    */
   public function getActivityTypes() {
     return $this->getClient()->getActivityTypes()->getResult();
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function canConnect() {
-    return !empty($this->client_config['munchkin_id'])
-      && !empty($this->client_config['client_id'])
-      && !empty($this->client_config['munchkin_id']);
   }
 
   /**
