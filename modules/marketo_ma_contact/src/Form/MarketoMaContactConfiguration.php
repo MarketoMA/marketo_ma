@@ -156,6 +156,8 @@ class MarketoMaContactConfiguration extends FormBase {
     // Set the third party settings for field mappings and save.
     $this->contactForm->setThirdPartySetting('marketo_ma_contact', 'mapping', $mapping);
     $this->contactForm->save();
+    \drupal_set_message($this->t('Marketo configuration has been saved.'),  'status');
+
   }
 
 }
