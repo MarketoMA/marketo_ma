@@ -5,7 +5,6 @@ namespace Drupal\marketo_ma;
 class FieldDefinitionSet {
 
   private $fieldset = array();
-  private $readonly = array();
 
   public function __construct() {
     $this->load();
@@ -17,11 +16,6 @@ class FieldDefinitionSet {
       ->orderBy('displayName')
       ->execute()
       ->fetchAllAssoc('restName', \PDO::FETCH_ASSOC);
-    foreach ($this->fieldset as $field_key => $field_value) {
-      if ($field_value['restReadOnly'] || $field_value['soapReadOnly']) {
-        $this->readonly[] = $field_value['id'];
-      }
-    }
   }
 
   public function add($field) {
@@ -39,25 +33,30 @@ class FieldDefinitionSet {
       ->execute();
   }
 
+  public function get() {
+    
+  }
+
   public function getAll() {
     return $this->fieldset;
   }
 
   public function getAllTableselect() {
+    $this->load();
     $options = array();
+    $disabled_options = array();
     foreach ($this->fieldset as $field_key => $field_value) {
       $options[$field_value['id']] = array(
         'displayName' => $field_value['displayName'],
         'id' => $field_value['id'],
-        'restName' => (string) $field_value['restName'],
-        'soapName' => (string) $field_value['soapName'],
+        'restName' => $field_value['restName'],
+        'soapName' => $field_value['soapName'],
       );
+      if ($field_value['restReadOnly'] || $field_value['soapReadOnly']) {
+        $disabled_options[] = $field_value['id'];
+      }
     }
     return $options;
-  }
-
-  public function getReadOnly() {
-    return $this->readonly;
   }
 
 }

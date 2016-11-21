@@ -106,7 +106,7 @@ interface MarketoMaServiceInterface {
    * @return \Drupal\marketo_ma\MarketoFieldDefinition[]
    *   All marketo fields fields keyed by the marketo field ID.
    */
-  public function getMarketoFields();
+  public function getMarketoFields($reset = FALSE);
 
   /**
    * Get's all marketo fields converted to table select options.
@@ -117,20 +117,7 @@ interface MarketoMaServiceInterface {
    * @return \Drupal\marketo_ma\MarketoFieldDefinition[]
    *   All marketo fields keyed by the marketo field ID.
    */
-  public function getMarketoFieldsAsTableSelectOptions();
-
-  /**
-   * Retrieves and caches lead fields from Marketo
-   */
-  public function resetMarketoFields();
-
-  /**
-   * Gets fields that are read-only in Marketo.
-   *
-   * @return array
-   *   All fields available for mapping keyed by marketo field ID.
-   */
-  public function getReadOnly();
+  public function getMarketoFieldsAsTableSelectOptions($reset = FALSE);
 
   /**
    * Get's fields that have been enabled.
