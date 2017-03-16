@@ -100,4 +100,17 @@ interface MarketoMaApiClientInterface {
    */
   public function deleteLead($leads, $args = array());
 
+  /**
+   * Associate a known lead with activity recorded by a cookie.
+   *
+   * @param $leadId
+   *   The id of the lead whose activity should be associated with the cookie.
+   * @param $cookie
+   *   The browser cookie value to associate with the lead.
+   * @param array $args
+   *
+   * @return mixed
+   */
+  public function associateLead($leadId, $cookie, $args = array());
+
 }
