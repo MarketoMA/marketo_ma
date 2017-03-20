@@ -100,4 +100,20 @@ interface MarketoMaApiClientInterface {
    */
   public function deleteLead($leads, $args = array());
 
+  /**
+   * Inserts or updates a custom object.
+   *
+   * @param string $objectName
+   *   The name of the custom object according to Marketo.
+   * @param array $input
+   *   An array of values keyed by the field name to populate the object with.
+   * @param string $dedupeBy
+   *   (optional) An attribute to use to remove duplicates.
+   * @param array $options
+   *   Array of additional options to configure lead syncing
+   *
+   * @return array mixed
+   */
+  public function syncCustomObject($objectName, $action, $input, $dedupeBy = NULL, $options = []);
+
 }
