@@ -333,7 +333,12 @@ class MarketoMaService implements MarketoMaServiceInterface {
    * {@inheritdoc}
    */
   public function getMarketoFields() {
-    return $this->fieldset->getAll();
+    $fields = $this->fieldset->getAll();
+    foreach ($fields as &$field) {
+      $field = new MarketoFieldDefinition($field);
+    }
+
+    return $fields;
   }
 
   /**
