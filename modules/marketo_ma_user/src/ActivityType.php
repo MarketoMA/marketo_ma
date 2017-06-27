@@ -6,7 +6,9 @@ use Drupal\Core\StringTranslation\StringTranslationTrait;
 
 class ActivityType {
 
-  // Allows the use of t() from this class.
+  /**
+   * Allows the use of t() from this class.
+   */
   use StringTranslationTrait;
 
   protected $definition;
@@ -61,7 +63,6 @@ class ActivityType {
     return isset($this->definition['primaryAttribute']['name']) ? $this->definition['primaryAttribute']['name'] : NULL;
   }
 
-
   /**
    * Convert sthis activity type to a tableselect option.
    *
@@ -76,4 +77,5 @@ class ActivityType {
       $this->t(':value', [':value' => $this->getPrimaryAttributeName()]),
     ];
   }
+
 }

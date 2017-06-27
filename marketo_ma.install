@@ -5,79 +5,80 @@
  * Install hooks for Marketo MA module.
  */
 
+use Drupal\marketo_ma\Service\MarketoMaServiceInterface;
+use Drupal\Core\Url;
+
 /**
  * Implements hook_schema().
  */
 function marketo_ma_schema() {
-  $schema['marketo_ma_lead_fields'] = array(
+  $schema['marketo_ma_lead_fields'] = [
     'description' => 'Marketo Lead Field Detail.',
-    'primary key' => array('id'),
-    'unique keys' => array(),
-    'fields' => array(
-      'id' => array(
+    'primary key' => ['id'],
+    'unique keys' => [],
+    'fields' => [
+      'id' => [
         'description' => 'Marketo identifier for field.',
         'type' => 'int',
         'unsigned' => TRUE,
         'not null' => TRUE,
-      ),
-      'displayName' => array(
+      ],
+      'displayName' => [
         'description' => 'Lead field display name.',
         'type' => 'varchar',
         'length' => 128,
         'not null' => TRUE,
-      ),
-      'dataType' => array(
+      ],
+      'dataType' => [
         'description' => 'Lead field data type.',
         'type' => 'varchar',
         'length' => 128,
         'not null' => TRUE,
-      ),
-      'length' => array(
+      ],
+      'length' => [
         'description' => 'Lead field length.',
         'type' => 'int',
         'unsigned' => TRUE,
-      ),
-      'restName' => array(
+      ],
+      'restName' => [
         'description' => 'Lead field key for REST API.',
         'type' => 'varchar',
         'length' => 128,
-      ),
-      'restReadOnly' => array(
+      ],
+      'restReadOnly' => [
         'description' => 'TRUE (1) if REST field is read only.',
         'type' => 'int',
         'size' => 'small',
         'unsigned' => TRUE,
         'not null' => TRUE,
         'default' => 0,
-      ),
-      'soapName' => array(
+      ],
+      'soapName' => [
         'description' => 'Lead field key for SOAP API.',
         'type' => 'varchar',
         'length' => 128,
-      ),
-      'soapReadOnly' => array(
+      ],
+      'soapReadOnly' => [
         'description' => 'TRUE (1) if SOAP field is read only.',
         'type' => 'int',
         'size' => 'small',
         'unsigned' => TRUE,
         'not null' => TRUE,
         'default' => 0,
-      ),
-    ),
-  );
+      ],
+    ],
+  ];
   return $schema;
 }
 
 /**
  * Implements hook_requirements().
- *
- * - Checks the ability to connect to the marketo REST API.
  */
 function marketo_ma_requirements($phase) {
 
   if ($phase == 'runtime') {
 
-    $config_name = \Drupal\marketo_ma\Service\MarketoMaServiceInterface::MARKETO_MA_CONFIG_NAME;
+    $config_name = MarketoMaServiceInterface::MARKETO_MA_CONFIG_NAME;
 
     // Get the Marketo settings.
     $config = \Drupal::config($config_name);
@@ -85,14 +86,18 @@ function marketo_ma_requirements($phase) {
     // Run Marketo REST tests.
     if ($config->get('tracking_method') == 'api_client') {
 
-      /** @var \Drupal\marketo_ma\Service\MarketoMaApiClientInterface $marketo_client */
+      /**
+      * @var \Drupal\marketo_ma\Service\MarketoMaApiClientInterface $marketo_client
+      */
       $marketo_client = \Drupal::service('marketo_ma.api_client');
 
       if (!class_exists('\CSD\Marketo\Client')) {
         // The composer library is missing.
         return [
           'marketo_ma_rest_api_client' => [
-            'description' => t("The Marketo REST api client is required for the Marketo MA module. Please read the module's readme for installation instructions."),
+            'description' => $this->t("The Marketo REST api client is required
+            for the Marketo MA module. Please read the module's readme for
+            installation instructions."),
             'title' => t('Marketo REST client'),
             'severity' => REQUIREMENT_ERROR,
             'value' => t('Not found'),
@@ -104,7 +109,7 @@ function marketo_ma_requirements($phase) {
         return [
           'marketo_ma_rest_configuration' => [
             'description' => t('The Marketo REST API was chosen for connection method but some <a href=":link">configuration</a> seems to be missing.', [
-              ':link' => Drupal\Core\Url::fromRoute('marketo_ma.settings')->toString(),
+              ':link' => Url::fromRoute('marketo_ma.settings')->toString(),
             ]),
             'title' => t('Marketo MA configuration.'),
             'severity' => REQUIREMENT_ERROR,
@@ -123,7 +128,7 @@ function marketo_ma_requirements($phase) {
             'marketo_ma_rest_connection' => [
               'description' => t('There was an error connecting to the Marketo REST API. check your api credentials on the <a href=":link">configuration</a> page: %message', [
                 '%message' => $e->getMessage(),
-                ':link' => Drupal\Core\Url::fromRoute('marketo_ma.settings')->toString(),
+                ':link' => Url::fromRoute('marketo_ma.settings')->toString(),
               ]),
               'title' => t('Marketo REST Connection'),
               'severity' => REQUIREMENT_ERROR,
@@ -136,7 +141,7 @@ function marketo_ma_requirements($phase) {
           return [
             'marketo_ma_rest_connection' => [
               'description' => t('There was an error connecting to the Marketo REST API. Check your api credentials on the <a href=":link">configuration</a> page.', [
-                ':link' => Drupal\Core\Url::fromRoute('marketo_ma.settings')->toString(),
+                ':link' => Url::fromRoute('marketo_ma.settings')->toString(),
               ]),
               'title' => t('Marketo REST Connection'),
               'severity' => REQUIREMENT_ERROR,

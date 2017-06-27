@@ -6,7 +6,7 @@ use Drupal\user\UserInterface;
 
 interface MarketoMaUserServiceInterface {
 
-  /** The Marketo MA User module config name. */
+  // The Marketo MA User module config name.
   const MARKETO_MA_USER_CONFIG_NAME = 'marketo_ma_user.settings';
 
   /**
@@ -47,7 +47,7 @@ interface MarketoMaUserServiceInterface {
   /**
    * Get's activity types that are defined in marketo.
    *
-   * @param boolean $reset
+   * @param bool $reset
    *   Whether to try to refresh the list form the API client.
    *
    * @return \Drupal\marketo_ma_user\ActivityType[]
@@ -58,7 +58,7 @@ interface MarketoMaUserServiceInterface {
   /**
    * Get's all marketo activity types converted to table select options.
    *
-   * @param boolean $reset
+   * @param bool $reset
    *   Whether to try to refresh the activity types form the API client.
    *
    * @return \Drupal\marketo_ma_user\ActivityType[]
@@ -67,4 +67,3 @@ interface MarketoMaUserServiceInterface {
   public function getActivitiesAsTableSelectOptions($reset = FALSE);
 
 }
-

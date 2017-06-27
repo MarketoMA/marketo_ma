@@ -15,7 +15,7 @@ class ContactSubmissionTest extends MarketoMaContactTestBase {
     $contact = Message::create([
       'contact_form' => 'test_contact',
       'name' => 'My name',
-      'mail' => 'example@example.com'
+      'mail' => 'example@example.com',
     ]);
     $contact->save();
 
@@ -24,7 +24,8 @@ class ContactSubmissionTest extends MarketoMaContactTestBase {
     $this->assertEquals([new Lead([
       'firstName' => 'My name',
       'email' => 'example@example.com',
-    ])], $synced_leads);
+    ]),
+    ], $synced_leads);
   }
 
 }

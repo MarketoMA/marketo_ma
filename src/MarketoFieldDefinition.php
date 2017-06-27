@@ -59,6 +59,7 @@ class MarketoFieldDefinition {
    *
    * @param string $tracking_method
    *   The source api for which the field name is being requested.
+   *
    * @return string
    *   The field name.
    */

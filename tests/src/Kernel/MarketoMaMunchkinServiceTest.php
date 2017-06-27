@@ -10,7 +10,9 @@ use Drupal\marketo_ma\Service\MarketoMaMunchkinInterface;
 class MarketoMaMunchkinServiceTest extends MarketoMaKernelTestBase {
 
   /**
-   * @var \Drupal\marketo_ma\Service\MarketoMaMunchkinInterface The marketo_ma munchkin service.
+   * @var \Drupal\marketo_ma\Service\MarketoMaMunchkinInterface
+   *
+   * The marketo_ma munchkin service.
    */
   protected $munchkin;
 

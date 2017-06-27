@@ -35,6 +35,7 @@ interface MarketoMaServiceInterface {
    * Handles `hook_page_attachments` for the marketo_ma module.
    *
    * @param $page
+   *
    * @return null
    */
   public function pageAttachments(&$page);
@@ -60,6 +61,7 @@ interface MarketoMaServiceInterface {
    *
    * @param \Drupal\marketo_ma\Lead $lead
    *   The marketo lead.
+   *
    * @return $this
    */
   public function setUserData($lead);
@@ -86,7 +88,6 @@ interface MarketoMaServiceInterface {
    */
   public function hasUserData();
 
-
   /**
    * Updates lead information respecting batch settings.
    *
@@ -100,7 +101,7 @@ interface MarketoMaServiceInterface {
   /**
    * Get's fields that are defined in marketo.
    *
-   * @param boolean $reset
+   * @param bool $reset
    *   Whether to try to refresh the fields form the API client.
    *
    * @return \Drupal\marketo_ma\MarketoFieldDefinition[]
@@ -111,7 +112,7 @@ interface MarketoMaServiceInterface {
   /**
    * Get's all marketo fields converted to table select options.
    *
-   * @param boolean $reset
+   * @param bool $reset
    *   Whether to try to refresh the fields form the API client.
    *
    * @return \Drupal\marketo_ma\MarketoFieldDefinition[]
@@ -120,7 +121,7 @@ interface MarketoMaServiceInterface {
   public function getMarketoFieldsAsTableSelectOptions();
 
   /**
-   * Retrieves and caches lead fields from Marketo
+   * Retrieves and caches lead fields from Marketo.
    */
   public function resetMarketoFields();
 

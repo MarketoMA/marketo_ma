@@ -126,7 +126,8 @@ class MarketoMaUserLeadDataController extends ControllerBase {
       $this->t('Date/Time'),
       $this->t('Activity Type'),
       $this->t('Asset Name'),
-    ]; //ID	Date/Time	Activity Type	Asset Name
+    ];
+    // ID	Date/Time	Activity Type	Asset Name
     // Convert the lead data to table rows.
     $rows = array_map(function ($activity) {
       return [
@@ -144,7 +145,6 @@ class MarketoMaUserLeadDataController extends ControllerBase {
       '#empty' => $this->t('No lead activity found for %username.', ['%username' => $user->getAccountName()]),
     ];
   }
-
 
   /**
    * Gets activity given a leads email address.

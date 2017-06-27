@@ -27,7 +27,9 @@ abstract class MarketoMaKernelTestBase extends KernelTestBase {
 
   protected $test_lead_email;
 
-  /** @var  \Drupal\Core\Config\Config */
+  /**
+   * @var \Drupal\Core\Config\Config
+   */
   protected $config;
 
   /**
@@ -76,7 +78,7 @@ abstract class MarketoMaKernelTestBase extends KernelTestBase {
     $this->service = \Drupal::service('marketo_ma');
 
     // Set the test lead ID.
-    $this->test_lead_email = 'test_lead-'.$this->randomMachineName().'@marketo.com';
+    $this->test_lead_email = 'test_lead-' . $this->randomMachineName() . '@marketo.com';
 
   }
 

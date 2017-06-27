@@ -1,6 +1,7 @@
 <?php
 
 namespace Drupal\marketo_ma\Service;
+
 use Drupal\marketo_ma\Lead;
 
 /**
@@ -54,10 +55,12 @@ interface MarketoMaMunchkinInterface {
 
   /**
    * Get a munchkin action given the action type and lead information.
+   *
    * @see: http://developers.marketo.com/documentation/websites/munchkin-api/
    *
    * @param $action_type
-   *   The type of action to be preformed. ('visitWebPage', 'clickLink', 'associateLead')
+   *   The type of action to be preformed.
+   *   ('visitWebPage', 'clickLink', 'associateLead')
    * @param \Drupal\marketo_ma\Lead $lead
    *   The lead to be associated. Note: A Lead email is required the
    *   `associateLead` action.
