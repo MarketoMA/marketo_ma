@@ -1,6 +1,7 @@
 <?php
 
 namespace Drupal\Tests\marketo_ma_user\FunctionalJavascript;
+
 use Drupal\marketo_ma\Service\MarketoMaServiceInterface;
 
 /**
@@ -11,12 +12,16 @@ use Drupal\marketo_ma\Service\MarketoMaServiceInterface;
 class MarketoMaUserApiClientTest extends MarketoMaUserJavascriptTestBase {
 
   /**
-   * @var \Drupal\marketo_ma\Service\MarketoMaApiClientInterface The marketo_ma client service.
+   * @var \Drupal\marketo_ma\Service\MarketoMaApiClientInterface
+   *
+   * The marketo_ma client service.
    */
   protected $client;
 
   /**
-   * @var \Drupal\marketo_ma\Service\MarketoMaServiceInterface The marketo_ma client service.
+   * @var \Drupal\marketo_ma\Service\MarketoMaServiceInterface
+   *
+   * The marketo_ma client service.
    */
   protected $service;
 
@@ -81,7 +86,7 @@ class MarketoMaUserApiClientTest extends MarketoMaUserJavascriptTestBase {
     self::assertTrue(!empty($lead), 'A lead was associated');
     // Makes sure the lead email is the same as the user.
     self::assertEquals($lead->getEmail(), $marketo_user->getEmail(), 'Marketo client lead email matches.');
-    // make sure we have a marketo lead ID for the lead.
+    // Make sure we have a marketo lead ID for the lead.
     self::assertNotEmpty($lead->id(), 'Marketo client lead has a lead id.');
 
     // Clean up and delete the lead.

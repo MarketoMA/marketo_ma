@@ -31,10 +31,14 @@ class MarketoMaContactConfiguration extends FormBase {
    */
   protected $contactForm;
 
-  /** @var \Drupal\marketo_ma\Service\MarketoMaServiceInterface */
+  /**
+   * @var \Drupal\marketo_ma\Service\MarketoMaServiceInterface
+   */
   protected $service;
 
-  /** @var \Drupal\Core\Entity\EntityFieldManagerInterface */
+  /**
+   * @var \Drupal\Core\Entity\EntityFieldManagerInterface
+   */
   protected $entityFieldManager;
 
   /**

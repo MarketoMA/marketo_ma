@@ -9,7 +9,7 @@ use Drupal\marketo_ma\Service\MarketoMaApiClientInterface;
 /**
  * Stub implementation of an marketo api client.
  */
-class TestMarketoMaApiClient implements MarketoMaApiClientInterface  {
+class TestMarketoMaApiClient implements MarketoMaApiClientInterface {
 
   /**
    * {@inheritdoc}
@@ -118,7 +118,7 @@ class TestMarketoMaApiClient implements MarketoMaApiClientInterface  {
   /**
    * {@inheritdoc}
    */
-  public function syncLead(Lead $lead, $key = 'email', $cookie = null, $options = []) {
+  public function syncLead(Lead $lead, $key = 'email', $cookie = NULL, $options = []) {
     $this->syncedLeads[] = $lead;
     $this->state->set(static::class, $this->syncedLeads);
 
@@ -132,7 +132,7 @@ class TestMarketoMaApiClient implements MarketoMaApiClientInterface  {
   /**
    * {@inheritdoc}
    */
-  public function deleteLead($leads, $args = array()) {
+  public function deleteLead($leads, $args = []) {
     return [];
   }
 

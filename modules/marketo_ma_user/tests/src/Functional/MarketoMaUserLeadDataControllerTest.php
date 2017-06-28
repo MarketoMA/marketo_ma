@@ -2,7 +2,6 @@
 
 namespace Drupal\Tests\marketo_ma_user\Functional;
 
-
 /**
  * Tests the marketo_ma_user controller.
  *

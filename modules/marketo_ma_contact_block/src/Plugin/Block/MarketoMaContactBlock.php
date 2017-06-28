@@ -90,7 +90,7 @@ class MarketoMaContactBlock extends ContactBlock {
       $form['fields']['#open'] = TRUE;
 
       $fields = $this->entityFieldManager->getFieldDefinitions('contact_message', $contact_form_id);
-      // Exclude any base field, which excludes stuff liek subject and body.
+      // Exclude any base field, which excludes stuff like subject and body.
       $fields = array_filter($fields, function (FieldDefinitionInterface $fieldDefinition) {
         return !$fieldDefinition instanceof BaseFieldDefinition;
       });
@@ -126,7 +126,7 @@ class MarketoMaContactBlock extends ContactBlock {
     if ($contact_message = parent::createContactMessage()) {
       // Loop through the fields.
       foreach ($this->configuration['fields'] as $field_name => $field_value) {
-        // make sure the field is currently available.
+        // Make sure the field is currently available.
         if ($contact_message instanceof MessageInterface && ($field = $contact_message->getFieldDefinition($field_name))) {
           // Set the field value.
           $main_property = $field->getFieldStorageDefinition()->getMainPropertyName();

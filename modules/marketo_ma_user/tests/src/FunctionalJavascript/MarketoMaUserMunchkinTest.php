@@ -10,7 +10,7 @@ use Drupal\marketo_ma\Service\MarketoMaServiceInterface;
  *
  * @group marketo_ma_user-js
  */
-class MarketoMaUserMunchkinTest extends MarketoMaUserJavascriptTestBase  {
+class MarketoMaUserMunchkinTest extends MarketoMaUserJavascriptTestBase {
 
   /**
    * {@inheritdoc}

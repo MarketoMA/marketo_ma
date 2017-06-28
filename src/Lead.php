@@ -79,6 +79,7 @@ class Lead {
    *
    * @param string $data_key
    *   The key used to store the data. i.e. "email".
+   *
    * @return mixed
    *   The requested value.
    */
@@ -94,7 +95,7 @@ class Lead {
    *   The key used to store the data. i.e. "email".
    * @param mixed $value
    *
-   * @return \Drupal\marketo_ma\Lead $this
+   * @return \Drupal\marketo_ma\Lead
    *   The lead object.
    */
   public function set($data_key, $value) {

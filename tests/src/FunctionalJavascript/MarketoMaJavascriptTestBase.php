@@ -28,6 +28,7 @@ abstract class MarketoMaJavascriptTestBase extends JavascriptTestBase {
 
   /**
    * The marketo_ma config.
+   *
    * @var \Drupal\Core\Config\Config
    */
   protected $config;
@@ -47,11 +48,11 @@ abstract class MarketoMaJavascriptTestBase extends JavascriptTestBase {
   public function setUp() {
     parent::setUp();
     // Generate a random encryption key.
-    $settings['settings']['encryption_key'] = (object) array(
+    $settings['settings']['encryption_key'] = (object) [
       'value' => base64_encode(random_bytes(32)),
       'required' => TRUE,
-    );
-    // Write the encryption keto to settings.php
+    ];
+    // Write the encryption keto to settings.php.
     $this->writeSettings($settings);
 
     // Get the encryption service.

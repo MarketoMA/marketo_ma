@@ -11,12 +11,12 @@ use Drupal\marketo_ma\Lead;
  */
 interface MarketoMaApiClientInterface {
 
-
   /**
    * Checks whether the client has all the information necessary to attempt a
    *  connection.
    *
    * @return bool
+   *   Returns true of false.
    */
   public function canConnect();
 
@@ -51,7 +51,6 @@ interface MarketoMaApiClientInterface {
    */
   public function getLeadByEmail($email);
 
-
   /**
    * Retrieves lead information.
    *
@@ -79,9 +78,9 @@ interface MarketoMaApiClientInterface {
    * @param \Drupal\marketo_ma\Lead $lead
    *   The lead to be updated.
    * @param string $key
-   *   Lead Key, typically email address
+   *   Lead Key, typically email address.
    * @param array $options
-   *   Array of additional options to configure lead syncing
+   *   Array of additional options to configure lead syncing.
    *
    * @return array
    *   An array of lead ids and status messages.
@@ -92,12 +91,12 @@ interface MarketoMaApiClientInterface {
    * Delete one or more leads.
    *
    * @param int|array $leads
-   *   Either a single lead ID or an array of lead IDs
-   * @param array     $args
+   *   Either a single lead ID or an array of lead IDs.
+   * @param array $args
    *
    * @return array
    *   An array of response messages and ids (`$ret[n][status] === 'deleted'`).
    */
-  public function deleteLead($leads, $args = array());
+  public function deleteLead($leads, $args = []);
 
 }

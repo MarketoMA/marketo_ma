@@ -24,7 +24,7 @@ class ContactMessageInsert implements ContainerInjectionInterface {
   /**
    * Stores the loaded mapping configuration.
    *
-   * @var array|NULL
+   * @var array|null
    */
   protected $mappingConfiguration;
 
@@ -97,7 +97,7 @@ class ContactMessageInsert implements ContainerInjectionInterface {
    * @param \Drupal\contact\MessageInterface $message
    *
    * @return array
-   *  The mapping data, keyed by marketo field name.
+   *   The mapping data, keyed by marketo field name.
    */
   protected function determineMappedData(MessageInterface $message) {
     $enables_fields = $this->marketo_ma_service->getEnabledFields();

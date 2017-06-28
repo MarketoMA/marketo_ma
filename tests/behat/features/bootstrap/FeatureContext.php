@@ -41,9 +41,8 @@ class FeatureContext extends RawDrupalContext implements SnippetAcceptingContext
     }
 
     $this->marketoMaIsConfiguredUsingSettingsFrom($config);
-//    $this->iPopulatedLeadFieldsUsingConfig($fields);
-//    drupal_flush_all_caches();
-
+    // $this->iPopulatedLeadFieldsUsingConfig($fields);
+    // drupal_flush_all_caches();
     foreach ($module_list as $module) {
       if (!\Drupal::moduleHandler()->moduleExists($module)) {
         $message = sprintf('Module "%s" could not be enabled.', $module);

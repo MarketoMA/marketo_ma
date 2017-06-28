@@ -2,7 +2,6 @@
 
 namespace Drupal\marketo_ma_user\Service;
 
-
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\State\StateInterface;
 use Drupal\marketo_ma\Lead;
@@ -73,7 +72,6 @@ class MarketoMaUserService implements MarketoMaUserServiceInterface {
 
     return $config;
   }
-
 
   /**
    * {@inheritdoc}

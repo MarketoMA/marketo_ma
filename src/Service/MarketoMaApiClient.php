@@ -26,7 +26,9 @@ class MarketoMaApiClient implements MarketoMaApiClientInterface {
   protected $configFactory;
 
   /**
-   * The API client library. @see: https://github.com/dchesterton/marketo-rest-api.
+   * The API client library.
+   *
+   * @see: https://github.com/dchesterton/marketo-rest-api.
    *
    * @var \CSD\Marketo\ClientInterface
    */
@@ -50,6 +52,7 @@ class MarketoMaApiClient implements MarketoMaApiClientInterface {
    * Creates the Marketo API client wrapper service.
    *
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
+   *   Get the config settings.
    * @param \Psr\Log\LoggerInterface $logger
    *   A logger instance.
    */
@@ -69,6 +72,7 @@ class MarketoMaApiClient implements MarketoMaApiClientInterface {
 
   /**
    * Get's marketo_ma settings.
+   *
    * @return \Drupal\Core\Config\ImmutableConfig
    */
   protected function config() {
@@ -113,7 +117,8 @@ class MarketoMaApiClient implements MarketoMaApiClientInterface {
       // Validate config so we don't generate an invalid argument exception.
       if (!empty($config['client_id']) && (!empty($config['url']) || !empty($config['munchkin_id']))) {
         $this->client = Client::factory($config);
-      } else {
+      }
+      else {
         $this->logger->warning('MarketoMaApiClient::getClient called but rest-api-client is missing some configuration.', $config);
       }
     }
@@ -159,7 +164,7 @@ class MarketoMaApiClient implements MarketoMaApiClientInterface {
   /**
    * {@inheritdoc}
    */
-  public function deleteLead($leads, $args = array()) {
+  public function deleteLead($leads, $args = []) {
     return $this->getClient()->deleteLead($leads)->getResult();
   }
 

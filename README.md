@@ -139,7 +139,7 @@ configuration page found at admin/config/search/marketo_ma.
 1. Enable the Marketo MA User module.
 
 2. Ensure that REST API settings are configured in the API Configuration section.
-   User integration is dependant on the REST API and will leverage it regardless
+   User integration is dependent on the REST API and will leverage it regardless
    of which tracking method you have selected.
 
 3. In the User Integration section you will find options for activity triggers
