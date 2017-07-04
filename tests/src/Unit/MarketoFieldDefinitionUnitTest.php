@@ -1,9 +1,9 @@
 <?php
 
 namespace Drupal\Tests\marketo_ma\Unit;
+
 use Drupal\marketo_ma\MarketoFieldDefinition;
 use Drupal\marketo_ma\Service\MarketoMaServiceInterface;
-
 
 /**
  * @coversDefaultClass \Drupal\marketo_ma\MarketoFieldDefinition

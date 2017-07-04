@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * Hooks provided by Marketo MA.
@@ -20,7 +21,7 @@
  *   - data: An associative array containing marketo fields and their values
  *     - FirstName
  *     - LastName
- *   - marketoCookie: NULL or the value of $_COOKIE['_mkto_trk']
+ *   - marketoCookie: NULL or the value of $_COOKIE['_mkto_trk'].
  *
  * @see marketo_ma_add_lead()
  */
@@ -35,15 +36,15 @@ function hook_marketo_ma_lead_alter(&$data) {
  *
  * FIELDNAME equates to valid Marketo field names such as:
  * - FirstName
- * - LastName
+ * - LastName.
  *
  * @param mixed $data
- *   The value of FIELDNAME
+ *   The value of FIELDNAME.
  *
  * @see marketo_ma_add_lead()
  */
 function hook_marketo_ma_lead_FIELDNAME_alter(&$data) {
-  // convert this specific field value to lowercase.
+  // Convert this specific field value to lowercase.
   $data = strtolower($data);
 }
 

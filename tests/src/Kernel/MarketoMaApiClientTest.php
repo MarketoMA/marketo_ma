@@ -30,7 +30,6 @@ class MarketoMaApiClientTest extends MarketoMaKernelTestBase {
     self::assertTrue($this->api_client->canConnect());
   }
 
-
   /**
    * Tests the getFields call.
    */
@@ -70,14 +69,13 @@ class MarketoMaApiClientTest extends MarketoMaKernelTestBase {
     // Retrieve the new lead via the api call.
     $lead = $this->api_client->getLeadByEmail($this->test_lead_email);
 
-    // We should have a numeric lead id,
+    // We should have a numeric lead id.
     self::assertTrue(is_numeric($lead->id()));
     // Check the retrieved leads email against the test value.
     self::assertEquals($this->test_lead_email, $lead->getEmail());
-    // check that the lead ids match up.
+    // Check that the lead ids match up.
     self::assertEquals($create_result[0]['id'], $lead->id());
     // Clean up and delete the lead.
-
     // Get the lead by Marketo Lead ID.
     $lead_by_id = $this->api_client->getLeadById($lead->id());
     // Check the retrieved leads email against the test value.
@@ -85,7 +83,6 @@ class MarketoMaApiClientTest extends MarketoMaKernelTestBase {
 
     $this->api_client->deleteLead($create_result[0]['id']);
   }
-
 
   /**
    * Tests the retrieval of a lead by email address.
@@ -100,7 +97,6 @@ class MarketoMaApiClientTest extends MarketoMaKernelTestBase {
     $activity = $this->api_client->getLeadActivity($lead);
 
     // @todo: Add test for valy activity information.
-
     // Clean up and delete the lead.
     $this->api_client->deleteLead($create_result[0]['id']);
   }

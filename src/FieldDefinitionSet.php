@@ -4,8 +4,8 @@ namespace Drupal\marketo_ma;
 
 class FieldDefinitionSet {
 
-  private $fieldset = array();
-  private $readonly = array();
+  private $fieldset = [];
+  private $readonly = [];
 
   public function __construct() {
     $this->load();
@@ -26,8 +26,8 @@ class FieldDefinitionSet {
 
   public function add($field) {
     $execute = db_merge('marketo_ma_lead_fields')
-      ->key(array('id' => $field['id']))
-      ->fields(array(
+      ->key(['id' => $field['id']])
+      ->fields([
         'displayName' => $field['displayName'],
         'dataType' => $field['dataType'],
         'length' => isset($field['length']) ? $field['length'] : NULL,
@@ -35,7 +35,7 @@ class FieldDefinitionSet {
         'restReadOnly' => (isset($field['rest']['readOnly']) && $field['rest']['readOnly']) ? 1 : 0,
         'soapName' => isset($field['soap']['name']) ? $field['soap']['name'] : NULL,
         'soapReadOnly' => (isset($field['soap']['readOnly']) && $field['soap']['readOnly']) ? 1 : 0,
-      ))
+      ])
       ->execute();
   }
 
@@ -44,14 +44,14 @@ class FieldDefinitionSet {
   }
 
   public function getAllTableselect() {
-    $options = array();
+    $options = [];
     foreach ($this->fieldset as $field_key => $field_value) {
-      $options[$field_value['id']] = array(
+      $options[$field_value['id']] = [
         'displayName' => $field_value['displayName'],
         'id' => $field_value['id'],
         'restName' => (string) $field_value['restName'],
         'soapName' => (string) $field_value['soapName'],
-      );
+      ];
     }
     return $options;
   }

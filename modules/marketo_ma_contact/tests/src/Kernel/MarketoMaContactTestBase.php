@@ -21,7 +21,7 @@ abstract class MarketoMaContactTestBase extends KernelTestBase {
     $this->installSchema('marketo_ma', 'marketo_ma_lead_fields');
     // Enable some mappable fields.
     \Drupal::configFactory()->getEditable(MarketoMaServiceInterface::MARKETO_MA_CONFIG_NAME)
-      ->set('field.enabled_fields', [1=>1, 2=>2, 3=>3])
+      ->set('field.enabled_fields', [1 => 1, 2 => 2, 3 => 3])
       ->save();
 
     /** @var \Drupal\contact\ContactFormInterface $contact_form */

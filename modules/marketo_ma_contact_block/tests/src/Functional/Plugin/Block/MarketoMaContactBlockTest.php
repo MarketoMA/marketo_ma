@@ -22,7 +22,14 @@ class MarketoMaContactBlockTest extends MarketoMaContactTestBase {
   /**
    * {@inheritdoc}
    */
-  public static $modules = ['block', 'field', 'contact_block', 'contact_storage', 'marketo_ma_contact', 'marketo_ma_contact_block'];
+  public static $modules = [
+    'block',
+    'field',
+    'contact_block',
+    'contact_storage',
+    'marketo_ma_contact',
+    'marketo_ma_contact_block',
+  ];
 
   /**
    * {@inheritdoc}

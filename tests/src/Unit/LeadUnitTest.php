@@ -4,7 +4,6 @@ namespace Drupal\Tests\marketo_ma\Unit;
 
 use Drupal\marketo_ma\Lead;
 
-
 /**
  * @coversDefaultClass \Drupal\marketo_ma\Lead
  * @group marketo_ma

@@ -98,7 +98,6 @@ class MarketoMaUserSettings extends ConfigFormBase {
     // Get the configuration.
     $config = $this->config(MarketoMaUserServiceInterface::MARKETO_MA_USER_CONFIG_NAME);
 
-    //<editor-fold desc="Form layout structure">
     $form['user_settings_tab'] = [
       '#title' => $this->t('User settings'),
       '#type' => 'details',
@@ -116,14 +115,12 @@ class MarketoMaUserSettings extends ConfigFormBase {
     $form['user_settings_tab']['group_activities'] = [
       '#title' => $this->t('Enabled Activities'),
       '#type' => 'fieldset',
-      '#description' => $this->t('Note: Activities are retrieved by type in batches of 10 types. Each multiple of 10 activity types will require another API request and will afffect ther performance of activity pages.'),
+      '#description' => $this->t('Note: Activities are retrieved by type in batches of 10 types. Each multiple of 10 activity types will require another API request and will afffect their performance of activity pages.'),
     ];
-    //</editor-fold>
-
     // Add the role tracking settings.
     $form['user_settings_tab']['group_events']['events'] = [
       '#type' => 'checkboxes',
-      '#title' => t('Trigger a lead update on the following events:'),
+      '#title' => $this->t('Trigger a lead update on the following events:'),
       '#default_value' => $config->get('events'),
       '#options' => [
         'login' => $this->t('User login'),
@@ -141,7 +138,7 @@ class MarketoMaUserSettings extends ConfigFormBase {
       '#empty' => $this->t('There are no user fields available for mapping.'),
     ];
 
-    // Get mappings from config
+    // Get mappings from config.
     $mapping = $config->get('mapping');
     // Get enabled marketo fields.
     $marketo_field_options = ['' => $this->t('None')] + $this->getMarketoFields();
@@ -190,10 +187,10 @@ class MarketoMaUserSettings extends ConfigFormBase {
         'callback' => [$this, 'retrieveApiActivities'],
         'event' => 'mouseup',
         'wrapper' => 'marketo-enabled-activities-wrapper',
-        'progress' => array(
+        'progress' => [
           'type' => 'throbber',
           'message' => $this->t('Retrieving fields from Marketo...'),
-        ),
+        ],
       ],
     ];
 
@@ -249,7 +246,6 @@ class MarketoMaUserSettings extends ConfigFormBase {
     // Return the form element that will bre replaced in the wrapper element.
     return $form['user_settings_tab']['group_activities']['enabled_activities'];
   }
-
 
   /**
    * Returns the available marketo field labels, keyed by machine name.

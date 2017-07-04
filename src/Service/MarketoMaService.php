@@ -10,8 +10,6 @@ use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\State\StateInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
-use Drupal\marketo_ma\Lead;
-use Drupal\marketo_ma\MarketoFieldDefinition;
 use Drupal\marketo_ma\FieldDefinitionSet;
 use Drupal\user\PrivateTempStoreFactory;
 
@@ -125,7 +123,7 @@ class MarketoMaService implements MarketoMaServiceInterface {
     $this->queue_factory = $queue_factory;
     $this->temp_store_factory = $temp_store_factory;
     $this->state = $state;
-    $this->fieldset = new FieldDefinitionSet;
+    $this->fieldset = new FieldDefinitionSet();
   }
 
   /**
@@ -279,13 +277,15 @@ class MarketoMaService implements MarketoMaServiceInterface {
       if (!$this->config()->get('rest.batch_requests')) {
         // Just sync the lead now.
         $this->api_client->syncLead($lead);
-      } else {
+      }
+      else {
         // Queue up the lead sync.
         $this->queue_factory->get('marketo_ma_lead')->createItem($lead);
       }
 
       $this->resetUserData();
-    } else {
+    }
+    else {
       // Set the user data so munchkin can take it from there.
       $this->setUserData($lead);
     }
@@ -360,7 +360,7 @@ class MarketoMaService implements MarketoMaServiceInterface {
     foreach ($api_fields as $api_field) {
       $this->fieldset->add($api_field);
     }
-    $this->fieldset = new FieldDefinitionSet;
+    $this->fieldset = new FieldDefinitionSet();
     return $this;
   }
 
@@ -395,4 +395,5 @@ class MarketoMaService implements MarketoMaServiceInterface {
   protected function sessionAvailable() {
     return ($this->current_user->id() || \Drupal::requestStack()->getCurrentRequest()->getSession());
   }
+
 }

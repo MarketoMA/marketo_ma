@@ -56,4 +56,5 @@ abstract class MarketoMaUserJavascriptTestBase extends MarketoMaJavascriptTestBa
       ->set('field.enabled_fields', $enabled_fields)
       ->save();
   }
+
 }

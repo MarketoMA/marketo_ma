@@ -85,7 +85,7 @@ class MarketoMaMunchkin implements MarketoMaMunchkinInterface {
     $marketo_ma_munchkin_disableClickDelay = trim($this->config()->get('munchkin.disableClickDelay'));
     $marketo_ma_munchkin_asyncOnly = trim($this->config()->get('munchkin.asyncOnly'));
 
-    $initParams = array();
+    $initParams = [];
     if ($marketo_ma_munchkin_partition != '') {
       $initParams['wsInfo'] = $marketo_ma_munchkin_partition;
     }
@@ -143,7 +143,8 @@ class MarketoMaMunchkin implements MarketoMaMunchkinInterface {
         'data' => $lead->data(),
         'hash' => hash('sha1', $this->decrypt($this->config()->get('munchkin.api_private_key')) . $lead->getEmail()),
       ];
-    } else {
+    }
+    else {
       // The cookie is used for identification. Only args are required.
       return [
         'action' => $action_type,
