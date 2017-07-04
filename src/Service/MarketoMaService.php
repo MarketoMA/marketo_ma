@@ -12,6 +12,7 @@ use Drupal\Core\State\StateInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\marketo_ma\FieldDefinitionSet;
 use Drupal\user\PrivateTempStoreFactory;
+use \Drupal\marketo_ma\MarketoFieldDefinition;
 
 /**
  * The marketo MA worker service is responsible for most of the work the module
