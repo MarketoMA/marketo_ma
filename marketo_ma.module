@@ -26,7 +26,7 @@ function marketo_ma_help($route_name, RouteMatchInterface $route_match) {
 /**
  * Implements hook_page_attachments().
  *
- * Adds the marketo ma javascript to all pages.
+ * Adds the marketo_ma javascript to all pages.
  */
 function marketo_ma_page_attachments(array &$page) {
   // Hand off to the marketo_ma service.

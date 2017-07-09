@@ -8,7 +8,7 @@ use Drupal\marketo_ma\Service\MarketoMaApiClientInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Updates marketo lead.
+ * Updates Marketo lead.
  *
  * @QueueWorker(
  *   id = "marketo_ma_lead",

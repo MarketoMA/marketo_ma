@@ -12,7 +12,7 @@ use Drupal\marketo_ma\Service\MarketoMaServiceInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Class MarketoSettings.
+ * Class MarketoMASettings.
  *
  * @package Drupal\marketo_ma\Form
  */

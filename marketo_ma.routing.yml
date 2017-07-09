@@ -1,4 +1,3 @@
-
 marketo_ma.settings:
   path: 'admin/config/services/marketo-ma'
   defaults:
