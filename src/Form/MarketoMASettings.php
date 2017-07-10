@@ -5,9 +5,10 @@ namespace Drupal\marketo_ma\Form;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\encryption\EncryptionTrait;
 use Drupal\Core\Link;
+use Drupal\Core\Site\Settings;
 use Drupal\Core\Url;
+use Drupal\encryption\EncryptionTrait;
 use Drupal\marketo_ma\Service\MarketoMaServiceInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -70,6 +71,11 @@ class MarketoMASettings extends ConfigFormBase {
   public function buildForm(array $form, FormStateInterface $form_state) {
     /** @var array $form */
     $form = parent::buildForm($form, $form_state);
+
+    $encryption_key = Settings::get('encryption_key');
+    if (empty($encryption_key)) {
+      drupal_set_message($this->t('Encryption key is required to be setup in settings.php first. Check Encryption module README file for instructions.'), 'warning');
+    }
 
     // Get the configuration.
     $config = $this->config(MarketoMaServiceInterface::MARKETO_MA_CONFIG_NAME);
