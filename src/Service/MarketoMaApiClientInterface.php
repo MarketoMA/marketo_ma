@@ -111,6 +111,6 @@ interface MarketoMaApiClientInterface {
    *
    * @return mixed
    */
-  public function associateLead($leadId, $cookie, $args = array());
+  public function associateLead($leadId, $cookie, $args = []);
 
 }
