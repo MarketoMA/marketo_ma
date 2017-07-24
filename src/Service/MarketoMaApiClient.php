@@ -167,7 +167,7 @@ class MarketoMaApiClient implements MarketoMaApiClientInterface {
    * {@inheritdoc}
    */
   public function associateLead($leadId, $cookie, $args = []) {
-    $result = $this->getClient()->associateLead($leadId, $cookie), $args;
+    $result = $this->getClient()->associateLead($leadId, $cookie);
 
     return $result;
   }
