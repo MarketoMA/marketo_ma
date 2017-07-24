@@ -113,6 +113,6 @@ interface MarketoMaApiClientInterface {
    *
    * @return mixed
    */
-  public function requestCampaign($campaignId, $leads, $tokens = array(), $args = array());
+  public function requestCampaign($campaignId, $leads, $tokens = [], $args = []);
 
 }

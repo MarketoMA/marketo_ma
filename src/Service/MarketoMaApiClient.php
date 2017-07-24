@@ -166,7 +166,7 @@ class MarketoMaApiClient implements MarketoMaApiClientInterface {
   /**
    * {@inheritdoc}
    */
-  public function requestCampaign($campaignId, $leads, $tokens = array(), $args = array()) {
+  public function requestCampaign($campaignId, $leads, $tokens = [], $args = []) {
     $result = $this->getClient()->requestCampaign($campaignId, $leads, $tokens, $args)->getResult();
 
     return $result;
