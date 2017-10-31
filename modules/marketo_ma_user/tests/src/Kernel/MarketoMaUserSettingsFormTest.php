@@ -8,7 +8,7 @@ use Drupal\marketo_ma_user\Form\MarketoMaUserSettings;
 /**
  * @group marketo_ma_user
  */
-class MarketoMaUserSettingsFormKernelTest extends MarketoMaUserKernelTestBase {
+class MarketoMaUserSettingsFormTest extends MarketoMaUserKernelTestBase {
 
   public function testLeadSettingsForm() {
 

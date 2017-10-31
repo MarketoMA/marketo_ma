@@ -8,7 +8,7 @@ use Drupal\user\Entity\User;
 /**
  * @group marketo_ma_user
  */
-class MarketoMaUserControllerKernelTest extends MarketoMaUserKernelTestBase {
+class MarketoMaUserControllerTest extends MarketoMaUserKernelTestBase {
 
   public function testLeadController() {
 
