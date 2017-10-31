@@ -28,7 +28,7 @@ drush pm-enable encryption --yes
 drush dl contact_block --yes
 drush pm-enable contact_block --yes
 
-if [ "$DRUPAL_TI_CORE_BRANCH" = "8.2.x" ]
+if [ "$DRUPAL_TI_CORE_BRANCH" = "8.4.x" ]
 then
     drush dl contact_storage --yes
     drush pm-enable contact_storage --yes
