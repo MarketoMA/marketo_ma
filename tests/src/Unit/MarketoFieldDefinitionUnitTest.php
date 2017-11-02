@@ -9,7 +9,7 @@ use Drupal\marketo_ma\Service\MarketoMaServiceInterface;
  * @coversDefaultClass \Drupal\marketo_ma\MarketoFieldDefinition
  * @group marketo_ma
  */
-class MarketoFieldDefinitionUnitTest extends \PHPUnit_Framework_TestCase {
+class MarketoFieldDefinitionUnitTest extends UnitTestCase {
 
   protected $field_data;
 

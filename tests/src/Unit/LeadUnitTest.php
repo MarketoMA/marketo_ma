@@ -8,7 +8,7 @@ use Drupal\marketo_ma\Lead;
  * @coversDefaultClass \Drupal\marketo_ma\Lead
  * @group marketo_ma
  */
-class LeadUnitTest extends \PHPUnit_Framework_TestCase {
+class LeadUnitTest extends UnitTestCase {
 
   public $lead_data;
 
