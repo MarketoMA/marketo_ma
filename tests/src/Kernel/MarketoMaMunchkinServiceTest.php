@@ -5,6 +5,8 @@ namespace Drupal\Tests\marketo_ma\Kernel;
 use Drupal\marketo_ma\Service\MarketoMaMunchkinInterface;
 
 /**
+ * Tests the Marketo MA Munchkin service.
+ *
  * @group marketo_ma
  */
 class MarketoMaMunchkinServiceTest extends MarketoMaKernelTestBase {

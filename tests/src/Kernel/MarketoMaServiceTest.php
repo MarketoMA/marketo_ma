@@ -6,6 +6,8 @@ use Drupal\marketo_ma\Lead;
 use Drupal\marketo_ma\Service\MarketoMaServiceInterface;
 
 /**
+ * Tests the marketo_ma service.
+ *
  * @group marketo_ma
  */
 class MarketoMaServiceTest extends MarketoMaKernelTestBase {

@@ -6,6 +6,8 @@ use Drupal\marketo_ma\Lead;
 use Drupal\marketo_ma\Service\MarketoMaApiClientInterface;
 
 /**
+ * Tests the Marketo MA API client.
+ *
  * @group marketo_ma
  */
 class MarketoMaApiClientTest extends MarketoMaKernelTestBase {

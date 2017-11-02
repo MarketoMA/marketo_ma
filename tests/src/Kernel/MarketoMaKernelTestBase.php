@@ -7,6 +7,8 @@ use Drupal\Core\Site\Settings;
 use Drupal\marketo_ma\Service\MarketoMaServiceInterface;
 
 /**
+ * Base for Marketo MA kernel tests.
+ *
  * @group marketo_ma
  */
 abstract class MarketoMaKernelTestBase extends KernelTestBase {
