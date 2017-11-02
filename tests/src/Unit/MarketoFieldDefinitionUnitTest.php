@@ -4,9 +4,11 @@ namespace Drupal\Tests\marketo_ma\Unit;
 
 use Drupal\marketo_ma\MarketoFieldDefinition;
 use Drupal\marketo_ma\Service\MarketoMaServiceInterface;
+use Drupal\Tests\UnitTestCase;
 
 /**
  * @coversDefaultClass \Drupal\marketo_ma\MarketoFieldDefinition
+ *
  * @group marketo_ma
  */
 class MarketoFieldDefinitionUnitTest extends UnitTestCase {

@@ -3,9 +3,11 @@
 namespace Drupal\Tests\marketo_ma\Unit;
 
 use Drupal\marketo_ma\Lead;
+use Drupal\Tests\UnitTestCase;
 
 /**
  * @coversDefaultClass \Drupal\marketo_ma\Lead
+ *
  * @group marketo_ma
  */
 class LeadUnitTest extends UnitTestCase {
