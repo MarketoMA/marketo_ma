@@ -37,7 +37,7 @@ env:
 
     # Configuration variables.
     - DRUPAL_TI_MODULE_NAME="marketo_ma"
-    # - DRUPAL_TI_SIMPLETEST_GROUP="marketo_ma_webform"
+    - DRUPAL_TI_SIMPLETEST_GROUP="marketo_ma_webform"
 
     # Define runners and environment vars to include before and after the
     # main runners / environment vars.
@@ -98,7 +98,7 @@ env:
     # [[[ SELECT ANY OR MORE OPTIONS ]]]
     #- DRUPAL_TI_RUNNERS="phpunit"
     #- DRUPAL_TI_RUNNERS="simpletest"
-    - DRUPAL_TI_RUNNERS="behat"
+    - DRUPAL_TI_RUNNERS="behat simpletest"
     #- DRUPAL_TI_RUNNERS="phpunit simpletest behat"
     # Use phpunit-core to test modules with phpunit with Drupal 8 core.
     - DRUPAL_TI_RUNNERS="phpunit-core"

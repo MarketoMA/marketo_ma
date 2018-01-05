@@ -1,0 +1,21 @@
+<?php
+
+/**
+ * @file
+ * Sends webform submissions to Marketo MA.
+ */
+
+/**
+ * Implements hook_theme().
+ */
+function marketo_ma_webform_theme() {
+  $info = [
+    'webform_handler_marketo_ma_summary' => [
+      'variables' => [
+        'settings' => NULL,
+        'handler' => [],
+      ],
+    ],
+  ];
+  return $info;
+}
