@@ -149,4 +149,12 @@ interface MarketoMaServiceInterface {
    */
   public function apiClientCanConnect();
 
+  /**
+   * Get the result from last updateLead call.
+   *
+   * @return array|null
+   *   An array of lead ids and status messages.
+   */
+  public function getUpdateLeadResult();
+
 }

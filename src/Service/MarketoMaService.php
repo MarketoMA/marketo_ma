@@ -92,6 +92,13 @@ class MarketoMaService implements MarketoMaServiceInterface {
   protected $fieldset;
 
   /**
+   * Stores updateLead result.
+   *
+   * @var array|null
+   */
+  protected $updateLeadResult;
+
+  /**
    * Creates the Marketo MA core service..
    *
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
@@ -276,7 +283,7 @@ class MarketoMaService implements MarketoMaServiceInterface {
       // Do we need to batch the lead update?
       if (!$this->config()->get('rest.batch_requests')) {
         // Just sync the lead now.
-        $this->api_client->syncLead($lead);
+        $this->updateLeadResult = $this->api_client->syncLead($lead);
       }
       else {
         // Queue up the lead sync.
@@ -389,6 +396,13 @@ class MarketoMaService implements MarketoMaServiceInterface {
    */
   protected function sessionAvailable() {
     return ($this->current_user->id() || \Drupal::requestStack()->getCurrentRequest()->getSession());
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getUpdateLeadResult() {
+    return $this->updateLeadResult;
   }
 
 }
