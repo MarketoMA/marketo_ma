@@ -7,7 +7,6 @@
 #   https://github.com/sonnym/travis-ci-drupal-module-example
 
 language: php
-sudo: false
 
 sudo: false
 
@@ -17,11 +16,18 @@ php:
   - 7
   - hhvm
 
+cache:
+  directories:
+    - $HOME/.composer/cache
+
 matrix:
   fast_finish: true
   allow_failures:
     - php: hhvm
-    - env: DRUPAL_TI_RUNNERS="phpunit-core" DRUPAL_TI_CORE_BRANCH="8.2.x"
+    - env: DRUPAL_TI_RUNNERS="phpunit-core"
+
+addons:
+  firefox: "47.0.1"
 
 env:
   global:
@@ -31,16 +37,16 @@ env:
 
     # Configuration variables.
     - DRUPAL_TI_MODULE_NAME="marketo_ma"
-    #- DRUPAL_TI_SIMPLETEST_GROUP="Marketo MA"
+    # - DRUPAL_TI_SIMPLETEST_GROUP="marketo_ma_webform"
 
     # Define runners and environment vars to include before and after the
     # main runners / environment vars.
     - DRUPAL_TI_SCRIPT_DIR_BEFORE="./drupal_ti/before"
-    - DRUPAL_TI_SCRIPT_DIR_AFTER="./drupal_ti/after"
-
+    # - DRUPAL_TI_SCRIPT_DIR_AFTER="./drupal_ti/after"
 
     # The environment to use, supported are: drupal-7, drupal-8
     - DRUPAL_TI_ENVIRONMENT="drupal-8"
+    - DRUPAL_TI_CORE_BRANCH="8.4.x"
 
     # The installation profile to use:
     - DRUPAL_TI_INSTALL_PROFILE="standard"
@@ -65,7 +71,7 @@ env:
     # This is used to setup Xvfb.
     - DRUPAL_TI_BEHAT_SCREENSIZE_COLOR="1280x1024x16"
     # The version of selenium that should be used.
-    - DRUPAL_TI_BEHAT_SELENIUM_VERSION="2.48.2"
+    - DRUPAL_TI_BEHAT_SELENIUM_VERSION="3.8.1"
     # Set DRUPAL_TI_BEHAT_DRIVER to "selenium" to use "firefox" or "chrome" here.
     - DRUPAL_TI_BEHAT_DRIVER="selenium"
     - DRUPAL_TI_BEHAT_BROWSER="firefox"
@@ -93,10 +99,9 @@ env:
     #- DRUPAL_TI_RUNNERS="phpunit"
     #- DRUPAL_TI_RUNNERS="simpletest"
     - DRUPAL_TI_RUNNERS="behat"
-    - DRUPAL_TI_RUNNERS="behat" DRUPAL_TI_CORE_BRANCH="8.2.x"
     #- DRUPAL_TI_RUNNERS="phpunit simpletest behat"
     # Use phpunit-core to test modules with phpunit with Drupal 8 core.
-    - DRUPAL_TI_RUNNERS="phpunit-core" DRUPAL_TI_CORE_BRANCH="8.2.x"
+    - DRUPAL_TI_RUNNERS="phpunit-core"
 
 mysql:
   database: drupal_travis_db
@@ -105,8 +110,8 @@ mysql:
 
 before_install:
   - composer self-update
-  - cd ./tests
   - composer global require "lionsad/drupal_ti:1.*"
+  - cd ./tests
   - drupal-ti before_install
 
 install:
