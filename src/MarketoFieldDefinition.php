@@ -65,21 +65,21 @@ class MarketoFieldDefinition {
    */
   public function getFieldName($tracking_method) {
     $name_key = $tracking_method === MarketoMaServiceInterface::TRACKING_METHOD_MUNCHKIN ? 'soap' : 'rest';
-    return isset($this->definition[$name_key]['name']) ? $this->definition[$name_key]['name'] : NULL;
+    return isset($this->definition[$name_key.'Name']) ? $this->definition[$name_key.'Name'] : NULL;
   }
 
   /**
    * Gets the field as a tableselect option.
    *
    * @return array
-   *   A tableselect ready array of values (id, name, rest_name, soap_name).
+   *   A tableselect ready array of values (id, displayName, restName, soapName).
    */
   public function toTableSelectOption() {
     return [
-      $this->t(':value', [':value' => $this->id()]),
-      $this->t(':value', [':value' => $this->getDisplayName()]),
-      $this->t(':value', [':value' => !isset($this->definition['rest']['name']) ? '' : $this->definition['rest']['name']]),
-      $this->t(':value', [':value' => !isset($this->definition['soap']['name']) ? '' : $this->definition['soap']['name']]),
+      'id' => $this->id(),
+      'displayName' => $this->t(':value', [':value' => $this->getDisplayName()]),
+      'restName' => !isset($this->definition['restName']) ? '' : $this->definition['restName'],
+      'soapName' => !isset($this->definition['soapName']) ? '' : $this->definition['soapName'],
     ];
   }
 
