@@ -370,7 +370,10 @@ class MarketoMaService implements MarketoMaServiceInterface {
    * {@inheritdoc}
    */
   public function getEnabledFields() {
-    return array_intersect_key($this->getMarketoFields(), (array) $this->config()->get('field.enabled_fields'));
+    $enabled = (array) $this->config()->get('field.enabled_fields');
+    return array_filter($this->getMarketoFields(), function($f) use ($enabled) {
+      return in_array($f->id(), $enabled);
+    });
   }
 
   /**

@@ -2,6 +2,8 @@
 
 namespace Drupal\marketo_ma;
 
+use Drupal\marketo_ma\MarketoFieldDefinition;
+
 class FieldDefinitionSet {
 
   private $fieldset = [];
@@ -12,14 +14,15 @@ class FieldDefinitionSet {
   }
 
   private function load() {
-    $this->fieldset = db_select('marketo_ma_lead_fields', 'f')
+    $result = db_select('marketo_ma_lead_fields', 'f')
       ->fields('f')
       ->orderBy('displayName')
-      ->execute()
-      ->fetchAllAssoc('restName', \PDO::FETCH_ASSOC);
-    foreach ($this->fieldset as $field_key => $field_value) {
-      if ($field_value['restReadOnly'] || $field_value['soapReadOnly']) {
-        $this->readonly[] = $field_value['id'];
+      ->execute();
+    
+    foreach($result->fetchAllAssoc('restName', \PDO::FETCH_ASSOC) as $record) {
+      $this->fieldset[$record['restName']] = new MarketoFieldDefinition($record);
+      if ($record['restReadOnly'] || $record['soapReadOnly']) {
+        $this->readonly[] = $record['id'];
       }
     }
   }
@@ -45,13 +48,8 @@ class FieldDefinitionSet {
 
   public function getAllTableselect() {
     $options = [];
-    foreach ($this->fieldset as $field_key => $field_value) {
-      $options[$field_value['id']] = [
-        'displayName' => $field_value['displayName'],
-        'id' => $field_value['id'],
-        'restName' => (string) $field_value['restName'],
-        'soapName' => (string) $field_value['soapName'],
-      ];
+    foreach ($this->fieldset as $field) {
+      $options[$field->id()] = $field->toTableSelectOption();
     }
     return $options;
   }
