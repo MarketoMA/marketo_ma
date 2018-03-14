@@ -85,7 +85,7 @@ class MarketoMaContactBlock extends ContactBlock {
       '#suffix' => '</div>',
     ];
 
-    if (($contact_form_id = $form_state->getValue(['settings', 'contact_form'])) || ($contact_form_id = $this->configuration['contact_form'])) {
+    if (($contact_form_id = $form_state->getCompleteFormState()->getValue(['settings', 'contact_form'])) || ($contact_form_id = $this->configuration['contact_form'])) {
       $form['fields']['#type'] = 'details';
       $form['fields']['#open'] = TRUE;
 
@@ -125,12 +125,14 @@ class MarketoMaContactBlock extends ContactBlock {
   protected function createContactMessage() {
     if ($contact_message = parent::createContactMessage()) {
       // Loop through the fields.
-      foreach ($this->configuration['fields'] as $field_name => $field_value) {
-        // Make sure the field is currently available.
-        if ($contact_message instanceof MessageInterface && ($field = $contact_message->getFieldDefinition($field_name))) {
-          // Set the field value.
-          $main_property = $field->getFieldStorageDefinition()->getMainPropertyName();
-          $contact_message->get($field_name)->{$main_property} = $field_value;
+      if(isset($this->configuration['fields'])){
+        foreach ($this->configuration['fields'] as $field_name => $field_value) {
+          // Make sure the field is currently available.
+          if ($contact_message instanceof MessageInterface && ($field = $contact_message->getFieldDefinition($field_name))) {
+            // Set the field value.
+            $main_property = $field->getFieldStorageDefinition()->getMainPropertyName();
+            $contact_message->get($field_name)->{$main_property} = $field_value;
+          }
         }
       }
     }
