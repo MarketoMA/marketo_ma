@@ -174,7 +174,6 @@ class MarketoMaApiClient implements MarketoMaApiClientInterface {
    */
   public function addLeadsToList($listId, array $leads, array $options = []) {
     $leads_raw = $this->getLeadsIds($leads);
-    kint($leads_raw);
     return $this->getClient()->addLeadsToList($listId, $leads_raw, $options)->getResult();
   }
 
@@ -201,8 +200,9 @@ class MarketoMaApiClient implements MarketoMaApiClientInterface {
    */
   protected function getLeadsIds(array $leads) {
     $leads_raw = '';
+    $total_leads = count($leads);
 
-    for ($i = 0; $i < count($leads); $i++) {
+    for ($i = 0; $i < $total_leads; $i++) {
       if (!is_a($leads[$i], 'Drupal\marketo_ma\Lead')) {
         throw new \Exception('Only lead objects can be passed to the MarketoMaApiClient::addLeadsToList() method.');
       }
