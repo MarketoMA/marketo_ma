@@ -11,6 +11,7 @@ use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\State\StateInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\marketo_ma\FieldDefinitionSet;
+use Drupal\marketo_ma\Lead;
 use Drupal\user\PrivateTempStoreFactory;
 
 /**
@@ -300,6 +301,27 @@ class MarketoMaService implements MarketoMaServiceInterface {
     return $this;
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function addLeadToList(Lead $lead, $listId) {
+    if ($this->trackingMethod() === MarketoMaServiceInterface::TRACKING_METHOD_API) {
+      $this->updateLeadResult = $this->api_client->addLeadsToList($listId, [$lead]);
+    }
+
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function addLeadToListByEmail($email, $listId) {
+    if ($this->trackingMethod() === MarketoMaServiceInterface::TRACKING_METHOD_API) {
+      $this->updateLeadResult = $this->api_client->addLeadToListByEmail($listId, $email);
+    }
+
+    return $this;
+  }
   /**
    * {@inheritdoc}
    */

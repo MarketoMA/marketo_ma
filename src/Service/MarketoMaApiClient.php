@@ -174,7 +174,8 @@ class MarketoMaApiClient implements MarketoMaApiClientInterface {
    */
   public function addLeadsToList($listId, array $leads, array $options = []) {
     $leads_raw = $this->getLeadsIds($leads);
-    return $this->getClient()->addLeadsToList($listId, $leads_raw, $options)->getResult();
+    $result = $this->getClient()->addLeadsToList($listId, $leads_raw, $options)->getResult();
+    return $result;
   }
 
   /**
