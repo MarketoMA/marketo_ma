@@ -2,15 +2,24 @@
 
 namespace Drupal\marketo_ma;
 
+/**
+ *
+ */
 class FieldDefinitionSet {
 
   private $fieldset = [];
   private $readonly = [];
 
+  /**
+   *
+   */
   public function __construct() {
     $this->load();
   }
 
+  /**
+   *
+   */
   private function load() {
     $this->fieldset = db_select('marketo_ma_lead_fields', 'f')
       ->fields('f')
@@ -24,6 +33,9 @@ class FieldDefinitionSet {
     }
   }
 
+  /**
+   *
+   */
   public function add($field) {
     $execute = db_merge('marketo_ma_lead_fields')
       ->key(['id' => $field['id']])
@@ -39,10 +51,16 @@ class FieldDefinitionSet {
       ->execute();
   }
 
+  /**
+   *
+   */
   public function getAll() {
     return $this->fieldset;
   }
 
+  /**
+   *
+   */
   public function getAllTableselect() {
     $options = [];
     foreach ($this->fieldset as $field_key => $field_value) {
@@ -56,6 +74,9 @@ class FieldDefinitionSet {
     return $options;
   }
 
+  /**
+   *
+   */
   public function getReadOnly() {
     return $this->readonly;
   }

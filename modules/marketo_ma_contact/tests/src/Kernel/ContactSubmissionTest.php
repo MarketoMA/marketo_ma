@@ -11,6 +11,9 @@ use Drupal\marketo_ma\Lead;
  */
 class ContactSubmissionTest extends MarketoMaContactTestBase {
 
+  /**
+   *
+   */
   public function testContactSubmission() {
     $contact = Message::create([
       'contact_form' => 'test_contact',

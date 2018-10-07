@@ -10,6 +10,9 @@ use Drupal\user\Entity\User;
  */
 class MarketoMaUserControllerTest extends MarketoMaUserKernelTestBase {
 
+  /**
+   *
+   */
   public function testLeadController() {
 
     // @todo: Add tests for the two controller callbacks.

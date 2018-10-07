@@ -10,6 +10,9 @@ use Drupal\marketo_ma\Service\MarketoMaServiceInterface;
 use Drupal\marketo_ma_user\ActivityType;
 use Drupal\user\UserInterface;
 
+/**
+ *
+ */
 class MarketoMaUserService implements MarketoMaUserServiceInterface {
 
   /**

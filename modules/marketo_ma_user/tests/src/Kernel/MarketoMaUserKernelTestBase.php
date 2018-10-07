@@ -4,6 +4,9 @@ namespace Drupal\Tests\marketo_ma_user\Kernel;
 
 use Drupal\Tests\marketo_ma\Kernel\MarketoMaKernelTestBase;
 
+/**
+ *
+ */
 abstract class MarketoMaUserKernelTestBase extends MarketoMaKernelTestBase {
 
   /**
@@ -16,6 +19,9 @@ abstract class MarketoMaUserKernelTestBase extends MarketoMaKernelTestBase {
     'system',
   ];
 
+  /**
+   *
+   */
   public function setUp() {
     parent::setUp();
 

@@ -357,6 +357,9 @@ class MarketoMaService implements MarketoMaServiceInterface {
     return $this->fieldset->getReadOnly();
   }
 
+  /**
+   *
+   */
   public function resetMarketoFields() {
     $api_fields = $this->api_client->canConnect() ? $this->api_client->getFields() : [];
     foreach ($api_fields as $api_field) {

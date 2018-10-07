@@ -13,6 +13,9 @@ use Drupal\contact\Entity\ContactForm;
  */
 class MarketoMaContactSettingsTest extends MarketoMaContactTestBase {
 
+  /**
+   *
+   */
   public function testMarketoContactAdminSettingsUI() {
     $contact_form_id = 'test_contact' . strtolower($this->randomMachineName());
     $edit = [

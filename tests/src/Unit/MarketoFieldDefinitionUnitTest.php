@@ -15,6 +15,9 @@ class MarketoFieldDefinitionUnitTest extends UnitTestCase {
 
   protected $field_data;
 
+  /**
+   *
+   */
   public function setUp() {
     parent::setUp();
 
@@ -34,6 +37,9 @@ class MarketoFieldDefinitionUnitTest extends UnitTestCase {
 
   }
 
+  /**
+   *
+   */
   public function testSerialization() {
 
     $field = new MarketoFieldDefinition($this->field_data);
@@ -46,6 +52,9 @@ class MarketoFieldDefinitionUnitTest extends UnitTestCase {
 
   }
 
+  /**
+   *
+   */
   public function testFieldName() {
     $field = new MarketoFieldDefinition($this->field_data);
 

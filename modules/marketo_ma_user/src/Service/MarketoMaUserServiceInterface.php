@@ -4,6 +4,9 @@ namespace Drupal\marketo_ma_user\Service;
 
 use Drupal\user\UserInterface;
 
+/**
+ *
+ */
 interface MarketoMaUserServiceInterface {
 
   // The Marketo MA User module config name.

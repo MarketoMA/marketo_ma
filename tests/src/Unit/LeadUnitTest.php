@@ -14,6 +14,9 @@ class LeadUnitTest extends UnitTestCase {
 
   public $lead_data;
 
+  /**
+   *
+   */
   public function setUp() {
     parent::setUp();
 
@@ -27,6 +30,9 @@ class LeadUnitTest extends UnitTestCase {
 
   }
 
+  /**
+   *
+   */
   public function testLead() {
     $lead = new Lead($this->lead_data);
 
@@ -42,6 +48,9 @@ class LeadUnitTest extends UnitTestCase {
 
   }
 
+  /**
+   *
+   */
   public function testSerialization() {
 
     $lead = new Lead($this->lead_data);

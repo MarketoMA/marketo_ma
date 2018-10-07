@@ -4,6 +4,9 @@ namespace Drupal\marketo_ma_user;
 
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 
+/**
+ *
+ */
 class ActivityType {
 
   /**

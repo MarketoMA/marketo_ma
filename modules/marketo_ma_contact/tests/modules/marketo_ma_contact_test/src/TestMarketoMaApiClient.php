@@ -21,6 +21,9 @@ class TestMarketoMaApiClient implements MarketoMaApiClientInterface {
    */
   protected $state;
 
+  /**
+   *
+   */
   public function __construct(StateInterface $state) {
     $this->state = $state;
     $this->syncedLeads = $this->state->get(static::class, []);
@@ -125,6 +128,9 @@ class TestMarketoMaApiClient implements MarketoMaApiClientInterface {
     return [];
   }
 
+  /**
+   *
+   */
   public function getSyncedLeads() {
     return $this->syncedLeads;
   }
