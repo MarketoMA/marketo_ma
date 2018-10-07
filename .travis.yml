@@ -13,8 +13,8 @@ sudo: false
 php:
   - 5.5
   - 5.6
-  - 7
-  - hhvm
+  - 7.1
+  - 7.2
 
 cache:
   directories:
@@ -27,7 +27,7 @@ matrix:
     - env: DRUPAL_TI_RUNNERS="phpunit-core"
 
 addons:
-  firefox: "47.0.1"
+  firefox: "latest"
 
 env:
   global:
@@ -46,7 +46,7 @@ env:
 
     # The environment to use, supported are: drupal-7, drupal-8
     - DRUPAL_TI_ENVIRONMENT="drupal-8"
-    - DRUPAL_TI_CORE_BRANCH="8.4.x"
+    - DRUPAL_TI_CORE_BRANCH="8.7.x"
 
     # The installation profile to use:
     - DRUPAL_TI_INSTALL_PROFILE="standard"
