@@ -27,7 +27,7 @@ matrix:
     - env: DRUPAL_TI_RUNNERS="phpunit-core"
 
 addons:
-  firefox: "latest"
+  firefox: "47.0.1"
 
 env:
   global:
