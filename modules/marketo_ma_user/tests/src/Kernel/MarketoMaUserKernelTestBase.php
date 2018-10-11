@@ -5,7 +5,7 @@ namespace Drupal\Tests\marketo_ma_user\Kernel;
 use Drupal\Tests\marketo_ma\Kernel\MarketoMaKernelTestBase;
 
 /**
- *
+ * @group marketo_ma_user
  */
 abstract class MarketoMaUserKernelTestBase extends MarketoMaKernelTestBase {
 

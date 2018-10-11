@@ -7,7 +7,7 @@ use Drupal\marketo_ma\Service\MarketoMaServiceInterface;
 use Drupal\Tests\BrowserTestBase;
 
 /**
- *
+ * @group marketo_ma_contact
  */
 abstract class MarketoMaContactTestBase extends BrowserTestBase {
 

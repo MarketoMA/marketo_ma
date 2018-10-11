@@ -5,7 +5,7 @@ namespace Drupal\Tests\marketo_ma_user\Functional;
 use Drupal\Tests\BrowserTestBase;
 
 /**
- *
+ * @group marketo_ma_user
  */
 abstract class MarketoMaUserTestBase extends BrowserTestBase {
 

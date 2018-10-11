@@ -7,7 +7,7 @@ use Drupal\KernelTests\KernelTestBase;
 use Drupal\marketo_ma\Service\MarketoMaServiceInterface;
 
 /**
- *
+ * @group marketo_ma_contact
  */
 abstract class MarketoMaContactTestBase extends KernelTestBase {
 

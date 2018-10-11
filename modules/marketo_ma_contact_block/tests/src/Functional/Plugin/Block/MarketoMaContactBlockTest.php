@@ -13,6 +13,7 @@ use Drupal\Tests\marketo_ma_contact\Functional\MarketoMaContactTestBase;
 
 /**
  * @coversDefaultClass \Drupal\marketo_ma_contact_block\Plugin\Block\MarketoMaContactBlock
+ *
  * @group marketo_ma_contact_block
  */
 class MarketoMaContactBlockTest extends MarketoMaContactTestBase {

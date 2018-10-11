@@ -6,6 +6,7 @@ use Drupal\marketo_ma_user\Service\MarketoMaUserServiceInterface;
 
 /**
  * @coversDefaultClass \Drupal\marketo_ma_user\Service\MarketoMaUserService
+ *
  * @group marketo_ma_user
  */
 class MarketoMaUserServiceTest extends MarketoMaUserKernelTestBase {

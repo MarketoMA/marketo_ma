@@ -7,6 +7,7 @@ use Drupal\marketo_ma\Lead;
 
 /**
  * @coversDefaultClass \Drupal\marketo_ma_contact\Hooks\ContactMessageInsert
+ *
  * @group marketo_ma_contact
  */
 class ContactSubmissionTest extends MarketoMaContactTestBase {

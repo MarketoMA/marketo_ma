@@ -7,6 +7,8 @@ use Drupal\webform\Tests\WebformTestTrait;
 
 /**
  * Marketo MA Webform Handler Functional Test Base Class.
+ *
+ * @group marketo_ma_webform
  */
 class MarketoMaWebformHandlerFunctionalTestBase extends BrowserTestBase {
 
