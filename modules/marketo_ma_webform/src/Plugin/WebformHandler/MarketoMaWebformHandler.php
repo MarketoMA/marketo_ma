@@ -92,20 +92,16 @@ class MarketoMaWebformHandler extends WebformHandlerBase {
       }
       $map_sources[$key] = $elements[$key]['#title'];
     }
+    /** @var \Drupal\webform\WebformSubmissionStorageInterface $submission_storage */
     $submission_storage = \Drupal::entityTypeManager()->getStorage('webform_submission');
     $field_definitions = $submission_storage->getFieldDefinitions();
     $field_definitions = $submission_storage->checkFieldDefinitionAccess($webform, $field_definitions);
     foreach ($field_definitions as $key => $field_definition) {
       $map_sources[$key] = $field_definition['title'] . ' (type : ' . $field_definition['type'] . ')';
     }
-    // Assemble Marketo MA mapping target fields.
-    $marketo_field_options = [];
-    $marketo_ma_enabled_fields = (array) $this->configFactory->get('marketo_ma.settings')->get('field.enabled_fields');
-    foreach ($this->marketoMaService->getMarketoFields() as $k => $e) {
-      if (in_array($e['id'], $marketo_ma_enabled_fields)) {
-        $marketo_field_options[$k] = $e['displayName'];
-      }
-    }
+    $marketo_field_options = array_map(function ($marketo_field) {
+      return sprintf('%s (%d)', $marketo_field['displayName'], $marketo_field['id']);
+    }, (array) $this->marketoMaService->getAvailableFields());
 
     $form['marketo_ma_mapping'] = [
       '#type' => 'webform_mapping',
@@ -167,13 +163,13 @@ class MarketoMaWebformHandler extends WebformHandlerBase {
     $webform_submission = $webform_submission->toArray(TRUE);
     $webform_submission = $webform_submission['data'] + $webform_submission;
     unset($webform_submission['data']);
-    // Get enabled Marketo fields (by id).
-    $marketo_ma_enabled_fields = (array) $this->configFactory->get('marketo_ma.settings')->get('field.enabled_fields');
-    // Get all fields.
-    $marketo_fields = $this->marketoMaService->getMarketoFields();
+    // Get available Marketo fields.
+    $marketo_ma_available_fields = $this->marketoMaService->getAvailableFields();
     // Assemble lead data.
-    foreach ($this->configuration['marketo_ma_mapping'] as $webform_field => $marketo_field) {
-      if (in_array($marketo_fields[$marketo_field]['id'], $marketo_ma_enabled_fields)) {
+    $configuration = $this->configuration['marketo_ma_mapping'];
+    foreach ($configuration as $webform_field => $marketo_field) {
+      $id = $marketo_field[$marketo_field]['id'];
+      if (isset($marketo_ma_available_fields[$id])) {
         $lead_data[$marketo_field] = $webform_submission[$webform_field];
       }
     }

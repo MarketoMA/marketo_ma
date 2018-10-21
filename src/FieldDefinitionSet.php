@@ -2,6 +2,8 @@
 
 namespace Drupal\marketo_ma;
 
+use Drupal\Core\Database\Database;
+
 /**
  *
  */
@@ -9,6 +11,7 @@ class FieldDefinitionSet {
 
   private $fieldset = [];
   private $readonly = [];
+  private $writeable = [];
 
   /**
    *
@@ -21,7 +24,7 @@ class FieldDefinitionSet {
    *
    */
   private function load() {
-    $this->fieldset = db_select('marketo_ma_lead_fields', 'f')
+    $this->fieldset = Database::getConnection()->select('marketo_ma_lead_fields', 'f')
       ->fields('f')
       ->orderBy('displayName')
       ->execute()
@@ -30,6 +33,9 @@ class FieldDefinitionSet {
       if ($field_value['restReadOnly'] || $field_value['soapReadOnly']) {
         $this->readonly[] = $field_value['id'];
       }
+      else {
+        $this->writeable[$field_key] = $field_value;
+      }
     }
   }
 
@@ -37,8 +43,8 @@ class FieldDefinitionSet {
    *
    */
   public function add($field) {
-    $execute = db_merge('marketo_ma_lead_fields')
-      ->key(['id' => $field['id']])
+    Database::getConnection()->merge('marketo_ma_lead_fields')
+      ->key('id', $field['id'])
       ->fields([
         'displayName' => $field['displayName'],
         'dataType' => $field['dataType'],
@@ -79,6 +85,10 @@ class FieldDefinitionSet {
    */
   public function getReadOnly() {
     return $this->readonly;
+  }
+
+  public function getWriteable() {
+    return $this->writeable;
   }
 
 }

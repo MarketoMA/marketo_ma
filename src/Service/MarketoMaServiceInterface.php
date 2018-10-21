@@ -129,7 +129,7 @@ interface MarketoMaServiceInterface {
    * Gets fields that are read-only in Marketo.
    *
    * @return array
-   *   All fields available for mapping keyed by marketo field ID.
+   *   A list of readonly marketo field IDs.
    */
   public function getReadOnly();
 
@@ -140,6 +140,15 @@ interface MarketoMaServiceInterface {
    *   All fields available for mapping keyed by marketo field ID.
    */
   public function getEnabledFields();
+
+  /**
+   * Gets available fields.
+   *
+   * @return \Drupal\marketo_ma\MarketoFieldDefinition[]
+   *   All fields available for mapping keyed by marketo field ID. If no
+   *   fields are enabled, all non-readonly fields are returned.
+   */
+  public function getAvailableFields();
 
   /**
    * Determines if the API client is configured and available.

@@ -26,35 +26,35 @@ class MarketoMaService implements MarketoMaServiceInterface {
    *
    * @var \Drupal\Core\Config\ConfigFactoryInterface
    */
-  protected $config_factory;
+  protected $configFactory;
 
   /**
    * The marketo MA API client service.
    *
    * @var \Drupal\marketo_ma\Service\MarketoMaApiClientInterface
    */
-  private $api_client;
+  private $apiClient;
 
   /**
    * The current user.
    *
    * @var \Drupal\Core\Session\AccountInterface
    */
-  private $current_user;
+  private $currentUser;
 
   /**
    * The route match.
    *
    * @var \Drupal\Core\Routing\RouteMatchInterface
    */
-  protected $route_match;
+  protected $routeMatch;
 
   /**
    * The path matcher.
    *
    * @var \Drupal\Core\Path\PathMatcherInterface
    */
-  protected $path_matcher;
+  protected $pathMatcher;
 
   /**
    * The Marketo MA munchkin service.
@@ -68,14 +68,14 @@ class MarketoMaService implements MarketoMaServiceInterface {
    *
    * @var \Drupal\Core\Queue\QueueFactory
    */
-  protected $queue_factory;
+  protected $queueFactory;
 
   /**
    * Stores the tempstore factory.
    *
    * @var \Drupal\user\PrivateTempStoreFactory
    */
-  protected $temp_store_factory;
+  protected $tempStoreFactory;
 
   /**
    * The state storage service.
@@ -121,14 +121,14 @@ class MarketoMaService implements MarketoMaServiceInterface {
    *   The state key value store.
    */
   public function __construct(ConfigFactoryInterface $config_factory, MarketoMaApiClientInterface $api_client, AccountInterface $current_user, RouteMatchInterface $route_match, PathMatcherInterface $path_matcher, MarketoMaMunchkinInterface $munchkin, QueueFactory $queue_factory, PrivateTempStoreFactory $temp_store_factory, StateInterface $state) {
-    $this->config_factory = $config_factory;
-    $this->api_client = $api_client;
-    $this->current_user = $current_user;
-    $this->route_match = $route_match;
-    $this->path_matcher = $path_matcher;
+    $this->configFactory = $config_factory;
+    $this->apiClient = $api_client;
+    $this->currentUser = $current_user;
+    $this->routeMatch = $route_match;
+    $this->pathMatcher = $path_matcher;
     $this->munchkin = $munchkin;
-    $this->queue_factory = $queue_factory;
-    $this->temp_store_factory = $temp_store_factory;
+    $this->queueFactory = $queue_factory;
+    $this->tempStoreFactory = $temp_store_factory;
     $this->state = $state;
     $this->fieldset = new FieldDefinitionSet();
   }
@@ -183,7 +183,7 @@ class MarketoMaService implements MarketoMaServiceInterface {
     static $config = NULL;
     // Load config if not already loaded.
     if (empty($config)) {
-      $config = $this->config_factory->get(MarketoMaServiceInterface::MARKETO_MA_CONFIG_NAME);
+      $config = $this->configFactory->get(MarketoMaServiceInterface::MARKETO_MA_CONFIG_NAME);
     }
 
     return $config;
@@ -220,7 +220,7 @@ class MarketoMaService implements MarketoMaServiceInterface {
           // Compare the lowercase path alias (if any) and internal path.
           $path = \Drupal::service('path.current')->getPath();
           $path_alias = Unicode::strtolower(\Drupal::service('path.alias_manager')->getAliasByPath($path));
-          $page_match = $this->path_matcher->matchPath($path_alias, $pages) || (($path != $path_alias) && $this->path_matcher->matchPath($path, $pages));
+          $page_match = $this->pathMatcher->matchPath($path_alias, $pages) || (($path != $path_alias) && $this->pathMatcher->matchPath($path, $pages));
           // When $visibility_request_path_mode has a value of 0, the tracking
           // code is displayed on all pages except those listed in $pages. When
           // set to 1, it is displayed only on those pages listed in $pages.
@@ -361,7 +361,7 @@ class MarketoMaService implements MarketoMaServiceInterface {
    *
    */
   public function resetMarketoFields() {
-    $api_fields = $this->api_client->canConnect() ? $this->api_client->getFields() : [];
+    $api_fields = $this->apiClient->canConnect() ? $this->apiClient->getFields() : [];
     foreach ($api_fields as $api_field) {
       $this->fieldset->add($api_field);
     }
@@ -377,19 +377,30 @@ class MarketoMaService implements MarketoMaServiceInterface {
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public function getAvailableFields() {
+    $writableFields = $this->fieldset->getWriteable();
+    if ($enabledFields = $this->config()->get('field.enabled_fields')) {
+      return array_intersect_key($writableFields, $enabledFields);
+    }
+    return $writableFields;
+  }
+
+  /**
    * Gets the private temporary storage for the marketo_ma module.
    *
    * @return \Drupal\user\PrivateTempStore
    */
   protected function temporaryStorage() {
-    return $this->temp_store_factory->get('marketo_ma');
+    return $this->tempStoreFactory->get('marketo_ma');
   }
 
   /**
    * {@inheritdoc}
    */
   public function apiClientCanConnect() {
-    return $this->api_client->canConnect();
+    return $this->apiClient->canConnect();
   }
 
   /**
@@ -398,7 +409,7 @@ class MarketoMaService implements MarketoMaServiceInterface {
    * @return bool
    */
   protected function sessionAvailable() {
-    return ($this->current_user->id() || \Drupal::requestStack()->getCurrentRequest()->getSession());
+    return ($this->currentUser->id() || \Drupal::requestStack()->getCurrentRequest()->getSession());
   }
 
   /**
