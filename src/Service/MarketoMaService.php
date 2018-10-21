@@ -283,11 +283,11 @@ class MarketoMaService implements MarketoMaServiceInterface {
       // Do we need to batch the lead update?
       if (!$this->config()->get('rest.batch_requests')) {
         // Just sync the lead now.
-        $this->updateLeadResult = $this->api_client->syncLead($lead);
+        $this->updateLeadResult = $this->apiClient->syncLead($lead);
       }
       else {
         // Queue up the lead sync.
-        $this->queue_factory->get('marketo_ma_lead')->createItem($lead);
+        $this->queueFactory->get('marketo_ma_lead')->createItem($lead);
       }
 
       $this->resetUserData();
