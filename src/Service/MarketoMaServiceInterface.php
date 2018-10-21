@@ -2,6 +2,8 @@
 
 namespace Drupal\marketo_ma\Service;
 
+use Drupal\marketo_ma\Lead;
+
 /**
  * Service interface for the `marketo_ma` worker service.
  *
@@ -96,7 +98,20 @@ interface MarketoMaServiceInterface {
    *
    * @return $this
    */
-  public function updateLead($lead);
+  public function updateLead(Lead $lead);
+
+
+  /**
+   * Posts a form
+   *
+   * @param \Drupal\marketo_ma\Lead $lead
+   *   The lead.
+   * @param $formid
+   *   Marketo Form ID.
+   *
+   * @return
+   */
+  public function postForm(Lead $lead, $formid);
 
   /**
    * Get's fields that are defined in marketo.
@@ -122,6 +137,8 @@ interface MarketoMaServiceInterface {
 
   /**
    * Retrieves and caches lead fields from Marketo.
+   *
+   * @return $this
    */
   public function resetMarketoFields();
 

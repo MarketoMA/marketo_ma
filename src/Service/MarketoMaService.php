@@ -11,6 +11,7 @@ use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\State\StateInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\marketo_ma\FieldDefinitionSet;
+use Drupal\marketo_ma\Lead;
 use Drupal\user\PrivateTempStoreFactory;
 
 /**
@@ -277,7 +278,7 @@ class MarketoMaService implements MarketoMaServiceInterface {
   /**
    * {@inheritdoc}
    */
-  public function updateLead($lead) {
+  public function updateLead(Lead $lead) {
     // Get the tracking method.
     if ($this->trackingMethod() === MarketoMaServiceInterface::TRACKING_METHOD_API) {
       // Do we need to batch the lead update?
@@ -299,6 +300,20 @@ class MarketoMaService implements MarketoMaServiceInterface {
 
     return $this;
   }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function postForm(Lead $lead, $formid) {
+    $url = 'https://' . $this->config()->get('instance_host') . '/index.php/leadCapture/save2';
+    $data = $lead->data() + [
+      'formid' => $formid,
+      'formVid' => $formid,
+      'munchkinId' => $this->config()->get('munchkin.account_id'),
+    ];
+    \Drupal::httpClient()->post($url, ['form_params' => $data]);
+  }
+
 
   /**
    * {@inheritdoc}

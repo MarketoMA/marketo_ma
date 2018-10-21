@@ -267,7 +267,6 @@ class MarketoMASettings extends ConfigFormBase {
     $form['api_tab']['group_rest']['rest_client_id'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Client Id'),
-      '#description' => $this->t('The client id for your rest api user.'),
       '#default_value' => $this->decrypt($config->get('rest.client_id')),
       '#states' => [
         'required' => [':input[name=tracking_method]' => ['value' => 'api_client']],
@@ -277,7 +276,6 @@ class MarketoMASettings extends ConfigFormBase {
     $form['api_tab']['group_rest']['rest_client_secret'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Client Secret'),
-      '#description' => $this->t('The client secret for your rest api user.'),
       '#default_value' => $this->decrypt($config->get('rest.client_secret')),
       '#states' => [
         'required' => [':input[name=tracking_method]' => ['value' => 'api_client']],
@@ -289,14 +287,6 @@ class MarketoMASettings extends ConfigFormBase {
       '#title' => $this->t('Batch API transactions'),
       '#description' => $this->t('Will queue activity and send data to Marketo when cron runs.'),
       '#default_value' => $config->get('rest.batch_requests'),
-    ];
-
-    // Build the headers.
-    $header = [
-      $this->t('Marketo ID'),
-      $this->t('Display name'),
-      $this->t('REST key'),
-      $this->t('Munchkin key'),
     ];
 
     // Only show the enabled options unless retrieving from marketo.

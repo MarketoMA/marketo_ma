@@ -103,6 +103,12 @@ class MarketoMaWebformHandler extends WebformHandlerBase {
       return sprintf('%s (%d)', $marketo_field['displayName'], $marketo_field['id']);
     }, (array) $this->marketoMaService->getAvailableFields());
 
+    $form['formid'] = [
+      '#type' => 'textfield',
+      '#textfield' => 'Specify this to use Forms2',
+      '#default_value' => $this->configuration['formid'],
+    ];
+
     $form['marketo_ma_mapping'] = [
       '#type' => 'webform_mapping',
       '#title' => $this->t('Webform to Marketo MA Lead mapping'),
@@ -134,7 +140,12 @@ class MarketoMaWebformHandler extends WebformHandlerBase {
     $is_completed = ($webform_submission->getState() == WebformSubmissionInterface::STATE_COMPLETED);
     if ($is_completed) {
       $lead = $this->getLead($webform_submission);
-      $this->marketoMaService->updateLead($lead);
+      if (isset($this->configuration['formid'])) {
+        $this->marketoMaService->postForm($lead, $this->configuration['formid']);
+      }
+      else {
+        $this->marketoMaService->updateLead($lead);
+      }
       $result = $this->marketoMaService->getUpdateLeadResult();
       // Log message in Drupal's log.
       $context = [
@@ -166,8 +177,7 @@ class MarketoMaWebformHandler extends WebformHandlerBase {
     // Get available Marketo fields.
     $marketo_ma_available_fields = $this->marketoMaService->getAvailableFields();
     // Assemble lead data.
-    $configuration = $this->configuration['marketo_ma_mapping'];
-    foreach ($configuration as $webform_field => $marketo_field) {
+    foreach ($this->configuration['marketo_ma_mapping'] as $webform_field => $marketo_field) {
       $id = $marketo_field[$marketo_field]['id'];
       if (isset($marketo_ma_available_fields[$id])) {
         $lead_data[$marketo_field] = $webform_submission[$webform_field];

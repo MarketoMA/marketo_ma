@@ -2,6 +2,9 @@ webform.handler.marketo_ma:
   type: mapping
   label: 'Action'
   mapping:
+    formid:
+      label: 'Marketo Form ID'
+      type: string
     marketo_ma_mapping:
       label: 'Webform fields to Marketo fields mapping'
       type: sequence
