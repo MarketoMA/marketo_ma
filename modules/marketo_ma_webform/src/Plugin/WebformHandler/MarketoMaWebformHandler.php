@@ -174,15 +174,7 @@ class MarketoMaWebformHandler extends WebformHandlerBase {
     $webform_submission = $webform_submission->toArray(TRUE);
     $webform_submission = $webform_submission['data'] + $webform_submission;
     unset($webform_submission['data']);
-    // Get available Marketo fields.
-    $marketo_ma_available_fields = $this->marketoMaService->getAvailableFields();
-    // Assemble lead data.
-    foreach ($this->configuration['marketo_ma_mapping'] as $webform_field => $marketo_field) {
-      $id = $marketo_field[$marketo_field]['id'];
-      if (isset($marketo_ma_available_fields[$id])) {
-        $lead_data[$marketo_field] = $webform_submission[$webform_field];
-      }
-    }
+    $lead_data = array_intersect_key($webform_submission, $this->configuration['marketo_ma_mapping']);
     // Build and return lead.
     $lead = new Lead($lead_data);
     return $lead;
