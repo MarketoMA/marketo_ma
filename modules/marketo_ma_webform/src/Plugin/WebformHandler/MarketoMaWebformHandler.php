@@ -36,7 +36,16 @@ class MarketoMaWebformHandler extends WebformHandlerBase {
   protected $marketoMaService;
 
   /**
-   * {@inheritdoc}
+   * MarketoMaWebformHandler constructor.
+   *
+   * @param array $configuration
+   * @param $plugin_id
+   * @param $plugin_definition
+   * @param \Drupal\Core\Logger\LoggerChannelFactoryInterface $logger_factory
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
+   * @param \Drupal\webform\WebformSubmissionConditionsValidatorInterface $conditions_validator
+   * @param \Drupal\marketo_ma\Service\MarketoMaServiceInterface $marketo_ma_service
    */
   public function __construct(array $configuration, $plugin_id, $plugin_definition, LoggerChannelFactoryInterface $logger_factory, ConfigFactoryInterface $config_factory, EntityTypeManagerInterface $entity_type_manager, WebformSubmissionConditionsValidatorInterface $conditions_validator, MarketoMaServiceInterface $marketo_ma_service) {
     parent::__construct($configuration, $plugin_id, $plugin_definition, $logger_factory, $config_factory, $entity_type_manager, $conditions_validator);
@@ -84,24 +93,22 @@ class MarketoMaWebformHandler extends WebformHandlerBase {
   public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
     $webform = $this->getWebform();
     // Assemble webform mapping source fields.
-    $map_sources = [];
+    $mapSources = [];
     $elements = $this->webform->getElementsDecoded();
     foreach (Element::children($elements) as $key) {
       if (empty($elements[$key]['#title'])) {
         continue;
       }
-      $map_sources[$key] = $elements[$key]['#title'];
+      $mapSources[$key] = $elements[$key]['#title'];
     }
-    /** @var \Drupal\webform\WebformSubmissionStorageInterface $submission_storage */
-    $submission_storage = \Drupal::entityTypeManager()->getStorage('webform_submission');
-    $field_definitions = $submission_storage->getFieldDefinitions();
-    $field_definitions = $submission_storage->checkFieldDefinitionAccess($webform, $field_definitions);
-    foreach ($field_definitions as $key => $field_definition) {
-      $map_sources[$key] = $field_definition['title'] . ' (type : ' . $field_definition['type'] . ')';
-    }
-    $marketo_field_options = array_map(function ($marketo_field) {
-      return sprintf('%s (%d)', $marketo_field['displayName'], $marketo_field['id']);
-    }, (array) $this->marketoMaService->getAvailableFields());
+    $fieldDefinitions = \Drupal::service('entity_field.manager')->getFieldDefinitions(self::WEBFORM_SUBMISSION, $webform->id());
+    $fieldDefinitions = $this->submissionStorage->checkFieldDefinitionAccess($webform, $fieldDefinitions);
+    $mapSources += array_map(function ($fieldDefinition) {
+      return sprintf('%s (type: %s)', $fieldDefinition['title'], $fieldDefinition['type']);;
+    }, $fieldDefinitions);
+    $marketoFieldOptions = array_map(function ($marketoField) {
+      return sprintf('%s (%d)', $marketoField['displayName'], $marketoField['id']);
+    }, $this->marketoMaService->getAvailableFields());
 
     $form['formid'] = [
       '#type' => 'textfield',
@@ -115,9 +122,9 @@ class MarketoMaWebformHandler extends WebformHandlerBase {
       '#description' => $this->t('Only Maps with specified "Marketo MA Lead Field" will be submitted to Marketo.'),
       '#source__title' => t('Webform Submitted Data'),
       '#destination__title' => t('Marketo MA Lead Field'),
-      '#source' => $map_sources,
+      '#source' => $mapSources,
       '#destination__type' => 'webform_select_other',
-      '#destination' => $marketo_field_options,
+      '#destination' => $marketoFieldOptions,
       '#default_value' => $this->configuration['marketo_ma_mapping'],
     ];
 
