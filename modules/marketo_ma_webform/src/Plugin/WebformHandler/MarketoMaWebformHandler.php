@@ -101,7 +101,7 @@ class MarketoMaWebformHandler extends WebformHandlerBase {
       }
       $mapSources[$key] = $elements[$key]['#title'];
     }
-    $fieldDefinitions = \Drupal::service('entity_field.manager')->getFieldDefinitions(self::WEBFORM_SUBMISSION, $webform->id());
+    $fieldDefinitions = \Drupal::service('entity_field.manager')->getFieldDefinitions('webform_submission', $webform->id());
     $fieldDefinitions = $this->submissionStorage->checkFieldDefinitionAccess($webform, $fieldDefinitions);
     $mapSources += array_map(function ($fieldDefinition) {
       return sprintf('%s (type: %s)', $fieldDefinition['title'], $fieldDefinition['type']);;

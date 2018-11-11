@@ -28,6 +28,7 @@ function marketo_ma_webform_theme() {
  * Implements hook_migrate_MIGRATION_ID_prepare_row().
  */
 function marketo_ma_webform_migrate_upgrade_d7_webform_prepare_row(Row $row, D7Webform $source, MigrationInterface $migration) {
+  static $map = [];
   $nid = $row->getSourceProperty('nid');
   try {
     $results = $source->getDatabase()->query('SELECT options, form_key, marketo_ma_key FROM {marketo_ma_webform} INNER JOIN {marketo_ma_webform_component} USING(nid) INNER JOIN {webform_component} USING(nid,cid) WHERE nid = :nid', [':nid' => $nid]);
@@ -36,12 +37,18 @@ function marketo_ma_webform_migrate_upgrade_d7_webform_prepare_row(Row $row, D7W
     return;
   }
   $settings = [];
+  if (!$map) {
+    // D7 didn't have REST support so map from SOAP to REST.
+    foreach (\Drupal::service('marketo_ma')->getAvailableFields() as $restField => $data) {
+      $map[$data['soapName']] = $restField;
+    }
+  }
   foreach ($results->fetchAll(\PDO::FETCH_ASSOC) as $result) {
     if (!isset($settings['formid'])) {
       $options = unserialize($result['options']);
       $settings['formid'] = $options['formid'];
     }
-    $settings['marketo_ma_mapping'][$result['form_key']] = $result['marketo_ma_key'];
+    $settings['marketo_ma_mapping'][$result['form_key']] = $map[$result['marketo_ma_key']];
   }
   $handlers = $row->getSourceProperty('handlers');
   $handlers['marketo_ma'] = [
