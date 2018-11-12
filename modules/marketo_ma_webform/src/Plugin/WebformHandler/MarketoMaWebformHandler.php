@@ -2,6 +2,7 @@
 
 namespace Drupal\marketo_ma_webform\Plugin\WebformHandler;
 
+use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\webform\Plugin\WebformHandlerBase;
 use Drupal\marketo_ma\Service\MarketoMaServiceInterface;
 use Drupal\marketo_ma\Lead;
@@ -102,18 +103,22 @@ class MarketoMaWebformHandler extends WebformHandlerBase {
       $mapSources[$key] = $elements[$key]['#title'];
     }
     $fieldDefinitions = \Drupal::service('entity_field.manager')->getFieldDefinitions('webform_submission', $webform->id());
+    /** @var \Drupal\Core\Field\FieldDefinitionInterface[] $fieldDefinitions */
     $fieldDefinitions = $this->submissionStorage->checkFieldDefinitionAccess($webform, $fieldDefinitions);
-    $mapSources += array_map(function ($fieldDefinition) {
-      return sprintf('%s (type: %s)', $fieldDefinition['title'], $fieldDefinition['type']);;
-    }, $fieldDefinitions);
+    foreach ($fieldDefinitions as $fieldName => $fieldDefinition) {
+      if (!$fieldDefinition instanceof BaseFieldDefinition) {
+        $mapSources[$fieldName] = sprintf('%s (type: %s)', $fieldDefinition->getLabel(), $fieldDefinition->getType());
+      }
+    }
     $marketoFieldOptions = array_map(function ($marketoField) {
       return sprintf('%s (%d)', $marketoField['displayName'], $marketoField['id']);
     }, $this->marketoMaService->getAvailableFields());
 
     $form['formid'] = [
       '#type' => 'textfield',
-      '#textfield' => 'Specify this to use Forms2',
-      '#default_value' => $this->configuration['formid'],
+      '#title' => t('Form ID'),
+      '#description' => 'Specify this to use Forms2',
+      '#default_value' => $this->configuration['formid'] ?? '',
     ];
 
     $form['marketo_ma_mapping'] = [
