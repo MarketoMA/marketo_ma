@@ -7,6 +7,8 @@
  * @todo: Implement these alter hooks.
  */
 
+use Drupal\marketo_ma\Lead;
+
 /**
  * @addtogroup hooks
  * @{
@@ -25,9 +27,9 @@
  *
  * @see marketo_ma_add_lead()
  */
-function hook_marketo_ma_lead_alter(&$data) {
+function hook_marketo_ma_lead_alter(Lead $lead) {
   // Set or update the lead source for this lead.
-  $data['data']['LeadSource'] = 'Foo';
+  $lead->set('LeadSource', 'Foo');
 }
 
 /**

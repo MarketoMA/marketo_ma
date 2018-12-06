@@ -153,11 +153,9 @@ class MarketoMaWebformHandler extends WebformHandlerBase {
     if ($is_completed) {
       $lead = $this->getLead($webform_submission);
       if (isset($this->configuration['formid'])) {
-        $this->marketoMaService->postForm($lead, $this->configuration['formid']);
+        $lead->setFormId($this->configuration['formid']);
       }
-      else {
-        $this->marketoMaService->updateLead($lead);
-      }
+      $this->marketoMaService->updateLead($lead);
       $result = $this->marketoMaService->getUpdateLeadResult();
       // Log message in Drupal's log.
       $context = [

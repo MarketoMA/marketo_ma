@@ -4,6 +4,7 @@ namespace Drupal\marketo_ma\Service;
 
 use Drupal\Component\Utility\Unicode;
 use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Path\PathMatcherInterface;
 use Drupal\Core\Queue\QueueFactory;
 use Drupal\Core\Routing\RouteMatchInterface;
@@ -86,6 +87,11 @@ class MarketoMaService implements MarketoMaServiceInterface {
   protected $state;
 
   /**
+   * @var \Drupal\Core\Extension\ModuleHandlerInterface
+   */
+  protected $moduleHandler;
+
+  /**
    * Marketo lead fields.
    *
    * @var \Drupal\marketo_ma\FieldDefinitionSet
@@ -120,8 +126,10 @@ class MarketoMaService implements MarketoMaServiceInterface {
    *   The factory for the temp store object.
    * @param \Drupal\Core\State\StateInterface $state
    *   The state key value store.
+   * @param \Drupal\Core\Extension\ModuleHandlerInterface $moduleHandler
+   *   The module handler.
    */
-  public function __construct(ConfigFactoryInterface $config_factory, MarketoMaApiClientInterface $api_client, AccountInterface $current_user, RouteMatchInterface $route_match, PathMatcherInterface $path_matcher, MarketoMaMunchkinInterface $munchkin, QueueFactory $queue_factory, PrivateTempStoreFactory $temp_store_factory, StateInterface $state) {
+  public function __construct(ConfigFactoryInterface $config_factory, MarketoMaApiClientInterface $api_client, AccountInterface $current_user, RouteMatchInterface $route_match, PathMatcherInterface $path_matcher, MarketoMaMunchkinInterface $munchkin, QueueFactory $queue_factory, PrivateTempStoreFactory $temp_store_factory, StateInterface $state, ModuleHandlerInterface $moduleHandler) {
     $this->configFactory = $config_factory;
     $this->apiClient = $api_client;
     $this->currentUser = $current_user;
@@ -131,6 +139,7 @@ class MarketoMaService implements MarketoMaServiceInterface {
     $this->queueFactory = $queue_factory;
     $this->tempStoreFactory = $temp_store_factory;
     $this->state = $state;
+    $this->moduleHandler = $moduleHandler;
     $this->fieldset = new FieldDefinitionSet();
   }
 
@@ -279,8 +288,12 @@ class MarketoMaService implements MarketoMaServiceInterface {
    * {@inheritdoc}
    */
   public function updateLead(Lead $lead) {
+    $this->moduleHandler->alter('marketo_ma_lead', $lead);
     // Get the tracking method.
-    if ($this->trackingMethod() === MarketoMaServiceInterface::TRACKING_METHOD_API) {
+    if ($formid = $lead->getFormId()) {
+      $this->postForm($lead, $formid);
+    }
+    elseif ($this->trackingMethod() === MarketoMaServiceInterface::TRACKING_METHOD_API) {
       // Do we need to batch the lead update?
       if (!$this->config()->get('rest.batch_requests')) {
         // Just sync the lead now.

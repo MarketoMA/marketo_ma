@@ -16,6 +16,8 @@ class Lead {
    */
   protected $data;
 
+  protected $formId;
+
   /**
    * Constructs a \Drupal\marketo_ma\Lead object.
    *
@@ -111,6 +113,23 @@ class Lead {
    */
   public function data() {
     return $this->data;
+  }
+
+  /**
+   * @return mixed
+   */
+  public function getFormId() {
+    return $this->formId;
+  }
+
+  /**
+   * @param mixed $formId
+   *
+   * @return Lead
+   */
+  public function setFormId($formId) {
+    $this->formId = $formId;
+    return $this;
   }
 
 }
