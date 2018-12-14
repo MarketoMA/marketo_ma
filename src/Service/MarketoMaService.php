@@ -12,6 +12,7 @@ use Drupal\Core\State\StateInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\marketo_ma\FieldDefinitionSet;
 use Drupal\user\PrivateTempStoreFactory;
+use \Drupal\marketo_ma\MarketoFieldDefinition;
 
 /**
  * The marketo MA worker service is responsible for most of the work the module
@@ -340,7 +341,12 @@ class MarketoMaService implements MarketoMaServiceInterface {
    * {@inheritdoc}
    */
   public function getMarketoFields() {
-    return $this->fieldset->getAll();
+    $fields = $this->fieldset->getAll();
+    foreach ($fields as &$field) {
+      $field = new MarketoFieldDefinition($field);
+    }
+
+    return $fields;
   }
 
   /**

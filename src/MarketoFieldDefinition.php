@@ -65,7 +65,7 @@ class MarketoFieldDefinition {
    */
   public function getFieldName($tracking_method) {
     $name_key = $tracking_method === MarketoMaServiceInterface::TRACKING_METHOD_MUNCHKIN ? 'soap' : 'rest';
-    return isset($this->definition[$name_key]['name']) ? $this->definition[$name_key]['name'] : NULL;
+    return isset($this->definition[$name_key . 'Name']) ? $this->definition[$name_key . 'Name'] : NULL;
   }
 
   /**
