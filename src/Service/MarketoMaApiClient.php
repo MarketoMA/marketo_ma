@@ -4,6 +4,7 @@ namespace Drupal\marketo_ma\Service;
 
 use CSD\Marketo\Client;
 use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\encryption\EncryptionTrait;
 use Drupal\marketo_ma\Lead;
 use Psr\Log\LoggerInterface;
@@ -156,8 +157,16 @@ class MarketoMaApiClient implements MarketoMaApiClientInterface {
    * {@inheritdoc}
    */
   public function syncLead(Lead $lead, $key = 'email', $options = []) {
+    /** @var ModuleHandlerInterface $module_handler */
+    $module_handler = \Drupal::service('module_handler');
+
+    // Allow for altering of the lead data prior to submission.
+    $lead_data = $lead->data();
+    $module_handler->alter('marketo_ma_lead', $lead_data);
+
     // Add the create/update leads call to do the association.
-    $result = $this->getClient()->createOrUpdateLeads([$lead->data()], $key, $options)->getResult();
+    $result = $this->getClient()->createOrUpdateLeads([$lead_data], $key, $options)->getResult();
+
     return $result;
   }
 
