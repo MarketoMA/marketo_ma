@@ -11,6 +11,7 @@ use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\State\StateInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
+use Drupal\encryption\EncryptionTrait;
 use Drupal\marketo_ma\FieldDefinitionSet;
 use Drupal\marketo_ma\Lead;
 use Drupal\user\PrivateTempStoreFactory;
@@ -22,6 +23,8 @@ use Drupal\user\PrivateTempStoreFactory;
 class MarketoMaService implements MarketoMaServiceInterface {
 
   use StringTranslationTrait;
+  use EncryptionTrait;
+
 
   /**
    * The config factory service.
@@ -327,7 +330,7 @@ class MarketoMaService implements MarketoMaServiceInterface {
     $data = $lead->data() + [
       'formid' => $formid,
       'formVid' => $formid,
-      'munchkinId' => $this->config()->get('munchkin.account_id'),
+      'munchkinId' => $this->decrypt($this->config()->get('munchkin.account_id')),
     ];
     \Drupal::httpClient()->post($url, ['form_params' => $data]);
   }
