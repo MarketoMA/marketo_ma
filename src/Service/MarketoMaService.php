@@ -291,7 +291,12 @@ class MarketoMaService implements MarketoMaServiceInterface {
     $this->moduleHandler->alter('marketo_ma_lead', $lead);
     // Get the tracking method.
     if ($formid = $lead->getFormId()) {
-      $this->postForm($lead, $formid);
+      try {
+        $this->postForm($lead, $formid);
+      }
+      catch (\Exception $e) {
+        \Drupal::logger('marketo_ma')->warning('Unable to communicate with Marketo: {message}', ['message' => $e->getMessage()]);
+      }
     }
     elseif ($this->trackingMethod() === MarketoMaServiceInterface::TRACKING_METHOD_API) {
       // Do we need to batch the lead update?

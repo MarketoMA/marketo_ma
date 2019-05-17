@@ -110,6 +110,8 @@ interface MarketoMaServiceInterface {
    *   Marketo Form ID.
    *
    * @return
+   *
+   * @throws \Exception
    */
   public function postForm(Lead $lead, $formid);
 
