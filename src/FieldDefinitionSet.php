@@ -28,7 +28,7 @@ class FieldDefinitionSet {
       ->fields('f')
       ->orderBy('displayName')
       ->execute()
-      ->fetchAllAssoc('restName', \PDO::FETCH_ASSOC);
+      ->fetchAllAssoc('id', \PDO::FETCH_ASSOC);
     foreach ($this->fieldset as $field_key => $field_value) {
       if ($field_value['restReadOnly'] || $field_value['soapReadOnly']) {
         $this->readonly[] = $field_value['id'];
