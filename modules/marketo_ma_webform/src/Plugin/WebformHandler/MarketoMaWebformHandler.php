@@ -184,7 +184,15 @@ class MarketoMaWebformHandler extends WebformHandlerBase {
     $webform_submission = $webform_submission->toArray(TRUE);
     $webform_submission = $webform_submission['data'] + $webform_submission;
     unset($webform_submission['data']);
-    $lead_data = array_intersect_key($webform_submission, $this->configuration['marketo_ma_mapping']);
+    // The webform mapping uses Marketo field IDs (integers), and the
+    // lead capture endpoint requires SOAP-style names.
+    $fields = $this->marketoMaService->getMarketoFields();
+    $lead_data = [];
+    foreach ($webform_submission as $webform_field_name => $value) {
+      $id = $this->configuration['marketo_ma_mapping'][$webform_field_name];
+      $soap_name = $fields[$id]['soapName'];
+      $lead_data[$soap_name] = $value;
+    }
     // Build and return lead.
     $lead = new Lead($lead_data);
     return $lead;
