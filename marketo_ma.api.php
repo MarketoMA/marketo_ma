@@ -31,6 +31,28 @@ function hook_marketo_ma_lead_alter(&$data) {
 }
 
 /**
+ * This hook is executed after a lead sync operation by the API client.
+ *
+ * @param Drupal\marketo_ma\Service\MarketoMaApiClient $client
+ * @param array|NULL $result
+ * @param Drupal\marketo_ma\Lead $lead
+ * @param $key
+ * @param $options
+ *
+ * @see \Drupal\marketo_ma\Service\MarketoMaApiClient::syncLead()
+ */
+function hook_marketo_ma_lead_post_sync(Drupal\marketo_ma\Service\MarketoMaApiClient $client, $result, Drupal\marketo_ma\Lead $lead, $key, $options) {
+  // Identify the lead id that was synced.
+  if (isset($result[0]) && isset($result[0]['id'])) {
+    $lead_id = $result[0]['id'];
+  }
+  else {
+    // Abort if there was no successful lead ID provided.
+    return;
+  }
+}
+
+/**
  * This hook is executed for a specific FIELDNAME when a lead is added to the
  * queue for submission.
  *
