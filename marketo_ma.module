@@ -114,6 +114,8 @@ function marketo_ma_add_lead($email, $data = array(), $merge = FALSE, $options =
     drupal_alter('marketo_ma_lead_' . $key, $marketo_ma_data[$email]['data'][$key]);
   }
 
+  _marketo_ma_associate_lead($lead);
+
   $_SESSION['marketo_ma_data'] = $marketo_ma_data;
   return TRUE;
 }
@@ -150,12 +152,6 @@ function marketo_ma_page_alter(&$page) {
      */
     // Basic Munchkin tracking.
     _marketo_ma_output_tracking_code();
-
-    foreach ($marketo_ma_data as $lead) {
-      if (array_key_exists('email', $lead)) {
-        _marketo_ma_associate_lead($lead);
-      }
-    }
 
     _marketo_ma_cleanup();
   }
