@@ -114,7 +114,14 @@ function marketo_ma_add_lead($email, $data = array(), $merge = FALSE, $options =
     drupal_alter('marketo_ma_lead_' . $key, $marketo_ma_data[$email]['data'][$key]);
   }
 
-  $_SESSION['marketo_ma_data'] = $marketo_ma_data;
+  // Call associate lead for non inline methods.
+  $tracked = _marketo_ma_associate_lead($marketo_ma_data[$email], FALSE);
+
+
+  // If the user was tracked above then don't set the session data.
+  if (!$tracked) {
+    $_SESSION['marketo_ma_data'] = $marketo_ma_data;
+  }
   return TRUE;
 }
 
@@ -150,7 +157,6 @@ function marketo_ma_page_alter(&$page) {
      */
     // Basic Munchkin tracking.
     _marketo_ma_output_tracking_code();
-
     foreach ($marketo_ma_data as $lead) {
       if (array_key_exists('email', $lead)) {
         _marketo_ma_associate_lead($lead);
@@ -240,32 +246,47 @@ function _marketo_ma_get_munchkin_init_params() {
  *   - options: Array of options to modify the behavior of lead synchronization
  *     - tracking_method: 'default' or a string indicating which method to use
  *     - formid: Required when tracking_method is 'forms2'
+ * @param bool $inline
+ *   If the page is being run on page load and can alter JS.
+ *
+ * @return bool $tracked
+ *   returns TRUE if the lead is tracked.
+ *
  */
-function _marketo_ma_associate_lead($lead) {
+function _marketo_ma_associate_lead($lead, $inline = true) {
   $track = variable_get('marketo_ma_tracking_method');
   if (isset($lead['options']['tracking_method']) && $lead['options']['tracking_method'] != 'default') {
     $track = $lead['options']['tracking_method'];
   }
+  $tracked = FALSE;
   switch ($track) {
     case 'munchkin':
-      _marketo_ma_associate_lead_munchkin($lead);
+      if ($inline) {
+        _marketo_ma_associate_lead_munchkin($lead);
+        $tracked = TRUE;
+      }
       break;
 
     case 'forms2':
       if (isset($lead['options']['formid'])) {
         _marketo_ma_associate_lead_forms2($lead, $lead['options']['formid']);
+        $tracked = TRUE;
       }
       break;
 
     case 'soap_async':
       _marketo_ma_queue_lead($lead);
+      $tracked = TRUE;
       break;
 
     case 'soap':
     default:
       _marketo_ma_associate_lead_soap($lead);
+      $tracked = TRUE;
       break;
   }
+
+  return $tracked;
 }
 
 /**
