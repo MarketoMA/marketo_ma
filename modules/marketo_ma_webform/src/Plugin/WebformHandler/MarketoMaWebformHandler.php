@@ -75,6 +75,7 @@ class MarketoMaWebformHandler extends WebformHandlerBase {
   public function defaultConfiguration() {
     return [
       'marketo_ma_mapping' => [],
+      'marketo_ma_list' => '',
     ];
   }
 
@@ -106,6 +107,13 @@ class MarketoMaWebformHandler extends WebformHandlerBase {
         $marketo_field_options[$k] = $e['displayName'];
       }
     }
+
+    $form['marketo_ma_list'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Marketo List ID'),
+      '#description' => $this->t('Optionally you can add the generated lead into a Marketo List. The List Id can be obtained from the URL of the list in the UI, where the URL will resemble https://app-***.marketo.com/#ST1001A1. In this URL, the id is 1001, it will always be between the first set of letters in the URL and the second set of letters.'),
+      '#default_value' => $this->configuration['marketo_ma_list'],
+    ];
 
     $form['marketo_ma_mapping'] = [
       '#type' => 'webform_mapping',
@@ -151,6 +159,19 @@ class MarketoMaWebformHandler extends WebformHandlerBase {
       else {
         $context['@lead_id'] = $result[0]['id'];
         $this->getLogger()->notice('@form webform synced Marketo MA lead @lead_id', $context);
+
+        if ($this->configuration['marketo_ma_list'] !== '') {
+          $this->marketoMaService->addLeadToListByEmail($lead->getEmail(), $this->configuration['marketo_ma_list']);
+          $result = $this->marketoMaService->getUpdateLeadResult();
+          $this->getLogger()->error('<pre>' . print_r($result, TRUE) .'</pre>');
+          $context['@list_id'] = $this->configuration['marketo_ma_list'];
+          if (!$result) {
+            $this->getLogger()->error('@form webform failed to add Marketo MA lead @lead_id to list @list_id.', $context);
+          }
+          else {
+            $this->getLogger()->notice('@form webform added Marketo MA lead @lead_id to list @list_id.', $context);
+          }
+        }
       }
     }
   }

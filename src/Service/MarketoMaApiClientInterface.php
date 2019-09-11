@@ -99,4 +99,40 @@ interface MarketoMaApiClientInterface {
    */
   public function deleteLead($leads, $args = []);
 
+  /**
+   * Adds an e-mail address to a given list.
+   *
+   * @param int $listId
+   *   The ID of the target list. The List Id can be obtained from the URL of
+   *   he list in the UI, where the URL will resemble
+   *   https://app-***.marketo.com/#ST1001A1. In this URL, the id is 1001, it
+   *   will always be between the first set of letters in the URL and the
+   *   second set of letters.
+   * @param string $email
+   *   The email address of the user that needs to be added to the list.
+   * @param array $options
+   *   Array of additional options to configure lead syncing.
+   *
+   * @return array|null
+   *   An array of response messages (errors) or NULL if the transaction was
+   *   successful.
+   */
+  public function addLeadToListByEmail($listId, $email, array $options = []);
+
+  /**
+   * Adds a given set of leads to a target static list.
+   *
+   * @param string $listId
+   *   The ID of the target list.
+   * @param array $leads
+   *   An array of \Drupal\marketo_ma\Lead objects.
+   * @param array $options
+   *   Array of additional options to configure lead syncing.
+   *
+   * @return array|null
+   *   An array of response messages (errors) or NULL if the transaction was
+   *   successful.
+   */
+  public function addLeadsToList($listId, array $leads, array $options = []);
+
 }

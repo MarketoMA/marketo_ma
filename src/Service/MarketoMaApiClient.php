@@ -4,6 +4,7 @@ namespace Drupal\marketo_ma\Service;
 
 use CSD\Marketo\Client;
 use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Driver\Exception\Exception;
 use Drupal\encryption\EncryptionTrait;
 use Drupal\marketo_ma\Lead;
 use Psr\Log\LoggerInterface;
@@ -166,6 +167,53 @@ class MarketoMaApiClient implements MarketoMaApiClientInterface {
    */
   public function deleteLead($leads, $args = []) {
     return $this->getClient()->deleteLead($leads)->getResult();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function addLeadsToList($listId, array $leads, array $options = []) {
+    $leads_raw = $this->getLeadsIds($leads);
+    $result = $this->getClient()->addLeadsToList($listId, $leads_raw, $options)->getResult();
+    return $result;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function addLeadToListByEmail($listId, $email, array $options = []) {
+    $this->syncLead(new Lead(['email' => $email]));
+    $this->addLeadsToList($listId, [$this->getLeadByEmail($email)], $options);
+  }
+
+  /**
+   * Helper method to transform a list of Leads to a coma separated string.
+   *
+   * @param array $leads
+   *   An array containing \Drupal\marketo_ma\Lead objects.
+   *
+   * @throws \Exception
+   *   In case the given array contains an element which is not a
+   *   \Drupal\marketo_ma\Lead object.
+   *
+   * @return string
+   *   A coma separated list of ids of the given Lead objects.
+   */
+  protected function getLeadsIds(array $leads) {
+    $leads_raw = '';
+    $total_leads = count($leads);
+
+    for ($i = 0; $i < $total_leads; $i++) {
+      if (!is_a($leads[$i], 'Drupal\marketo_ma\Lead')) {
+        throw new \Exception('Only lead objects can be passed to the MarketoMaApiClient::addLeadsToList() method.');
+      }
+      $leads_raw .= $leads[$i]->id();
+      if ($i < count($leads) - 1) {
+        $leads_raw .= ',';
+      }
+    }
+
+    return $leads_raw;
   }
 
 }

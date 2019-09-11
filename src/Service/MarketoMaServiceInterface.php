@@ -1,6 +1,7 @@
 <?php
 
 namespace Drupal\marketo_ma\Service;
+use Drupal\marketo_ma\Lead;
 
 /**
  * Service interface for the `marketo_ma` worker service.
@@ -56,6 +57,29 @@ interface MarketoMaServiceInterface {
    */
   public function trackingMethod();
 
+  /**
+   * Adds a given lead to a given list.
+   *
+   * @param \Drupal\marketo_ma\Lead $lead
+   *   The Lead object.
+   * @param int $listId
+   *   The ID of the list in Marketo.
+   *
+   * @return $this
+   */
+  public function addLeadToList(Lead $lead, $listId);
+
+  /**
+   * Adds a given e-mail address to a list.
+   *
+   * @param string $email
+   *   The e-mail address of the lead.
+   * @param int $listId
+   *   The ID of the list in Marketo.
+   *
+   * @return $this
+   */
+  public function addLeadToListByEmail($email, $listId);
   /**
    * Sets temporary user data for this session.
    *

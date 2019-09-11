@@ -104,6 +104,39 @@ class MarketoMaApiClientTest extends MarketoMaKernelTestBase {
   }
 
   /**
+   * Tests the adding of a lead to a list.
+   */
+  public function testAddLeadsToList() {
+    // Create a new lead.
+    $create_result = $this->_sync_lead();
+
+    // Get the newly synced lead.
+    $lead = $this->api_client->getLeadByEmail($this->test_lead_email);
+
+    // Add the lead to a list.
+    $this->api_client->addLeadsToList('1234', [$lead]);
+
+    // @todo: Add test for validating if the user was actually added.
+    // Clean up and delete the lead.
+    $this->api_client->deleteLead($create_result[0]['id']);
+  }
+
+  /**
+   * Tests the addinf of a lead to a list by a given email address.
+   */
+  public function testAddLeadToListByEmail() {
+    // Add an e-mail address to a list.
+    $this->api_client->addLeadToListByEmail('1234', $this->test_lead_email);
+
+    // Retrieve the created lead from the step above.
+    $lead = $this->api_client->getLeadByEmail($this->test_lead_email);
+
+    // @todo: Add test for validating if the user was actually added.
+    // Clean up and delete the lead.
+    $this->api_client->deleteLead($lead->id());
+  }
+
+  /**
    * @return array the syncLead result.
    */
   private function _sync_lead() {
