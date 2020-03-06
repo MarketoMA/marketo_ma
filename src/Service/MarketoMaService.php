@@ -295,7 +295,7 @@ class MarketoMaService implements MarketoMaServiceInterface {
     // Get the tracking method.
     if ($formid = $lead->getFormId()) {
       try {
-        $this->postForm($lead, $formid);
+        $this->updateLeadResult = $this->postForm($lead, $formid);
       }
       catch (\Exception $e) {
         \Drupal::logger('marketo_ma')->warning('Unable to communicate with Marketo: {message}', ['message' => $e->getMessage()]);
@@ -332,7 +332,9 @@ class MarketoMaService implements MarketoMaServiceInterface {
       'formVid' => $formid,
       'munchkinId' => $this->decrypt($this->config()->get('munchkin.account_id')),
     ];
-    \Drupal::httpClient()->post($url, ['form_params' => $data]);
+    $response = \Drupal::httpClient()->post($url, ['form_params' => $data]);
+    $body = (string) $response->getBody();
+    return $body ? json_decode($body, TRUE) : [];
   }
 
 

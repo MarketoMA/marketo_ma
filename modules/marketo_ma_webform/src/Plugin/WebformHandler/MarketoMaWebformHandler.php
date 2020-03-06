@@ -84,6 +84,7 @@ class MarketoMaWebformHandler extends WebformHandlerBase {
    */
   public function defaultConfiguration() {
     return [
+      'formid' => '',
       'marketo_ma_mapping' => [],
     ];
   }
