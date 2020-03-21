@@ -190,9 +190,11 @@ class MarketoMaWebformHandler extends WebformHandlerBase {
     $fields = $this->marketoMaService->getMarketoFields();
     $lead_data = [];
     foreach ($webform_submission as $webform_field_name => $value) {
-      $id = $this->configuration['marketo_ma_mapping'][$webform_field_name];
-      $soap_name = $fields[$id]['soapName'];
-      $lead_data[$soap_name] = $value;
+      if (isset($this->configuration['marketo_ma_mapping'][$webform_field_name])) {
+        $id = $this->configuration['marketo_ma_mapping'][$webform_field_name];
+        $soap_name = $fields[$id]['soapName'];
+        $lead_data[$soap_name] = $value;
+      }
     }
     // Build and return lead.
     $lead = new Lead($lead_data);
