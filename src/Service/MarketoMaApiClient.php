@@ -4,6 +4,7 @@ namespace Drupal\marketo_ma\Service;
 
 use CSD\Marketo\Client;
 use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\encryption\EncryptionTrait;
 use Drupal\marketo_ma\Lead;
 use Psr\Log\LoggerInterface;
@@ -166,6 +167,22 @@ class MarketoMaApiClient implements MarketoMaApiClientInterface {
    */
   public function deleteLead($leads, $args = []) {
     return $this->getClient()->deleteLead($leads)->getResult();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function syncCustomObject($objectName, $action, $records, $dedupeBy = NULL, $options = []) {
+    /** @var ModuleHandlerInterface $module_handler */
+    $module_handler = \Drupal::service('module_handler');
+
+    // Allow custom object data to be altered before syncing it.
+    $module_handler->alter('marketo_ma_custom_object', $records, $objectName);
+
+    $result = $this->getClient()
+      ->createOrUpdateCustomObjects($objectName, $action, $records, $dedupeBy);
+
+    return $result;
   }
 
 }

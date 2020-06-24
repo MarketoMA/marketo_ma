@@ -31,6 +31,20 @@ function hook_marketo_ma_lead_alter(&$data) {
 }
 
 /**
+ * This hook is executed when a custom object is prepared for submission.
+ *
+ * @param array $records
+ *   An associative array containing mapped custom object data keyed by
+ *   the target marketo field ID.
+ */
+function hook_marketo_ma_custom_object_alter(&$records) {
+  // Identify the site name as the source for each record.
+  foreach ($records as $record) {
+    $record['lead_source'] = 'site name';
+  }
+}
+
+/**
  * This hook is executed for a specific FIELDNAME when a lead is added to the
  * queue for submission.
  *
