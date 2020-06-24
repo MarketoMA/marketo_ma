@@ -99,4 +99,19 @@ interface MarketoMaApiClientInterface {
    */
   public function deleteLead($leads, $args = []);
 
+  /**
+   * Trigger campaign flows by requesting a campaign.
+   *
+   * @param int $campaignId
+   *   The id of the campaign to be triggered.
+   * @param int|array $leads
+   *   Either a single lead ID or an array of lead IDs.
+   * @param array $tokens
+   *   An array of token values to replace during campaign execution.
+   * @param array $args
+   *
+   * @return mixed
+   */
+  public function requestCampaign($campaignId, $leads, $tokens = [], $args = []);
+
 }
